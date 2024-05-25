@@ -23,6 +23,17 @@ namespace cvid
 
 	class Window
 	{
+	public:
+		//Is the data a frame string or properties struct
+		enum DataType { Frame, Properties };
+
+		//Create a new console window with dimensions in console pixels
+		Window(int width, int height, std::string name);
+		~Window();
+
+		//Set the properties of this window
+		bool SetProperties(WindowProperties properties);
+
 	private:
 		//Bitmap accessed [col][row]
 		std::vector<std::vector<byte>> framebuffer;
@@ -32,6 +43,7 @@ namespace cvid
 		WindowProperties properties;
 		short maxWidth;
 		short maxHeight;
+		bool active = true;
 
 		//Callback functions
 		std::function<void(Window*)> onClose;
@@ -39,22 +51,9 @@ namespace cvid
 		//Pipe to send data to the window process
 		std::string pipeName;
 		HANDLE pipe;
-
 		PROCESS_INFORMATION processInfo;
-
-		bool active = true;
-
-	public:
-		//What type of data to send 
-		enum DataType { Frame, Control };
-
-		//Create a new console window with dimensions in console pixels
-		Window(int width, int height, std::string name);
-		~Window();
 
 		//Send some data to the window
 		const bool SendData(const char* data, size_t amount, DataType type);
-		//Set the properties of this window
-		bool SetProperties(WindowProperties properties);
 	};
 }

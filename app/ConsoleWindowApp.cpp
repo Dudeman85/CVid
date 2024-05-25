@@ -68,7 +68,7 @@ int main(int argc, char* argv[])
 			std::cout << buffer;
 			break;
 
-		case cvid::Window::Control:
+		case cvid::Window::Properties:
 			//Get the window properties
 			cvid::WindowProperties properties;
 			memcpy(&properties, buffer + 1, sizeof(properties));

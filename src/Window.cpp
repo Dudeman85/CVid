@@ -122,7 +122,6 @@ namespace cvid
 		}
 
 		//Prefix the data with it's type
-		//TODO: think of a better way to do this
 		char* cdata = new char[amount + 1];
 		cdata[0] = (byte)type;
 		memcpy(cdata + 1, data, amount);
@@ -163,7 +162,7 @@ namespace cvid
 		memcpy(&data, &properties, sizeof(properties));
 
 		//Send it to the console app
-		SendData(data, sizeof(properties), Window::DataType::Control);
+		SendData(data, sizeof(properties), Window::DataType::Properties);
 
 		return true;
 	}

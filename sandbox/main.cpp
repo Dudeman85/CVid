@@ -12,7 +12,7 @@ int main()
 		c++;
 		if (c > 100000000 && !s)
 		{
-			window2->SetProperties({ 241, 127 });
+			window2->SetProperties({ 240, 126 });
 			s = true;
 		}
 		int a = sqrt(3333);
