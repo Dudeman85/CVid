@@ -1,9 +1,15 @@
 #include <iostream>
 #include <windows.h>
+#include <cvid/Window.h>
 #include <cvid/Helpers.h>
 
 int main(int argc, char* argv[])
 {
+	//Get the console handle
+	HANDLE console = GetStdHandle(STD_OUTPUT_HANDLE);
+	//Enable virtual terminal processing
+	SetConsoleMode(console, ENABLE_VIRTUAL_TERMINAL_PROCESSING | ENABLE_PROCESSED_OUTPUT);
+
 	//Make sure we have the name of the pipe
 	if (argc < 2)
 	{
@@ -28,40 +34,19 @@ int main(int argc, char* argv[])
 		return -2;
 	}
 
-	//Read the initial setup data
-	char buffer[128];
-	DWORD numBytesRead = 0;
-	bool readPipeSuccess = ReadFile(
-		pipe,
-		buffer, //The destination for the data from the pipe
-		127 * sizeof(wchar_t), //Attempt to read this many bytes
-		&numBytesRead,
-		NULL //Not using overlapped IO
-	);
+	//Hide the cursor
+	std::cout << "\x1b[?25l";
 
-	//Make sure the read succeeded
-	if (!readPipeSuccess || numBytesRead == 0)
-	{
-		cvid::LogError("CVid error in create window: Failed to read from pipe, error " + std::to_string(GetLastError()));
-		system("pause");
-		return -2;
-	}
-
-	//Null terminate the string
-	buffer[numBytesRead / sizeof(wchar_t)] = '\0';
-	std::cout << "Read " << numBytesRead << " bytes of data.";
-	std::cout << buffer;
-
-	//Display loop
+	//Update loop
 	while (true)
 	{
 		//Read the initial setup data
-		wchar_t buffer[128];
+		char buffer[128];
 		DWORD numBytesRead = 0;
 		bool readPipeSuccess = ReadFile(
 			pipe,
 			buffer, //The destination for the data from the pipe
-			127 * sizeof(wchar_t), //Attempt to read this many bytes
+			127 * sizeof(char), //Attempt to read this many bytes
 			&numBytesRead,
 			NULL //Not using overlapped IO
 		);
@@ -69,13 +54,42 @@ int main(int argc, char* argv[])
 		//Make sure the read succeeded
 		if (!readPipeSuccess || numBytesRead == 0)
 		{
-			cvid::LogError("CVid error in create window: Failed to read from pipe, error " + std::to_string(GetLastError()));
-			system("pause");
+			//If the pipe fails, kill the process
+			cvid::LogWarning("CVid error in update window: Failed to read from pipe, code " + std::to_string(GetLastError()));
 			return -2;
 		}
 
-		//Null terminate the string
-		buffer[numBytesRead / sizeof(wchar_t)] = '\0';
-		std::wcout << buffer;
+		//Check the type of data received
+		switch ((cvid::Window::DataType)buffer[0])
+		{
+		case cvid::Window::Frame:
+			//Echo anything received
+			buffer[numBytesRead / sizeof(char)] = '\0';
+			std::cout << buffer;
+			break;
+
+		case cvid::Window::Control:
+			//Get the window properties
+			cvid::WindowProperties properties;
+			memcpy(&properties, buffer + 1, sizeof(properties));
+
+			//Resize the console to fit the frame
+			SMALL_RECT consoleSize{ 0, 0, properties.width - 1 , (short)ceil((float)properties.height / 2) - 1 };
+			SetConsoleWindowInfo(console, true, &consoleSize);
+			if (!SetConsoleScreenBufferSize(console, { (short)properties.width, (short)ceil((float)properties.height / 2) }))
+			{
+				cvid::LogWarning("Error, code " + std::to_string(GetLastError()));
+				//TODO: Handle error
+				std::cout << properties.width << ", " << properties.height << std::endl;
+			}
+			//SetConsoleWindowInfo has to be called before and after SetConsoleScreenBufferSize othewise Windows has a fit
+			if (!SetConsoleWindowInfo(console, true, &consoleSize))
+			{
+				cvid::LogWarning("Error, code " + std::to_string(GetLastError()));
+				//TODO: Handle error
+				std::cout << consoleSize.Bottom << ", " << consoleSize.Left << std::endl;
+			}
+			break;
+		}
 	}
 }

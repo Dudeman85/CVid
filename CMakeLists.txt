@@ -9,7 +9,7 @@ add_subdirectory("engine")
 include_directories("include")
 
 file(GLOB_RECURSE SOURCE_FILES "./src/*.cpp")
-file(GLOB_RECURSE HEADER_FILES "./include/cvid*.h")
+file(GLOB_RECURSE HEADER_FILES "./include/cvid/*.h")
 
 add_library(CVid ${SOURCE_FILES} ${HEADER_FILES})
 
