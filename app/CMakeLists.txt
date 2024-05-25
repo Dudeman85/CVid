@@ -1,0 +1,2 @@
+add_executable(ConsoleWindowApp ConsoleWindowApp.cpp)
+target_link_libraries(ConsoleWindowApp CVid)

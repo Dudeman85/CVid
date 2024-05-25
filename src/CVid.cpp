@@ -9,7 +9,7 @@
 
 using namespace std;
 using byte = unsigned char;
-
+/*
 //Convenient Argparser functions
 char* GetOption(char** argv, int argc, const string& option, const string& altName = "")
 {
@@ -230,3 +230,4 @@ int main(int argc, char* argv[])
 	SetConsoleCursorInfo(console, &cursorInfo);
 	return 0;
 }
+*/
