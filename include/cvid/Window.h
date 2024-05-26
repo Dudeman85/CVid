@@ -18,14 +18,15 @@ namespace cvid
 		uint16_t height;
 	};
 
+	//Is the data a frame string or properties struct
+	enum DataType { Frame, Properties };
+
 	//How many windows have ever been created
 	static int numWindowsCreated = 0;
 
 	class Window
 	{
 	public:
-		//Is the data a frame string or properties struct
-		enum DataType { Frame, Properties };
 
 		//Create a new console window with dimensions in console pixels
 		Window(int width, int height, std::string name);

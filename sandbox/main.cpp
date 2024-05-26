@@ -118,9 +118,6 @@ int main(int argc, char* argv[])
 	//Make the window
 	cvid::Window window = cvid::Window(properties.width, properties.height, "CVid");
 
-	//Play the audio if provided
-	//PlaySoundA((LPCSTR)(videoName + ".wav").c_str(), NULL, SND_FILENAME | SND_ASYNC);
-
 	//Calculate the time to wait between frames
 	auto waitTime = chrono::microseconds((int)((1.f / properties.fps) * 1000000));
 	unsigned int dataIndex = 0;
@@ -171,9 +168,9 @@ int main(int argc, char* argv[])
 		}
 
 		//Draw the frame
-		window.SendData(frameString.c_str(), frameString.size(), cvid::Window::DataType::Frame);
+		window.SendData(frameString.c_str(), frameString.size(), cvid::DataType::Frame);
 		//Move the cursor to 0, 0
-		window.SendData("\x1b[0;0H", 7, cvid::Window::DataType::Frame);
+		window.SendData("\x1b[0;0H", 7, cvid::DataType::Frame);
 
 		//Keep a steady FPS regardless of processing time
 		while (true)

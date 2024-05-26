@@ -96,7 +96,7 @@ namespace cvid
 	}
 
 	//Send data to the window
-	const bool Window::SendData(const char* data, size_t amount, Window::DataType type)
+	const bool Window::SendData(const char* data, size_t amount, DataType type)
 	{
 		if (!active)
 			return false;
@@ -162,7 +162,7 @@ namespace cvid
 		memcpy(&data, &properties, sizeof(properties));
 
 		//Send it to the console app
-		SendData(data, sizeof(properties), Window::DataType::Properties);
+		SendData(data, sizeof(properties), DataType::Properties);
 
 		return true;
 	}
