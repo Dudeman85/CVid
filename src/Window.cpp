@@ -24,7 +24,7 @@ namespace cvid
 			PIPE_ACCESS_OUTBOUND,
 			PIPE_TYPE_MESSAGE | PIPE_READMODE_BYTE | PIPE_WAIT,
 			1, //Max instances
-			4096, //Output buffer size 
+			8192, //Output buffer size 
 			0, //Input buffer size
 			50, //Time out in ms
 			NULL //Security attributes

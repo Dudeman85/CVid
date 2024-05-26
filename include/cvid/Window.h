@@ -34,6 +34,8 @@ namespace cvid
 		//Set the properties of this window
 		bool SetProperties(WindowProperties properties);
 
+		//Send some arbitrary data to the window
+		const bool SendData(const char* data, size_t amount, DataType type);
 	private:
 		//Bitmap accessed [col][row]
 		std::vector<std::vector<byte>> framebuffer;
@@ -52,8 +54,5 @@ namespace cvid
 		std::string pipeName;
 		HANDLE pipe;
 		PROCESS_INFORMATION processInfo;
-
-		//Send some data to the window
-		const bool SendData(const char* data, size_t amount, DataType type);
 	};
 }
