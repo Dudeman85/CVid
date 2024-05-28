@@ -20,7 +20,7 @@ target_include_directories(CVid PUBLIC
 
 target_link_libraries(CVid engine)
 
-add_subdirectory("sandbox")
+add_subdirectory("sandboxes")
 add_subdirectory("app")
 
 file(COPY "app/ConsoleWindowApp.exe" DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/sandbox)
