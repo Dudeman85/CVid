@@ -1,151 +1,197 @@
 #pragma once
 #include <string>
 #include <cmath>
-#include <glm/glm.hpp>
-const double PI = 3.14159265;
+
+constexpr double PI = 3.14159265;
+constexpr double comparisonPrecision = 0.0001f;
 
 ///Radians to degrees
-float Degrees(float radians);
+double Degrees(double radians);
 
 ///Degrees to radians
-float Radians(float degrees);
-
-constexpr float comparisonPrecision = 0.0001f;
+double Radians(double degrees);
 
 class Vector3;
+class Vector3Int;
 
-///Two floats in one
+//Two 64-bit ints in one
+class Vector2Int
+{
+public:
+	//Constructors
+	Vector2Int();
+	Vector2Int(uint64_t all);
+	Vector2Int(uint64_t x, uint64_t y);
+
+	//Indexing
+	uint64_t& operator[](int i);
+
+	//Comparison
+	bool operator==(const Vector2Int& rhs) const;
+	bool operator!=(const Vector2Int& rhs) const;
+
+	//Add
+	Vector2Int operator+(const uint64_t& add) const;
+	Vector2Int operator+(const Vector2Int& add) const;
+	Vector2Int& operator+=(const Vector2Int& add);
+	//Subtract
+	Vector2Int operator-(const uint64_t& sub) const;
+	Vector2Int operator-(const Vector2Int& sub) const;
+	Vector2Int& operator-=(const Vector2Int& sub);
+	//Multiply
+	Vector2Int operator*(const uint64_t& mult) const;
+	Vector2Int operator*(const Vector2Int& mult) const;
+	Vector2Int& operator*=(const uint64_t& mult);
+	Vector2Int& operator*=(const Vector2Int& mult);
+	//Divide
+	Vector2Int operator/(const uint64_t& div) const;
+	Vector2Int operator/(const Vector2Int& div) const;
+	Vector2Int& operator/=(const uint64_t& div);
+
+	//Return a string of this vector in format "(x, y)"
+	std::string ToString() const;
+
+	uint64_t x, y;
+};
+
+//Two doubles in one
 class Vector2
 {
 public:
 	//Constructors
 	Vector2();
-	Vector2(float all);
-	Vector2(float _x, float _y);
+	Vector2(double all);
+	Vector2(double x, double y);
 	Vector2(Vector3 vec3);
 
 	//Indexing
-	float& operator[](int i);
+	double& operator[](int i);
 
 	//Comparison
-	bool operator==(const Vector2& rhs);
+	bool operator==(const Vector2& rhs) const;
+	bool operator!=(const Vector2& rhs) const;
 
 	//Add
-	Vector2 operator+(const float& add) const;
+	Vector2 operator+(const double& add) const;
 	Vector2 operator+(const Vector2& add) const;
 	Vector2& operator+=(const Vector2& add);
 	//Subtract
-	Vector2 operator-(const float& sub) const;
+	Vector2 operator-(const double& sub) const;
 	Vector2 operator-(const Vector2& sub) const;
 	Vector2& operator-=(const Vector2& sub);
 	//Multiply
-	// TODO: Replace use of "float" as templated type
-	Vector2 operator*(const float& mult) const;
+	Vector2 operator*(const double& mult) const;
 	Vector2 operator*(const Vector2& mult) const;
-	Vector2& operator*=(const float& mult);
+	Vector2& operator*=(const double& mult);
 	Vector2& operator*=(const Vector2& mult);
 	//Divide
-	Vector2 operator/(const float& div) const;
+	Vector2 operator/(const double& div) const;
 	Vector2 operator/(const Vector2& div) const;
-	Vector2& operator/=(const float& div);
+	Vector2& operator/=(const double& div);
 
-	float Length() const; // TODO: Add templated return type
-	Vector2 Normalize();
+	//Get the length of this vector
+	double Length() const;
+	//Returns a normalized version of this vector with a lenght of 1
+	Vector2 Normalize() const;
+	//Returns the left handed normal vector to this vector
 	Vector2 LeftNormal() const;
+	//Returns the right handed normal vector to this vector
 	Vector2 RightNormal() const;
-	float Dot(const Vector2& b) const;
+	//Dot product of this vector and vector b
+	double Dot(const Vector2& b) const;
 
+	//Return a string of this vector in format "(x, y)"
 	std::string ToString() const;
 
-	// TODO: Replace "float" as "double"
-	float x, y;
+	double x, y;
 };
 
-///Three floats in one
+//Three doubles in one
 class Vector3
 {
 public:
 	//Constructors
 	Vector3();
-	Vector3(glm::vec3 vec);
-	Vector3(float all);
-	Vector3(float _x, float _y, float _z);
-	Vector3(Vector2 vec2, float _z = 0);
+	Vector3(double all);
+	Vector3(double x, double y, double z);
+	Vector3(Vector2 vec2, double z = 0);
 
 	//Indexing
-	float& operator[](int i);
-	const float& operator[](int i) const;
+	double& operator[](int i);
+	const double& operator[](int i) const;
 
 	//Comparison
-	bool operator==(const Vector3& rhs);
-	bool operator!=(const Vector3& rhs);
+	bool operator==(const Vector3& rhs) const;
+	bool operator!=(const Vector3& rhs) const;
 
 	//Add
-	Vector3 operator+(const float& add) const;
+	Vector3 operator+(const double& add) const;
 	Vector3 operator+(const Vector3& add) const;
 	Vector3& operator+=(const Vector3& add);
 	//Subtract
-	Vector3 operator-(const float& sub) const;
+	Vector3 operator-(const double& sub) const;
 	Vector3 operator-(const Vector3& sub) const;
 	Vector3& operator-=(const Vector3& sub);
 	//Multiply
-	Vector3 operator*(const float& mult) const;
+	Vector3 operator*(const double& mult) const;
 	Vector3 operator*(const Vector3& mult) const;
-	Vector3& operator*=(const float& mult);
+	Vector3& operator*=(const double& mult);
 	//Divide
-	Vector3 operator/(const float& div) const;
+	Vector3 operator/(const double& div) const;
 	Vector3 operator/(const Vector3& div) const;
-	Vector3& operator/=(const float& div);
+	Vector3& operator/=(const double& div);
 
-	float Length() const;
-	Vector3 Normalize();
-	Vector3 Pow(float power);
-	float Dot(Vector3 b) const;
+	//Get the length of this vector
+	double Length() const;
+	//Returns a normalized version of this vector with a lenght of 1
+	Vector3 Normalize() const;
+	//Dot product of this vector and vector b
+	double Dot(Vector3 b) const;
+	//Cross product of this vector and vector b
 	Vector3 Cross(Vector3 b) const;
 
-	//Comvert to a glm vec3
-	glm::vec3 ToGlm() const;
-
+	//Return a string of this vector in format "(x, y, z)"
 	std::string ToString() const;
 
-	float x, y, z;
+	double x, y, z;
 };
 
-///Four floats in one
+//Four doubles in one
 class Vector4
 {
 public:
 	//Constructors
 	Vector4();
-	Vector4(float all);
-	Vector4(float _x, float _y, float _z, float _w);
+	Vector4(double all);
+	Vector4(double _x, double _y, double _z, double _w);
 
 	//Indexing
-	float& operator[](int i);
-	const float& operator[](int i) const;
+	double& operator[](int i);
+	const double& operator[](int i) const;
 
 	//Comparison
-	bool operator==(const Vector4& rhs);
-	bool operator!=(const Vector4& rhs);
+	bool operator==(const Vector4& rhs) const;
+	bool operator!=(const Vector4& rhs) const;
 
 	//Add
-	Vector4 operator+(const float& add);
-	Vector4 operator+(const Vector4& add);
+	Vector4 operator+(const double& add) const;
+	Vector4 operator+(const Vector4& add) const;
 	Vector4& operator+=(const Vector4& add);
 	//Subtract
-	Vector4 operator-(const float& sub);
-	Vector4 operator-(const Vector4& sub);
+	Vector4 operator-(const double& sub) const;
+	Vector4 operator-(const Vector4& sub) const;
 	Vector4& operator-=(const Vector4& sub);
 	//Multiply
-	Vector4 operator*(const float& mult);
-	Vector4 operator*(const Vector4& mult);
-	Vector4& operator*=(const float& mult);
+	Vector4 operator*(const double& mult) const;
+	Vector4 operator*(const Vector4& mult) const;
+	Vector4& operator*=(const double& mult);
 	//Divide
-	Vector4 operator/(const float& div);
-	Vector4 operator/(const Vector4& div);
-	Vector4& operator/=(const float& div);
+	Vector4 operator/(const double& div) const;
+	Vector4 operator/(const Vector4& div) const;
+	Vector4& operator/=(const double& div);
 
+	//Return a string of this vector in format "(x, y, z, w)"
 	std::string ToString();
 
-	float x, y, z, w;
+	double x, y, z, w;
 };

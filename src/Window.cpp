@@ -16,6 +16,11 @@ namespace cvid
 		maxWidth = GetLargestConsoleWindowSize(console).X;
 		maxHeight = GetLargestConsoleWindowSize(console).Y * 2;
 
+		//Size the framebuffer
+		framebuffer.reserve(maxWidth);
+		for (auto& col : framebuffer)
+			col.reserve(maxHeight);
+
 		//Create the pipe to the new console process
 		unsigned int id = std::this_thread::get_id()._Get_underlying_id();
 		pipeName = std::format("\\\\.\\pipe\\process{}window{}", id, numWindowsCreated);
@@ -95,8 +100,81 @@ namespace cvid
 		CloseHandle(pipe);
 	}
 
-	//Send data to the window
-	const bool Window::SendData(const char* data, size_t amount, DataType type)
+	//Set a pixel on the framebuffer to some color, returns true on success
+	bool Window::PutPixel(int x, int y, Color color)
+	{
+		if (x >= properties.width || y >= properties.height)
+		{
+			LogWarning("CVid warning in PutPixel: Position out of range");
+			return false;
+		}
+
+		framebuffer[x][y] = color;
+
+		return true;
+	}
+
+	//Set the properties of this window
+	bool Window::SetProperties(WindowProperties properties)
+	{
+		//Make sure the window is not sized too big
+		if (properties.width > maxWidth || properties.height > maxHeight)
+		{
+			LogWarning("CVid warning in Window: Window dimensions too large, maximum is " + std::to_string(maxWidth) + ", " + std::to_string(maxHeight));
+			return false;
+		}
+
+		this->properties = properties;
+
+		//Get the properties struct into binary form
+		char data[sizeof(properties)];
+		memcpy(&data, &properties, sizeof(properties));
+
+		//Send it to the console app
+		SendData(data, sizeof(properties), DataType::Properties);
+
+		return true;
+	}
+
+	//Draw the current framebuffer
+	bool Window::DrawFrame()
+	{
+		/*
+		Pixels are formatted two above each other in one character
+		When the pixels are different we will always print 220 where background is the top and foreground is the bottom.
+		When they differ we will print 219 where foreground will be the color.
+		*/
+
+		//Format (8 bytes): \x1b[<color>m<char>
+		std::string displayFrame;
+		displayFrame.reserve((size_t)8 * properties.width * properties.height / 2);
+
+		//For every pixel in the framebuffer
+		for (size_t x = 0; x < properties.width; x++)
+		{
+			for (size_t y = 0; y < properties.height; y += 2)
+			{
+				std::string pixelString;
+				//If the upper and lower pixel are the same we use a combined character
+				if (framebuffer[x][y] == framebuffer[x][y + 1])
+				{
+
+				}
+				else
+				{
+					pixelString = std::format("\x1b[{}{}m{}", (int)framebuffer[x][y], (int)framebuffer[x][y + 1], (char)220);
+				}
+
+				//Add the proper vts to the displayFrame
+				displayFrame.append(pixelString);
+			}
+		}
+
+		return true;
+	}
+
+	//Send data to the window process
+	bool Window::SendData(const char* data, size_t amount, DataType type)
 	{
 		if (!active)
 			return false;
@@ -142,28 +220,6 @@ namespace cvid
 			LogWarning("CVid warning in Window: Failed to send data to window, code " + std::to_string(GetLastError()));
 			return false;
 		}
-		return true;
-	}
-
-	//Set the properties of this window
-	bool Window::SetProperties(WindowProperties properties)
-	{
-		//Make sure the window is not sized too big
-		if (properties.width > maxWidth || properties.height > maxHeight)
-		{
-			LogWarning("CVid warning in Window: Window dimensions too large, maximum is " + std::to_string(maxWidth) + ", " + std::to_string(maxHeight));
-			return false;
-		}
-
-		this->properties = properties;
-
-		//Get the properties struct into binary form
-		char data[sizeof(properties)];
-		memcpy(&data, &properties, sizeof(properties));
-
-		//Send it to the console app
-		SendData(data, sizeof(properties), DataType::Properties);
-
 		return true;
 	}
 }
