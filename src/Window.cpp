@@ -23,6 +23,7 @@ namespace cvid
 			col.resize(height);
 			for (auto& row : col)
 			{
+				//Initialize the framebuffer to all black
 				row = Color::Black;
 			}
 		}
@@ -97,13 +98,7 @@ namespace cvid
 
 	Window::~Window()
 	{
-		//Terminate the window process
-		TerminateProcess(processInfo.hProcess, 0);
-
-		//Close all handles. 
-		CloseHandle(processInfo.hProcess);
-		CloseHandle(processInfo.hThread);
-		CloseHandle(pipe);
+		CloseWindow();
 	}
 
 	//Set a pixel on the framebuffer to some color, returns true on success
@@ -118,6 +113,18 @@ namespace cvid
 		framebuffer[x][y] = color;
 
 		return true;
+	}
+
+	//Fills the framebuffer with a color
+	bool Window::Fill(Color color)
+	{
+		for (auto& col : framebuffer)
+		{
+			for (auto& row : col)
+			{
+				row = color;
+			}
+		}
 	}
 
 	//Set the properties of this window
@@ -191,20 +198,9 @@ namespace cvid
 
 		//Make sure the window is still active
 		DWORD code;
-		GetExitCodeProcess(processInfo.hProcess, &code);
-		if (code != STILL_ACTIVE)
+		if (!IsAlive(&code))
 		{
 			LogWarning("CVid warning in Window: Window exited unexpectedly, code " + std::to_string(code));
-
-			//Close all handles. 
-			CloseHandle(processInfo.hProcess);
-			CloseHandle(processInfo.hThread);
-			CloseHandle(pipe);
-
-			//Call onClose if applicable
-			if (onClose)
-				onClose(this);
-			active = false;
 
 			return false;
 		}
@@ -230,5 +226,39 @@ namespace cvid
 			return false;
 		}
 		return true;
+	}
+
+	//Closes the window process
+	void Window::CloseWindow()
+	{
+		//Close all handles. 
+		CloseHandle(processInfo.hProcess);
+		CloseHandle(processInfo.hThread);
+		CloseHandle(pipe);
+
+		//Call onClose if applicable
+		if (onClose)
+			onClose(this);
+
+		active = false;
+	}
+
+	//Return true if the window process is still active
+	bool Window::IsAlive(DWORD* exitCode = nullptr)
+	{
+		if (active)
+		{
+			DWORD code;
+			GetExitCodeProcess(processInfo.hProcess, &code);
+			//If not alive close the handles
+			if (code != STILL_ACTIVE)
+			{
+				CloseWindow();
+			}
+			if (exitCode)
+				*exitCode = code;
+		}
+
+		return active;
 	}
 }

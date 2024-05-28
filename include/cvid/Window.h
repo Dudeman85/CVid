@@ -43,12 +43,18 @@ namespace cvid
 
 		//Set a pixel on the framebuffer to some color, returns true on success
 		bool PutPixel(int x, int y, Color color);
+		//Fills the framebuffer with color
+		bool Fill(Color color);
 		//Set the properties of this window, returns true on success
 		bool SetProperties(WindowProperties properties);
 		//Draw the current framebuffer
 		bool DrawFrame();
 		//Send some arbitrary data to the window, returns true on success
 		bool SendData(const char* data, size_t amount, DataType type);
+		//Closes the window process
+		void CloseWindow();
+		//Return true if the window process is still active
+		bool IsAlive(DWORD* code = nullptr);
 
 		//Function to call when the window closes
 		std::function<void(Window*)> onClose;

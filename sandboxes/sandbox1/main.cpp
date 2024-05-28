@@ -86,9 +86,7 @@ int main(int argc, char* argv[])
 	}
 	else
 	{
-		//Ask directly
-		cout << "Enter the name of the video to play: ";
-		cin >> videoName;
+		videoName = "vids/badapple";
 	}
 
 	//ASCII characters to draw pixels with, each character has an upper and lower pixel
