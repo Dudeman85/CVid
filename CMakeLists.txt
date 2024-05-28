@@ -23,4 +23,7 @@ target_link_libraries(CVid engine)
 add_subdirectory("sandboxes")
 add_subdirectory("app")
 
-file(COPY "app/ConsoleWindowApp.exe" DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/sandbox)
+file(COPY "app/ConsoleWindowApp.exe" DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/sandboxes/sandbox1)
+file(COPY "app/ConsoleWindowApp.exe" DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/sandboxes/sandbox2)
+file(COPY "app/ConsoleWindowApp.exe" DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/sandboxes/sandbox3)
+file(COPY "app/ConsoleWindowApp.exe" DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/sandboxes/sandbox4)

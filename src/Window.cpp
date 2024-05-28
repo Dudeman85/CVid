@@ -17,9 +17,15 @@ namespace cvid
 		maxHeight = GetLargestConsoleWindowSize(console).Y * 2;
 
 		//Size the framebuffer
-		framebuffer.reserve(maxWidth);
+		framebuffer.resize(width);
 		for (auto& col : framebuffer)
-			col.reserve(maxHeight);
+		{
+			col.resize(height);
+			for (auto& row : col)
+			{
+				row = Color::Black;
+			}
+		}
 
 		//Create the pipe to the new console process
 		unsigned int id = std::this_thread::get_id()._Get_underlying_id();
@@ -29,7 +35,7 @@ namespace cvid
 			PIPE_ACCESS_OUTBOUND,
 			PIPE_TYPE_MESSAGE | PIPE_READMODE_BYTE | PIPE_WAIT,
 			1, //Max instances
-			8192, //Output buffer size 
+			16386, //Output buffer size 
 			0, //Input buffer size
 			50, //Time out in ms
 			NULL //Security attributes
@@ -141,7 +147,7 @@ namespace cvid
 	{
 		/*
 		Pixels are formatted two above each other in one character
-		When the pixels are different we will always print 220 where background is the top and foreground is the bottom.
+		When the pixels are different we will always print 223 where foreground is the top and background is the bottom.
 		When they differ we will print 219 where foreground will be the color.
 		*/
 
@@ -149,20 +155,24 @@ namespace cvid
 		std::string displayFrame;
 		displayFrame.reserve((size_t)8 * properties.width * properties.height / 2);
 
+		//Cursor to 0, 0
+		displayFrame.append("\x1b[0;0H");
+
 		//For every pixel in the framebuffer
-		for (size_t x = 0; x < properties.width; x++)
+		for (size_t y = 0; y < properties.height; y += 2)
 		{
-			for (size_t y = 0; y < properties.height; y += 2)
+			for (size_t x = 0; x < properties.width; x++)
 			{
 				std::string pixelString;
-				//If the upper and lower pixel are the same we use a combined character
 				if (framebuffer[x][y] == framebuffer[x][y + 1])
 				{
-
+					//If the upper and lower pixel are the same we print 219
+					pixelString = std::format("\x1b[{}m{}", std::to_string(framebuffer[x][y]), (char)219);
 				}
 				else
 				{
-					pixelString = std::format("\x1b[{}{}m{}", (int)framebuffer[x][y], (int)framebuffer[x][y + 1], (char)220);
+					//If the upper and lower pixel are different same we print 223
+					pixelString = std::format("\x1b[{};{}m{}", std::to_string(framebuffer[x][y]), std::to_string(framebuffer[x][y + 1] + 10), (char)223);
 				}
 
 				//Add the proper vts to the displayFrame
@@ -170,7 +180,7 @@ namespace cvid
 			}
 		}
 
-		return true;
+		return SendData(displayFrame.c_str(), displayFrame.length(), DataType::String);
 	}
 
 	//Send data to the window process
@@ -201,11 +211,10 @@ namespace cvid
 
 		//Prefix the data with it's type
 		char* cdata = new char[amount + 1];
-		cdata[0] = (byte)type;
+		cdata[0] = (char)type;
 		memcpy(cdata + 1, data, amount);
 
 		//Send the data
-		DWORD numBytesWritten = 0;
 		bool sendSuccess = WriteFile(
 			pipe,
 			cdata,

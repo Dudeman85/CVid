@@ -2,6 +2,7 @@
 #include <vector>
 #include <string>
 #include <functional>
+#include <unordered_map>
 #include <windows.h>
 #include <cvid/math/Vector.h>
 
@@ -20,13 +21,13 @@ namespace cvid
 	};
 
 	//Is the data a frame string or properties struct
-	enum DataType { Frame, Properties };
-	//Color names for the Windows console
+	enum DataType { String = 1, Properties = 2 };
+	//Color names for the Windows virtual terminal sequences, background is +10
 	enum Color
 	{
-		Black = 0, Blue = 1, Green = 2, Aqua = 3, Red = 4, Purple = 5, Yellow = 6,
-		White = 7, Gray = 8, LightBlue = 9, LightGreen = 10, LightAqua = 11,
-		LightRed = 12, LightPurple = 13, LightYellow = 14, BrightWhite = 16
+		Black = 30, Red = 31, Green = 32, Yellow = 33, Blue = 34, Magenta = 35, Cyan = 36, White = 37,
+		BrightBlack = 90, BrightRed = 91, BrightGreen = 92, BrightYellow = 93, 
+		BrightBlue = 94, BrightMagenta = 95, BrightCyan = 96, BrightWhite = 97
 	};
 
 	//How many windows have ever been created

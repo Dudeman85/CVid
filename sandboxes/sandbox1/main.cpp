@@ -168,9 +168,9 @@ int main(int argc, char* argv[])
 		}
 
 		//Draw the frame
-		window.SendData(frameString.c_str(), frameString.size(), cvid::DataType::Frame);
+		window.SendData(frameString.c_str(), frameString.size(), cvid::DataType::String);
 		//Move the cursor to 0, 0
-		window.SendData("\x1b[0;0H", 7, cvid::DataType::Frame);
+		window.SendData("\x1b[0;0H", 7, cvid::DataType::String);
 
 		//Keep a steady FPS regardless of processing time
 		while (true)

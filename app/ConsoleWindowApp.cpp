@@ -41,12 +41,12 @@ int main(int argc, char* argv[])
 	while (true)
 	{
 		//Read the initial setup data
-		char buffer[8193];
+		char buffer[16386];
 		DWORD numBytesRead = 0;
 		bool readPipeSuccess = ReadFile(
 			pipe,
 			buffer, //The destination for the data from the pipe
-			8192 * sizeof(char), //Attempt to read this many bytes
+			16386 * sizeof(char), //Attempt to read this many bytes
 			&numBytesRead,
 			NULL //Not using overlapped IO
 		);
@@ -60,15 +60,15 @@ int main(int argc, char* argv[])
 		}
 
 		//Check the type of data received
-		switch ((cvid::Window::DataType)buffer[0])
+		switch ((cvid::DataType)buffer[0])
 		{
-		case cvid::Window::Frame:
+		case cvid::DataType::String:
 			//Echo anything received
 			buffer[numBytesRead / sizeof(char)] = '\0';
 			std::cout << buffer+1;
 			break;
 
-		case cvid::Window::Properties:
+		case cvid::DataType::Properties:
 			//Get the window properties
 			cvid::WindowProperties properties;
 			memcpy(&properties, buffer + 1, sizeof(properties));
