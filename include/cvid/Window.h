@@ -32,11 +32,13 @@ namespace cvid
 		Window(int width, int height, std::string name);
 		~Window();
 
-		//Set the properties of this window
+		//Set the properties of this window, returns true on success
 		bool SetProperties(WindowProperties properties);
-
-		//Send some arbitrary data to the window
+		//Send some arbitrary data to the window, returns true on success
 		const bool SendData(const char* data, size_t amount, DataType type);
+		//Set a pixel on the framebuffer to some color, returns true on success
+		bool PutPixel();
+
 	private:
 		//Bitmap accessed [col][row]
 		std::vector<std::vector<byte>> framebuffer;

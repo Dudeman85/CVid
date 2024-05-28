@@ -148,7 +148,7 @@ namespace cvid
 	//Set the properties of this window
 	bool Window::SetProperties(WindowProperties properties)
 	{
-		//Make sure the window is to sized too big
+		//Make sure the window is not sized too big
 		if (properties.width > maxWidth || properties.height > maxHeight)
 		{
 			LogWarning("CVid warning in Window: Window dimensions too large, maximum is " + std::to_string(maxWidth) + ", " + std::to_string(maxHeight));
