@@ -29,8 +29,8 @@ namespace cvid
 		}
 
 		//Create the pipe to the new console process
-		unsigned int id = std::this_thread::get_id()._Get_underlying_id();
-		pipeName = std::format("\\\\.\\pipe\\process{}window{}", id, numWindowsCreated);
+		unsigned int pid = std::this_thread::get_id()._Get_underlying_id();
+		pipeName = std::format("\\\\.\\pipe\\process{}window{}", pid, numWindowsCreated);
 		pipe = CreateNamedPipeA(
 			pipeName.c_str(),
 			PIPE_ACCESS_OUTBOUND,

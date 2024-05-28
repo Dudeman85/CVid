@@ -6,9 +6,14 @@
 int main(int argc, char* argv[])
 {
 	//Get the console handle
-	HANDLE console = GetStdHandle(STD_OUTPUT_HANDLE);
+	HANDLE consoleOut = GetStdHandle(STD_OUTPUT_HANDLE);
+	HANDLE consoleIn = GetStdHandle(STD_INPUT_HANDLE);
 	//Enable virtual terminal processing
-	SetConsoleMode(console, ENABLE_VIRTUAL_TERMINAL_PROCESSING | ENABLE_PROCESSED_OUTPUT);
+	SetConsoleMode(consoleOut, ENABLE_VIRTUAL_TERMINAL_PROCESSING | ENABLE_PROCESSED_OUTPUT);
+	//Disable quick edit
+	DWORD mode = 0;
+	GetConsoleMode(consoleIn, &mode);
+	SetConsoleMode(consoleIn, mode & ~ENABLE_QUICK_EDIT_MODE);
 
 	//Make sure we have the name of the pipe
 	if (argc < 2)
@@ -75,15 +80,15 @@ int main(int argc, char* argv[])
 
 			//Resize the console to fit the frame
 			SMALL_RECT consoleSize{ 0, 0, properties.width - 1 , (short)ceil((float)properties.height / 2) - 1 };
-			SetConsoleWindowInfo(console, true, &consoleSize);
-			if (!SetConsoleScreenBufferSize(console, { (short)properties.width, (short)ceil((float)properties.height / 2) }))
+			SetConsoleWindowInfo(consoleOut, true, &consoleSize);
+			if (!SetConsoleScreenBufferSize(consoleOut, { (short)properties.width, (short)ceil((float)properties.height / 2) }))
 			{
 				cvid::LogWarning("Error, code " + std::to_string(GetLastError()));
 				//TODO: Handle error
 				std::cout << properties.width << ", " << properties.height << std::endl;
 			}
 			//SetConsoleWindowInfo has to be called before and after SetConsoleScreenBufferSize othewise Windows has a fit
-			if (!SetConsoleWindowInfo(console, true, &consoleSize))
+			if (!SetConsoleWindowInfo(consoleOut, true, &consoleSize))
 			{
 				cvid::LogWarning("Error, code " + std::to_string(GetLastError()));
 				//TODO: Handle error

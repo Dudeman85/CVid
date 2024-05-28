@@ -18,11 +18,18 @@ namespace cvid
 	//Is the data a frame string or properties struct
 	enum DataType { String = 1, Properties = 2 };
 	//Color names for the Windows virtual terminal sequences, background is +10
-	enum Color
+	enum Color : uint8_t
 	{
 		Black = 30, Red = 31, Green = 32, Yellow = 33, Blue = 34, Magenta = 35, Cyan = 36, White = 37,
 		BrightBlack = 90, BrightRed = 91, BrightGreen = 92, BrightYellow = 93, 
 		BrightBlue = 94, BrightMagenta = 95, BrightCyan = 96, BrightWhite = 97
+	};
+
+	struct CharPixel
+	{
+		Color foregroundColor;
+		Color backgroundColor;
+		char character;
 	};
 
 	//How many windows have ever been created
