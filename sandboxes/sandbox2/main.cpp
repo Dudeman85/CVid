@@ -1,16 +1,7 @@
-#include <cvid/Window.h>
 #include <format>
 #include <thread>
-
-cvid::Color RandomColor()
-{
-	int color = rand() % 16;
-	if (color > 7)
-		color += 82;
-	else
-		color += 30;
-	return (cvid::Color)color;
-}
+#include <cvid/Window.h>
+#include <cvid/Helpers.h>
 
 int main()
 {
@@ -25,7 +16,7 @@ int main()
 		int x = rand() % 60;
 		int y = rand() % 60;
 
-		window.PutPixel(x, y, RandomColor());
+		window.PutPixel(x, y, cvid::RandomColor());
 
 		std::this_thread::sleep_for(std::chrono::milliseconds(10));
 		window.DrawFrame();

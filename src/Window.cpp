@@ -125,6 +125,7 @@ namespace cvid
 				row = color;
 			}
 		}
+		return true;
 	}
 
 	//Set the properties of this window
@@ -158,7 +159,7 @@ namespace cvid
 		When they differ we will print 219 where foreground will be the color.
 		*/
 
-		//Format (8 bytes): \x1b[<color>m<char>
+		//Format: \x1b[<fg color>;<bg color>m<char>
 		std::string displayFrame;
 		displayFrame.reserve((size_t)8 * properties.width * properties.height / 2);
 
@@ -193,7 +194,7 @@ namespace cvid
 	//Send data to the window process
 	bool Window::SendData(const char* data, size_t amount, DataType type)
 	{
-		if (!active)
+		if (!alive)
 			return false;
 
 		//Make sure the window is still active
@@ -240,13 +241,13 @@ namespace cvid
 		if (onClose)
 			onClose(this);
 
-		active = false;
+		alive = false;
 	}
 
 	//Return true if the window process is still active
-	bool Window::IsAlive(DWORD* exitCode = nullptr)
+	bool Window::IsAlive(DWORD* exitCode)
 	{
-		if (active)
+		if (alive)
 		{
 			DWORD code;
 			GetExitCodeProcess(processInfo.hProcess, &code);
@@ -259,6 +260,6 @@ namespace cvid
 				*exitCode = code;
 		}
 
-		return active;
+		return alive;
 	}
 }

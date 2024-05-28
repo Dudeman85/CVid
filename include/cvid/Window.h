@@ -8,11 +8,6 @@
 
 namespace cvid
 {
-	constexpr int windowMaxWidth = 200;
-	constexpr int windowMaxHeight = 200;
-
-	using byte = unsigned char;
-
 	//Properties of the console window which cannot be controlled by vts
 	struct WindowProperties
 	{
@@ -36,25 +31,24 @@ namespace cvid
 	class Window
 	{
 	public:
-
 		//Create a new console window with dimensions in console pixels
 		Window(int width, int height, std::string name);
 		~Window();
 
-		//Set a pixel on the framebuffer to some color, returns true on success
+		//Set a pixel on the framebuffer to some color
 		bool PutPixel(int x, int y, Color color);
-		//Fills the framebuffer with color
+		//Fills the framebuffer with a color
 		bool Fill(Color color);
-		//Set the properties of this window, returns true on success
+		//Set the properties of this window
 		bool SetProperties(WindowProperties properties);
 		//Draw the current framebuffer
 		bool DrawFrame();
-		//Send some arbitrary data to the window, returns true on success
+		//Send some arbitrary data to the window
 		bool SendData(const char* data, size_t amount, DataType type);
 		//Closes the window process
 		void CloseWindow();
-		//Return true if the window process is still active
-		bool IsAlive(DWORD* code = nullptr);
+		//Return true if the window process is still active, optionally gives back exit code
+		bool IsAlive(DWORD* exitCode = nullptr);
 
 		//Function to call when the window closes
 		std::function<void(Window*)> onClose;
@@ -66,7 +60,7 @@ namespace cvid
 		//Window properties
 		std::string name;
 		WindowProperties properties;
-		bool active = true;
+		bool alive = true;
 
 		short maxWidth;
 		short maxHeight;

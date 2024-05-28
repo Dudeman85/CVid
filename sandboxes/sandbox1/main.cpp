@@ -2,31 +2,9 @@
 #include <fstream>
 #include <chrono>
 #include <cvid/Window.h>
+#include <cvid/Helpers.h>
 
 using namespace std;
-
-//Convenient Argparser functions
-char* GetOption(char** argv, int argc, const string& option, const string& altName = "")
-{
-	//Find the option 
-	char** itr = std::find(argv, argv + argc, option);
-	if (itr == argv + argc)
-		itr = std::find(argv, argv + argc, altName);
-
-	//Make sure the arg after the option is valid
-	if (itr != argv + argc && ++itr != argv + argc)
-		return *itr;
-
-	return 0;
-}
-bool OptionExists(char** argv, int argc, const string& option, const string& altName = "")
-{
-	//Check both normal and alt names
-	bool exists = std::find(argv, argv + argc, option) != argv + argc;
-	if (altName != "")
-		exists |= std::find(argv, argv + argc, altName) != argv + argc;
-	return exists;
-}
 
 struct VideoProperties
 {
@@ -78,16 +56,7 @@ vector<cvid::byte> LoadData(const string& path, VideoProperties* properties)
 int main(int argc, char* argv[])
 {
 	//Get the video name
-	string videoName;
-	if (OptionExists(argv, argc, "-v", "--video"))
-	{
-		//From command line args
-		videoName = GetOption(argv, argc, "-v", "--video");
-	}
-	else
-	{
-		videoName = "vids/badapple";
-	}
+	string videoName = "vids/badapple";
 
 	//ASCII characters to draw pixels with, each character has an upper and lower pixel
 	char* characters = new char[4];
@@ -96,25 +65,14 @@ int main(int argc, char* argv[])
 	characters[1] = (char)223; //Top
 	characters[2] = (char)220; //Bottom
 	characters[3] = (char)219; //Both
-	//Load from command line if option was given
-	if (OptionExists(argv, argc, "-c", "--charset"))
-	{
-		//Load from command line args
-		char* charset = GetOption(argv, argc, "-c", "--charset");
-		if (strlen(charset) >= 3)
-		{
-			characters[1] = charset[0]; //Top
-			characters[2] = charset[1]; //Bottom
-			characters[3] = charset[2]; //Both
-		}
-	}
 
 	//Load the video data from file
 	VideoProperties properties;
 	vector<cvid::byte> videoData = LoadData(videoName + ".cvid", &properties);
 
 	//Make the window
-	cvid::Window window = cvid::Window(properties.width, properties.height, "CVid");
+	cvid::Window window(properties.width, properties.height, "Bad Apple");
+	cvid::Window window2(60, 60, "Color Test");
 
 	//Calculate the time to wait between frames
 	auto waitTime = chrono::microseconds((int)((1.f / properties.fps) * 1000000));
@@ -169,6 +127,12 @@ int main(int argc, char* argv[])
 		window.SendData(frameString.c_str(), frameString.size(), cvid::DataType::String);
 		//Move the cursor to 0, 0
 		window.SendData("\x1b[0;0H", 7, cvid::DataType::String);
+
+		//Put a random pixel on window2
+		int x = rand() % 60;
+		int y = rand() % 60;
+		window2.PutPixel(x, y, cvid::RandomColor());
+		window2.DrawFrame();
 
 		//Keep a steady FPS regardless of processing time
 		while (true)
