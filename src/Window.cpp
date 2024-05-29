@@ -6,27 +6,20 @@
 namespace cvid
 {
 	//Create a new console window
-	Window::Window(int width, int height, std::string name)
+	Window::Window(uint16_t width, uint16_t height, std::string name)
 	{
+		//Round height to upper multiple of 2
+		height += height % 2;
 		//Setup some basic variables
-		this->properties.width = width;
-		this->properties.height = height;
+		this->width = width;
+		this->height = height;
 		this->name = name;
 		HANDLE console = GetStdHandle(STD_OUTPUT_HANDLE);
 		maxWidth = GetLargestConsoleWindowSize(console).X;
 		maxHeight = GetLargestConsoleWindowSize(console).Y * 2;
 
 		//Size the framebuffer
-		framebuffer.resize(width);
-		for (auto& col : framebuffer)
-		{
-			col.resize(height);
-			for (auto& row : col)
-			{
-				//Initialize the framebuffer to all black
-				row = Color::Black;
-			}
-		}
+		framebuffer = new CharPixel[width * (height / 2)];
 
 		//Create the pipe to the new console process
 		unsigned int pid = std::this_thread::get_id()._Get_underlying_id();
@@ -102,15 +95,41 @@ namespace cvid
 	}
 
 	//Set a pixel on the framebuffer to some color, returns true on success
-	bool Window::PutPixel(int x, int y, Color color)
+	bool Window::PutPixel(uint16_t x, uint16_t y, Color color)
 	{
-		if (x >= properties.width || y >= properties.height)
+		//Make sure the pixel is in bounds
+		if (x >= width || y >= height)
 		{
 			LogWarning("CVid warning in PutPixel: Position out of range");
 			return false;
 		}
 
-		framebuffer[x][y] = color;
+		//Pixels are formatted two above each other in one character
+		//We will always print 223 where foreground is the top and background is the bottom.
+		CharPixel& thisPixel = framebuffer[(y / 2) * width + x];
+
+		//Set le pixel character
+		thisPixel.character = (char)223;
+		//Top or bottom pixel
+		if (y % 2 == 1)
+			thisPixel.foregroundColor = color;
+		else
+			thisPixel.backgroundColor = color;
+
+		return true;
+	}
+
+	//Set a character on the framebuffer, y is half of resolution
+	bool Window::PutChar(uint16_t x, uint16_t y, CharPixel charPixel)
+	{
+		//Make sure the pixel is in bounds
+		if (x >= width || y >= height / 2)
+		{
+			LogWarning("CVid warning in PutPixel: Position out of range");
+			return false;
+		}
+
+		framebuffer[y * width + x] = charPixel;
 
 		return true;
 	}
@@ -118,11 +137,12 @@ namespace cvid
 	//Fills the framebuffer with a color
 	bool Window::Fill(Color color)
 	{
-		for (auto& col : framebuffer)
+		CharPixel charPixel{ color, color, (char)223 };
+		for (size_t y = 0; y < height / 2; y++)
 		{
-			for (auto& row : col)
+			for (size_t x = 0; x < width; x++)
 			{
-				row = color;
+				framebuffer[y * width + x] = charPixel;
 			}
 		}
 		return true;
@@ -138,14 +158,11 @@ namespace cvid
 			return false;
 		}
 
-		this->properties = properties;
-
-		//Get the properties struct into binary form
-		char data[sizeof(properties)];
-		memcpy(&data, &properties, sizeof(properties));
+		width = properties.width;
+		height = properties.height;
 
 		//Send it to the console app
-		SendData(data, sizeof(properties), DataType::Properties);
+		SendData(&properties, sizeof(properties), DataType::Properties);
 
 		return true;
 	}
@@ -153,46 +170,13 @@ namespace cvid
 	//Draw the current framebuffer
 	bool Window::DrawFrame()
 	{
-		/*
-		Pixels are formatted two above each other in one character
-		When the pixels are different we will always print 223 where foreground is the top and background is the bottom.
-		When they differ we will print 219 where foreground will be the color.
-		*/
+		size_t frameSize = (size_t)width * (height / 2);
 
-		//Format: \x1b[<fg color>;<bg color>m<char>
-		std::string displayFrame;
-		displayFrame.reserve((size_t)8 * properties.width * properties.height / 2);
-
-		//Cursor to 0, 0
-		displayFrame.append("\x1b[0;0H");
-
-		//For every pixel in the framebuffer
-		for (size_t y = 0; y < properties.height; y += 2)
-		{
-			for (size_t x = 0; x < properties.width; x++)
-			{
-				std::string pixelString;
-				if (framebuffer[x][y] == framebuffer[x][y + 1])
-				{
-					//If the upper and lower pixel are the same we print 219
-					pixelString = std::format("\x1b[{}m{}", std::to_string(framebuffer[x][y]), (char)219);
-				}
-				else
-				{
-					//If the upper and lower pixel are different same we print 223
-					pixelString = std::format("\x1b[{};{}m{}", std::to_string(framebuffer[x][y]), std::to_string(framebuffer[x][y + 1] + 10), (char)223);
-				}
-
-				//Add the proper vts to the displayFrame
-				displayFrame.append(pixelString);
-			}
-		}
-
-		return SendData(displayFrame.c_str(), displayFrame.length(), DataType::String);
+		return SendData(framebuffer, frameSize * sizeof(CharPixel), DataType::Frame);
 	}
 
 	//Send data to the window process
-	bool Window::SendData(const char* data, size_t amount, DataType type)
+	bool Window::SendData(void* data, size_t amount, DataType type)
 	{
 		if (!alive)
 			return false;

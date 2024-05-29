@@ -16,7 +16,7 @@ namespace cvid
 	};
 
 	//Is the data a frame string or properties struct
-	enum DataType { String = 1, Properties = 2 };
+	enum DataType { String = 1, Properties = 2, Frame = 3 };
 	//Color names for the Windows virtual terminal sequences, background is +10
 	enum Color : uint8_t
 	{
@@ -27,9 +27,9 @@ namespace cvid
 
 	struct CharPixel
 	{
-		Color foregroundColor;
-		Color backgroundColor;
-		char character;
+		Color foregroundColor = Black;
+		Color backgroundColor = Black;
+		char character = (char)223;
 	};
 
 	//How many windows have ever been created
@@ -39,11 +39,13 @@ namespace cvid
 	{
 	public:
 		//Create a new console window with dimensions in console pixels
-		Window(int width, int height, std::string name);
+		Window(uint16_t width, uint16_t height, std::string name);
 		~Window();
 
 		//Set a pixel on the framebuffer to some color
-		bool PutPixel(int x, int y, Color color);
+		bool PutPixel(uint16_t x, uint16_t y, Color color);
+		//Set a character on the framebuffer, y is half of resolution
+		bool PutChar(uint16_t x, uint16_t y, CharPixel charPixel);
 		//Fills the framebuffer with a color
 		bool Fill(Color color);
 		//Set the properties of this window
@@ -51,7 +53,7 @@ namespace cvid
 		//Draw the current framebuffer
 		bool DrawFrame();
 		//Send some arbitrary data to the window
-		bool SendData(const char* data, size_t amount, DataType type);
+		bool SendData(void* data, size_t amount, DataType type);
 		//Closes the window process
 		void CloseWindow();
 		//Return true if the window process is still active, optionally gives back exit code
@@ -61,16 +63,18 @@ namespace cvid
 		std::function<void(Window*)> onClose;
 
 	private:
-		//Bitmap accessed [col][row]
-		std::vector<std::vector<Color>> framebuffer;
+		//Bitmap accessed [y * width + x]
+		CharPixel* framebuffer;
 
 		//Window properties
 		std::string name;
-		WindowProperties properties;
+		uint16_t width;
+		uint16_t height;
 		bool alive = true;
 
-		short maxWidth;
-		short maxHeight;
+		//Maximum window dimensions provided by windows
+		uint16_t maxWidth;
+		uint16_t maxHeight;
 
 		//Pipe to send data to the window process
 		std::string pipeName;
