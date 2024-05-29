@@ -4,7 +4,7 @@
 #include <functional>
 #include <unordered_map>
 #include <windows.h>
-#include <cvid/math/Vector.h>
+#include <cvid/Vector.h>
 
 namespace cvid
 {
@@ -43,9 +43,9 @@ namespace cvid
 		~Window();
 
 		//Set a pixel on the framebuffer to some color
-		bool PutPixel(uint16_t x, uint16_t y, Color color);
-		//Set a character on the framebuffer, y is half of resolution
-		bool PutChar(uint16_t x, uint16_t y, CharPixel charPixel);
+		bool PutPixel(int x, int y, Color color);
+		//Put a character on the framebuffer, in this case y is half
+		bool PutChar(int x, int y, CharPixel charPixel);
 		//Fills the framebuffer with a color
 		bool Fill(Color color);
 		//Set the properties of this window
@@ -53,7 +53,7 @@ namespace cvid
 		//Draw the current framebuffer
 		bool DrawFrame();
 		//Send some arbitrary data to the window
-		bool SendData(void* data, size_t amount, DataType type);
+		bool SendData(const void* data, size_t amount, DataType type);
 		//Closes the window process
 		void CloseWindow();
 		//Return true if the window process is still active, optionally gives back exit code

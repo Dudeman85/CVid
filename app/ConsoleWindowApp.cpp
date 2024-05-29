@@ -113,7 +113,7 @@ int main(int argc, char* argv[])
 			{
 				for (size_t x = 0; x < width; x++)
 				{
-					cvid::CharPixel& thisPixel = pixelData[y * width + x + 1];
+					cvid::CharPixel& thisPixel = pixelData[y * width + x];
 
 					//Add the proper vts to the displayFrame
 					//Format: \x1b[<fg color>;<bg color>m<char>

@@ -1,6 +1,6 @@
 #include <stdexcept>
 #include <format>
-#include <cvid/math/Vector.h>
+#include <cvid/Vector.h>
 
 ////////// Math //////////
 double Degrees(double radians)
@@ -20,12 +20,12 @@ Vector2Int::Vector2Int()
 	x = 0;
 	y = 0;
 }
-Vector2Int::Vector2Int(uint64_t all)
+Vector2Int::Vector2Int(int64_t all)
 {
 	x = all;
 	y = all;
 }
-Vector2Int::Vector2Int(uint64_t _x, uint64_t _y)
+Vector2Int::Vector2Int(int64_t _x, int64_t _y)
 {
 	x = _x;
 	y = _y;
@@ -42,7 +42,7 @@ bool Vector2Int::operator!=(const Vector2Int& rhs) const
 }
 
 //Indexing
-uint64_t& Vector2Int::operator[](int i)
+int64_t& Vector2Int::operator[](int i)
 {
 	switch (i)
 	{
@@ -56,7 +56,7 @@ uint64_t& Vector2Int::operator[](int i)
 }
 
 //Add
-Vector2Int Vector2Int::operator+(const uint64_t& add) const
+Vector2Int Vector2Int::operator+(const int64_t& add) const
 {
 	return Vector2Int(x + add, y + add);
 }
@@ -72,7 +72,7 @@ Vector2Int& Vector2Int::operator+=(const Vector2Int& add)
 }
 
 //Subtract
-Vector2Int Vector2Int::operator-(const uint64_t& sub) const
+Vector2Int Vector2Int::operator-(const int64_t& sub) const
 {
 	return Vector2Int(x - sub, y - sub);
 }
@@ -88,7 +88,7 @@ Vector2Int& Vector2Int::operator-=(const Vector2Int& sub)
 }
 
 //Multiply
-Vector2Int Vector2Int::operator*(const uint64_t& mult) const
+Vector2Int Vector2Int::operator*(const int64_t& mult) const
 {
 	return Vector2Int(x * mult, y * mult);
 }
@@ -96,7 +96,7 @@ Vector2Int Vector2Int::operator*(const Vector2Int& mult) const
 {
 	return Vector2Int(x * mult.x, y * mult.y);
 }
-Vector2Int& Vector2Int::operator*=(const uint64_t& mult)
+Vector2Int& Vector2Int::operator*=(const int64_t& mult)
 {
 	x *= mult;
 	y *= mult;
@@ -110,7 +110,7 @@ Vector2Int& Vector2Int::operator*=(const Vector2Int& mult)
 }
 
 //Divide
-Vector2Int Vector2Int::operator/(const uint64_t& div) const
+Vector2Int Vector2Int::operator/(const int64_t& div) const
 {
 	return Vector2Int(x / div, y / div);
 }
@@ -118,7 +118,7 @@ Vector2Int Vector2Int::operator/(const Vector2Int& div) const
 {
 	return Vector2Int(x / div.x, y / div.y);
 }
-Vector2Int& Vector2Int::operator/=(const uint64_t& div)
+Vector2Int& Vector2Int::operator/=(const int64_t& div)
 {
 	x /= div;
 	y /= div;

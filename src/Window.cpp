@@ -19,7 +19,7 @@ namespace cvid
 		maxHeight = GetLargestConsoleWindowSize(console).Y * 2;
 
 		//Size the framebuffer
-		framebuffer = new CharPixel[width * (height / 2)];
+		framebuffer = new CharPixel[width * height / 2];
 
 		//Create the pipe to the new console process
 		unsigned int pid = std::this_thread::get_id()._Get_underlying_id();
@@ -95,7 +95,7 @@ namespace cvid
 	}
 
 	//Set a pixel on the framebuffer to some color, returns true on success
-	bool Window::PutPixel(uint16_t x, uint16_t y, Color color)
+	bool Window::PutPixel(int x, int y, Color color)
 	{
 		//Make sure the pixel is in bounds
 		if (x >= width || y >= height)
@@ -112,15 +112,15 @@ namespace cvid
 		thisPixel.character = (char)223;
 		//Top or bottom pixel
 		if (y % 2 == 1)
-			thisPixel.foregroundColor = color;
-		else
 			thisPixel.backgroundColor = color;
+		else
+			thisPixel.foregroundColor = color;
 
 		return true;
 	}
 
 	//Set a character on the framebuffer, y is half of resolution
-	bool Window::PutChar(uint16_t x, uint16_t y, CharPixel charPixel)
+	bool Window::PutChar(int x, int y, CharPixel charPixel)
 	{
 		//Make sure the pixel is in bounds
 		if (x >= width || y >= height / 2)
@@ -176,7 +176,7 @@ namespace cvid
 	}
 
 	//Send data to the window process
-	bool Window::SendData(void* data, size_t amount, DataType type)
+	bool Window::SendData(const void* data, size_t amount, DataType type)
 	{
 		if (!alive)
 			return false;
