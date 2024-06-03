@@ -1,0 +1,5 @@
+- Close window processes in destructor
+- Fix ipc sync
+- Fix buffer issues
+- buffer issue causes pipe disconnect when sending too much data
+- runtime palette swapping
