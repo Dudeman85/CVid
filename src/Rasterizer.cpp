@@ -13,18 +13,19 @@ namespace cvid
 		//Slope is < 1
 		if (abs(dx) > abs(dy))
 		{
+			//Make sure starting point is before ending point
+			if (p1.x > p2.x)
+				SWAP(p1, p2);
+
+			dx = p2.x - p1.x;
+			dy = p2.y - p1.y;
+
 			//If slope is positive increment y, else decrement
 			int yi = 1;
 			if (dy < 0)
 			{
 				yi = -1;
 				dy = -dy;
-			}
-			//Make sure starting point is before ending point
-			if (p1.x > p2.x)
-			{
-				//Swap p1 and p2
-				SWAP(p1, p2)
 			}
 
 			//Keep track of closest y and the error to actual y
@@ -47,18 +48,19 @@ namespace cvid
 		//Slope is > 1
 		else
 		{
+			//Make sure starting point is before ending point
+			if (p1.y > p2.y)
+				SWAP(p1, p2);
+
+			dx = p2.x - p1.x;
+			dy = p2.y - p1.y;
+
 			//If slope is positive increment x, else decrement
 			int xi = 1;
 			if (dx < 0)
 			{
 				xi = -1;
 				dx = -dx;
-			}
-			//Make sure starting point is before ending point
-			if (p1.y > p2.y)
-			{
-				//Swap p1 and p2
-				SWAP(p1, p2)
 			}
 
 			//Keep track of closest x and the error to actual x
@@ -87,7 +89,7 @@ namespace cvid
 		int dy = p2.y - p1.y;
 
 		std::vector<int> points;
-		points.reserve(dy);
+		points.reserve(abs(dy));
 
 		//Add first point
 		points.push_back(p1.x);
@@ -102,12 +104,10 @@ namespace cvid
 				yi = -1;
 				dy = -dy;
 			}
+
 			//Make sure starting point is before ending point
 			if (p1.x > p2.x)
-			{
-				//Swap p1 and p2
-				SWAP(p1, p2)
-			}
+				SWAP(p1, p2);
 
 			//Keep track of closest y and the error to actual y
 			int y = p1.y;
@@ -137,10 +137,7 @@ namespace cvid
 			}
 			//Make sure starting point is before ending point
 			if (p1.y > p2.y)
-			{
-				//Swap p1 and p2
-				SWAP(p1, p2)
-			}
+				SWAP(p1, p2);
 
 			//Keep track of closest x and the error to actual x
 			int x = p1.x;

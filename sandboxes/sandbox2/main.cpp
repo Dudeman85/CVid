@@ -6,25 +6,26 @@
 
 int main()
 {
-	cvid::Window window(60, 60, "Line Test");
+	cvid::Window window(60, 60, "Triangle Test");
 
 	//Probably fix this by checking if the message was received
 	//Probably need to make another pipe to send data from app to main
 	//window.SendData("asdadawdgfdagsgfgd", 16, cvid::DataType::String);
 
-	cvid::DrawLine(&window, { 0, 0 }, {0, 59}, cvid::Color::Blue);
-	cvid::DrawLine(&window, { 0, 0 }, {59, 0}, cvid::Color::Green);
-	cvid::DrawLine(&window, { 0, 59 }, {59, 59 }, cvid::Color::Red);
-	cvid::DrawLine(&window, { 59, 0 }, {59, 59 }, cvid::Color::Magenta);
-	cvid::DrawLine(&window, { 0, 0 }, {59, 59 }, cvid::Color::Yellow);
-	cvid::DrawLine(&window, { 59, 0 }, {0, 59 }, cvid::Color::BrightCyan);
+	cvid::DrawTriangle(&window, { 10, 15 }, { 25, 45 }, {5, 45}, cvid::Magenta);
+	window.PutPixel({ 10, 15 }, cvid::BrightBlue);
+	window.PutPixel({ 25, 45 }, cvid::BrightBlue);
+	window.PutPixel({ 5, 45 }, cvid::BrightBlue);
 
-	cvid::DrawTriangle(&window, { 30, 15 }, { 45, 45 }, {15, 45}, cvid::Magenta);
-	cvid::DrawTriangleWireframe(&window, { 30, 15 }, { 45, 45 }, {15, 45}, cvid::RandomColor());
+	cvid::DrawTriangleWireframe(&window, { 5, 3 }, { 31, 25 }, { 55, 2 }, cvid::Red);
+	window.PutPixel({ 5, 3 }, cvid::BrightBlue);
+	window.PutPixel({ 31, 25 }, cvid::BrightBlue);
+	window.PutPixel({ 55, 2 }, cvid::BrightBlue);
 
-	window.PutPixel(30, 15, cvid::Blue);
-	window.PutPixel(45, 45, cvid::Blue);
-	window.PutPixel(15, 45, cvid::Blue);
+	cvid::DrawTriangleWireframe(&window, { 50, 55 }, { 35, 45 }, {55, 23}, cvid::Yellow);
+	window.PutPixel({ 50, 55 }, cvid::BrightBlue);
+	window.PutPixel({ 35, 45 }, cvid::BrightBlue);
+	window.PutPixel({ 55, 23 }, cvid::BrightBlue);
 
 	while (true)
 	{
