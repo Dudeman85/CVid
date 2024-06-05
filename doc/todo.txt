@@ -3,3 +3,4 @@
 - Fix buffer issues
 - buffer issue causes pipe disconnect when sending too much data
 - runtime palette swapping
+- optimize out wireframe drawing over filled triangle

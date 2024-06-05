@@ -33,7 +33,7 @@ namespace cvid
 			int error = 0;
 
 			//For each x position, plot the corresponding y
-			for (int x = p1.x; x <= p2.x; x++)
+			for (int x = p1.x; x < p2.x; x++)
 			{
 				window->PutPixel(x, y, color);
 
@@ -68,7 +68,7 @@ namespace cvid
 			int error = 0;
 
 			//For each y position, plot the corresponding x
-			for (int y = p1.y; y <= p2.y; y++)
+			for (int y = p1.y; y < p2.y; y++)
 			{
 				window->PutPixel(x, y, color);
 
@@ -91,12 +91,18 @@ namespace cvid
 		std::vector<int> points;
 		points.reserve(abs(dy));
 
-		//Add first point
-		points.push_back(p1.x);
+		int x;
 
 		//Slope is < 1
 		if (abs(dx) > abs(dy))
 		{
+			//Make sure starting point is before ending point
+			if (p1.x > p2.x)
+				SWAP(p1, p2);
+
+			dx = p2.x - p1.x;
+			dy = p2.y - p1.y;
+
 			//If slope is positive increment y, else decrement
 			int yi = 1;
 			if (dy < 0)
@@ -105,29 +111,40 @@ namespace cvid
 				dy = -dy;
 			}
 
-			//Make sure starting point is before ending point
-			if (p1.x > p2.x)
-				SWAP(p1, p2);
-
 			//Keep track of closest y and the error to actual y
 			int y = p1.y;
 			int error = 0;
 
-			//For each x position, plot the corresponding y
-			for (int x = p1.x; x <= p2.x; x++)
+			//For each x position
+			for (x = p1.x; x < p2.x; x++)
 			{
 				error += 2 * dy;
 				if (error > abs(dx))
 				{
 					points.push_back(x);
+
 					y += yi;
 					error -= 2 * dx;
 				}
+			}
+			//Make sure the list is in ascending order
+			if (yi < 0)
+			{
+				if (points.size() <= dy)
+					points.push_back(x);
+				std::reverse(points.begin(), points.end());
 			}
 		}
 		//Slope is > 1
 		else
 		{
+			//Make sure starting point is before ending point
+			if (p1.y > p2.y)
+				SWAP(p1, p2);
+
+			dx = p2.x - p1.x;
+			dy = p2.y - p1.y;
+
 			//If slope is positive increment x, else decrement
 			int xi = 1;
 			if (dx < 0)
@@ -135,17 +152,15 @@ namespace cvid
 				xi = -1;
 				dx = -dx;
 			}
-			//Make sure starting point is before ending point
-			if (p1.y > p2.y)
-				SWAP(p1, p2);
 
 			//Keep track of closest x and the error to actual x
-			int x = p1.x;
+			x = p1.x;
 			int error = 0;
 
-			//For each y position, plot the corresponding x
-			for (int y = p1.y; y <= p2.y; y++)
+			//For each y position
+			for (int y = p1.y; y < p2.y; y++)
 			{
+				points.push_back(x);
 
 				error += 2 * dx;
 				if (error > abs(dy))
@@ -153,10 +168,12 @@ namespace cvid
 					x += xi;
 					error -= 2 * dy;
 				}
-
-				points.push_back(x);
 			}
 		}
+		//Add final x if it did not change before end
+		if (points.size() <= dy)
+			points.push_back(x);
+
 		return points;
 	}
 
@@ -165,11 +182,11 @@ namespace cvid
 	{
 		//Sort the vertices in descending order
 		if (p1.y > p2.y)
-			SWAP(p1, p2)
+			SWAP(p1, p2);
 		if (p1.y > p3.y)
-			SWAP(p1, p3)
+			SWAP(p1, p3);
 		if (p2.y > p3.y)
-			SWAP(p2, p3)
+			SWAP(p2, p3);
 
 		//Get every x point of each segment
 		std::vector<int> combinedSegment = InterpolateX(p1, p2);
@@ -179,8 +196,8 @@ namespace cvid
 		std::vector<int> fullSegment = InterpolateX(p1, p3);
 
 		//Figure out which segment is on which side
-		std::vector<int>& rightSegment = combinedSegment;
-		std::vector<int>& leftSegment = fullSegment;
+		std::vector<int> rightSegment = combinedSegment;
+		std::vector<int> leftSegment = fullSegment;
 		if (p3.x > p2.x)
 		{
 			leftSegment = combinedSegment;
@@ -188,7 +205,7 @@ namespace cvid
 		}
 
 		//For each y coordinate in the triangle
-		for (int yi = 0; yi < fullSegment.size() - 1; yi++)
+		for (int yi = 0; yi < fullSegment.size(); yi++)
 		{
 			//Draw a line from the full segment to the split segment
 			for (int x = leftSegment[yi]; x <= rightSegment[yi]; x++)
@@ -196,6 +213,9 @@ namespace cvid
 				window->PutPixel(x, yi + p1.y, color);
 			}
 		}
+
+		//TODO: optimize this out
+		DrawTriangleWireframe(window, p1, p2, p3, color);
 	}
 
 	//Draw a wireframe triangle onto a window's framebuffer
