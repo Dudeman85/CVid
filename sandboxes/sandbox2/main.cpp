@@ -19,7 +19,13 @@ int main()
 	cvid::DrawLine(&window, { 0, 0 }, {59, 59 }, cvid::Color::Yellow);
 	cvid::DrawLine(&window, { 59, 0 }, {0, 59 }, cvid::Color::BrightCyan);
 
+	cvid::DrawTriangle(&window, { 30, 15 }, { 45, 45 }, {15, 45}, cvid::Magenta);
 	cvid::DrawTriangleWireframe(&window, { 30, 15 }, { 45, 45 }, {15, 45}, cvid::RandomColor());
+
+	window.PutPixel(30, 15, cvid::Blue);
+	window.PutPixel(45, 45, cvid::Blue);
+	window.PutPixel(15, 45, cvid::Blue);
+
 
 	while (true)
 	{

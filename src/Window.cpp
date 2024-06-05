@@ -1,6 +1,5 @@
 #include <cvid/Window.h>
 #include <cvid/Helpers.h>
-#include <thread>
 #include <format>
 
 namespace cvid
@@ -22,7 +21,7 @@ namespace cvid
 		framebuffer = new CharPixel[width * height / 2];
 
 		//Create the pipe to the new console process
-		unsigned int pid = std::this_thread::get_id()._Get_underlying_id();
+		unsigned int pid = GetCurrentProcessId();
 		pipeName = std::format("\\\\.\\pipe\\process{}window{}", pid, numWindowsCreated);
 		pipe = CreateNamedPipeA(
 			pipeName.c_str(),
@@ -132,6 +131,12 @@ namespace cvid
 		framebuffer[y * width + x] = charPixel;
 
 		return true;
+	}
+
+	//Set a pixel on the framebuffer to some color, returns true on success
+	bool Window::PutPixel(Vector2Int point, Color color)
+	{
+		return PutPixel(point.x, point.y, color);
 	}
 
 	//Fills the framebuffer with a color

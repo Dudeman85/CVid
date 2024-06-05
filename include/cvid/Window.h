@@ -42,6 +42,9 @@ namespace cvid
 		Window(uint16_t width, uint16_t height, std::string name);
 		~Window();
 
+
+		//Set a pixel on the framebuffer to some color, returns true on success
+		bool PutPixel(Vector2Int point, Color color);
 		//Set a pixel on the framebuffer to some color
 		bool PutPixel(int x, int y, Color color);
 		//Put a character on the framebuffer, in this case y is half
