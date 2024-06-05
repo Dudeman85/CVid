@@ -69,6 +69,10 @@ namespace cvid
 		//Bitmap accessed [y * width + x]
 		CharPixel* framebuffer;
 
+		//Depth buffer for current z of every pixel
+		//TODO implementation
+		float* depthBuffer;
+
 		//Window properties
 		std::string name;
 		uint16_t width;

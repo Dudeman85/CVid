@@ -26,7 +26,6 @@ int main()
 	window.PutPixel(45, 45, cvid::Blue);
 	window.PutPixel(15, 45, cvid::Blue);
 
-
 	while (true)
 	{
 		int x = rand() % 60;

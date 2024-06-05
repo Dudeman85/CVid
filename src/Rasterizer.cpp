@@ -1,9 +1,11 @@
 #include <cvid/Rasterizer.h>
 
+#define SWAP(a, b) {auto tmp = a; a = b; b = tmp;}
+
 namespace cvid
 {
 	//Draw a line onto a window's framebuffer
-	void DrawLine(Window* window, Vector2Int p1, Vector2Int p2, Color color)
+	void DrawLine(Window* window, Vector2 p1, Vector2 p2, Color color)
 	{
 		int dx = p2.x - p1.x;
 		int dy = p2.y - p1.y;
@@ -22,9 +24,7 @@ namespace cvid
 			if (p1.x > p2.x)
 			{
 				//Swap p1 and p2
-				Vector2Int tmp = p2;
-				p2 = p1;
-				p1 = tmp;
+				SWAP(p1, p2)
 			}
 
 			//Keep track of closest y and the error to actual y
@@ -58,9 +58,7 @@ namespace cvid
 			if (p1.y > p2.y)
 			{
 				//Swap p1 and p2
-				Vector2Int tmp = p2;
-				p2 = p1;
-				p1 = tmp;
+				SWAP(p1, p2)
 			}
 
 			//Keep track of closest x and the error to actual x
@@ -83,7 +81,7 @@ namespace cvid
 	}
 
 	//Get the x coordinates of a line at every y point
-	std::vector<int> GetLineXPoints(Vector2Int p1, Vector2Int p2)
+	std::vector<int> InterpolateX(Vector2 p1, Vector2 p2)
 	{
 		int dx = p2.x - p1.x;
 		int dy = p2.y - p1.y;
@@ -108,9 +106,7 @@ namespace cvid
 			if (p1.x > p2.x)
 			{
 				//Swap p1 and p2
-				Vector2Int tmp = p2;
-				p2 = p1;
-				p1 = tmp;
+				SWAP(p1, p2)
 			}
 
 			//Keep track of closest y and the error to actual y
@@ -143,9 +139,7 @@ namespace cvid
 			if (p1.y > p2.y)
 			{
 				//Swap p1 and p2
-				Vector2Int tmp = p2;
-				p2 = p1;
-				p1 = tmp;
+				SWAP(p1, p2)
 			}
 
 			//Keep track of closest x and the error to actual x
@@ -170,34 +164,22 @@ namespace cvid
 	}
 
 	//Draw a triangle onto a window's framebuffer
-	void DrawTriangle(Window* window, Vector2Int p1, Vector2Int p2, Vector2Int p3, Color color)
+	void DrawTriangle(Window* window, Vector2 p1, Vector2 p2, Vector2 p3, Color color)
 	{
 		//Sort the vertices in descending order
 		if (p1.y > p2.y)
-		{
-			Vector2Int temp = p1;
-			p1 = p2;
-			p2 = temp;
-		}
+			SWAP(p1, p2)
 		if (p1.y > p3.y)
-		{
-			Vector2Int temp = p1;
-			p1 = p3;
-			p3 = temp;
-		}
+			SWAP(p1, p3)
 		if (p2.y > p3.y)
-		{
-			Vector2Int temp = p2;
-			p2 = p3;
-			p3 = temp;
-		}
+			SWAP(p2, p3)
 
 		//Get every x point of each segment
-		std::vector<int> combinedSegment = GetLineXPoints(p1, p2);
+		std::vector<int> combinedSegment = InterpolateX(p1, p2);
 		combinedSegment.pop_back();
-		std::vector<int> shortSegment = GetLineXPoints(p2, p3);
+		std::vector<int> shortSegment = InterpolateX(p2, p3);
 		combinedSegment.insert(combinedSegment.end(), shortSegment.begin(), shortSegment.end());
-		std::vector<int> fullSegment = GetLineXPoints(p1, p3);
+		std::vector<int> fullSegment = InterpolateX(p1, p3);
 
 		//Figure out which segment is on which side
 		std::vector<int>& rightSegment = combinedSegment;
@@ -220,7 +202,7 @@ namespace cvid
 	}
 
 	//Draw a wireframe triangle onto a window's framebuffer
-	void DrawTriangleWireframe(Window* window, Vector2Int p1, Vector2Int p2, Vector2Int p3, Color color)
+	void DrawTriangleWireframe(Window* window, Vector2 p1, Vector2 p2, Vector2 p3, Color color)
 	{
 		DrawLine(window, p1, p2, color);
 		DrawLine(window, p2, p3, color);
