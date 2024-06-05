@@ -438,6 +438,147 @@ namespace cvid
 		return std::format("({}, {}, {})", x, y, z);
 	}
 
+	////////// Vector 3 //////////
+
+	//Constructors
+	Vector3Int::Vector3Int()
+	{
+		x = 0;
+		y = 0;
+		z = 0;
+	}
+	Vector3Int::Vector3Int(uint64_t all)
+	{
+		x = all;
+		y = all;
+		z = all;
+	}
+	Vector3Int::Vector3Int(uint64_t _x, uint64_t _y, uint64_t _z)
+	{
+		x = _x;
+		y = _y;
+		z = _z;
+	}
+	Vector3Int::Vector3Int(Vector2Int vec2, uint64_t _z)
+	{
+		x = vec2.x;
+		y = vec2.y;
+		z = _z;
+	}
+
+	//Comparison
+	bool Vector3Int::operator==(const Vector3Int& rhs) const
+	{
+		return x == rhs.x && y == rhs.y && z == rhs.z;
+	}
+	bool Vector3Int::operator!=(const Vector3Int& rhs) const
+	{
+		return !(x == rhs.x && y == rhs.y && z == rhs.z);
+	}
+
+	//Indexing
+	uint64_t& Vector3Int::operator[](int i)
+	{
+		switch (i)
+		{
+		case 0:
+			return x;
+		case 1:
+			return y;
+		case 2:
+			return z;
+		default:
+			throw std::out_of_range("Index in Vector3Int out of range");
+		}
+	}
+	const uint64_t& Vector3Int::operator[](int i) const
+	{
+		switch (i)
+		{
+		case 0:
+			return x;
+		case 1:
+			return y;
+		case 2:
+			return z;
+		default:
+			throw std::out_of_range("Index in Vector3Int out of range");
+		}
+	}
+
+	//Addition
+	Vector3Int Vector3Int::operator+(const uint64_t& add) const
+	{
+		return Vector3Int(x + add, y + add, z + add);
+	}
+	Vector3Int Vector3Int::operator+(const Vector3Int& add) const
+	{
+		return Vector3Int(x + add.x, y + add.y, z + add.z);
+	}
+	Vector3Int& Vector3Int::operator+=(const Vector3Int& add)
+	{
+		x += add.x;
+		y += add.y;
+		z += add.z;
+		return *this;
+	}
+
+	//Subtraction
+	Vector3Int Vector3Int::operator-(const uint64_t& sub) const
+	{
+		return Vector3Int(x - sub, y - sub, z - sub);
+	}
+	Vector3Int Vector3Int::operator-(const Vector3Int& sub) const
+	{
+		return Vector3Int(x - sub.x, y - sub.y, z - sub.z);
+	}
+	Vector3Int& Vector3Int::operator-=(const Vector3Int& sub)
+	{
+		x -= sub.x;
+		y -= sub.y;
+		z -= sub.z;
+		return *this;
+	}
+
+	//Multiplication
+	Vector3Int Vector3Int::operator*(const uint64_t& mult) const
+	{
+		return Vector3Int(x * mult, y * mult, z * mult);
+	}
+	Vector3Int Vector3Int::operator*(const Vector3Int& mult) const
+	{
+		return Vector3Int(x * mult.x, y * mult.y, z * mult.z);
+	}
+	Vector3Int& Vector3Int::operator*=(const uint64_t& mult)
+	{
+		x *= mult;
+		y *= mult;
+		z *= mult;
+		return *this;
+	}
+
+	//Division
+	Vector3Int Vector3Int::operator/(const uint64_t& div) const
+	{
+		return Vector3Int(x / div, y / div, z / div);
+	}
+	Vector3Int Vector3Int::operator/(const Vector3Int& div) const
+	{
+		return Vector3Int(x / div.x, y / div.y, z / div.z);
+	}
+	Vector3Int& Vector3Int::operator/=(const uint64_t& div)
+	{
+		x /= div;
+		y /= div;
+		z /= div;
+		return *this;
+	}
+
+	std::string Vector3Int::ToString() const
+	{
+		return std::format("({}, {}, {})", x, y, z);
+	}
+
 	//////////// Vector 4 //////////////
 
 	//Constructors

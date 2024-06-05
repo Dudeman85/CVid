@@ -1,7 +1,8 @@
 #pragma once
+#include <vector>
+#include <glm/matrix.hpp>
 #include <cvid/Vector.h>
 #include <cvid/Window.h>
-#include <vector>
 
 namespace cvid
 {
@@ -13,7 +14,7 @@ namespace cvid
 	};
 
 	//Render an amount of vertices to the window's framebuffer
-	void DrawVertices(Window* window, std::vector<Vertice> vertices, std::vector<Vector3Int> indices);
+	void DrawVertices(Window* window, std::vector<Vertice> vertices, std::vector<Vector3Int> indices, glm::mat4x4 mvp);
 	//Render an amount of vertices as wireframes to the window's framebuffer
-	void DrawVerticesWireframe(Window* window, std::vector<Vertice> vertices, std::vector<Vector3Int> indices);
+	void DrawVerticesWireframe(Window* window, std::vector<Vertice> vertices, std::vector<Vector3Int> indices, glm::mat4x4 mvp);
 }

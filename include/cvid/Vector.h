@@ -166,7 +166,7 @@ namespace cvid
 		Vector3Int();
 		Vector3Int(uint64_t all);
 		Vector3Int(uint64_t x, uint64_t y, uint64_t z);
-		Vector3Int(Vector2 vec2, uint64_t z = 0);
+		Vector3Int(Vector2Int vec2, uint64_t z = 0);
 
 		//Indexing
 		uint64_t& operator[](int i);
