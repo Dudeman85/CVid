@@ -42,11 +42,12 @@ namespace cvid
 		Window(uint16_t width, uint16_t height, std::string name);
 		~Window();
 
-
 		//Set a pixel on the framebuffer to some color, returns true on success
-		bool PutPixel(Vector2Int point, Color color);
+		bool PutPixel(Vector2Int pos, Color color);
 		//Set a pixel on the framebuffer to some color
 		bool PutPixel(int x, int y, Color color);
+		//Put a character on the framebuffer, in this case y is half
+		bool PutChar(Vector2Int pos, CharPixel charPixel);
 		//Put a character on the framebuffer, in this case y is half
 		bool PutChar(int x, int y, CharPixel charPixel);
 		//Fills the framebuffer with a color
@@ -66,12 +67,14 @@ namespace cvid
 		std::function<void(Window*)> onClose;
 
 	private:
-		//Bitmap accessed [y * width + x]
+		//Bitmap of each character pixel for the window
+		//Half the screen height, accessed [y * width + x] 
 		CharPixel* framebuffer;
 
-		//Depth buffer for current z of every pixel
+		//Depth buffer for current z of every pixel 
+		//Half the screen height, accessed [y * width + x]
 		//TODO implementation
-		float* depthBuffer;
+		double* depthBuffer;
 
 		//Window properties
 		std::string name;

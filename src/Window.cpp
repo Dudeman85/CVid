@@ -19,6 +19,8 @@ namespace cvid
 
 		//Size the framebuffer
 		framebuffer = new CharPixel[width * height / 2];
+		//Size the depth buffer
+		depthBuffer = new double[width * height / 2];
 
 		//Create the pipe to the new console process
 		unsigned int pid = GetCurrentProcessId();
@@ -94,6 +96,11 @@ namespace cvid
 	}
 
 	//Set a pixel on the framebuffer to some color, returns true on success
+	bool Window::PutPixel(Vector2Int pos, Color color)
+	{
+		return PutPixel(pos.x, pos.y, color);
+	}
+	//Set a pixel on the framebuffer to some color, returns true on success
 	bool Window::PutPixel(int x, int y, Color color)
 	{
 		//Make sure the pixel is in bounds
@@ -119,6 +126,11 @@ namespace cvid
 	}
 
 	//Set a character on the framebuffer, y is half of resolution
+	bool Window::PutChar(Vector2Int pos, CharPixel charPixel)
+	{
+		return PutChar(pos.x, pos.y, charPixel);
+	}
+	//Set a character on the framebuffer, y is half of resolution
 	bool Window::PutChar(int x, int y, CharPixel charPixel)
 	{
 		//Make sure the pixel is in bounds
@@ -131,12 +143,6 @@ namespace cvid
 		framebuffer[y * width + x] = charPixel;
 
 		return true;
-	}
-
-	//Set a pixel on the framebuffer to some color, returns true on success
-	bool Window::PutPixel(Vector2Int point, Color color)
-	{
-		return PutPixel(point.x, point.y, color);
 	}
 
 	//Fills the framebuffer with a color
@@ -221,16 +227,22 @@ namespace cvid
 	//Closes the window process
 	void Window::CloseWindow()
 	{
-		//Close all handles. 
-		CloseHandle(processInfo.hProcess);
-		CloseHandle(processInfo.hThread);
-		CloseHandle(pipe);
+		if (alive)
+		{
+			//Close all handles.
+			CloseHandle(processInfo.hProcess);
+			CloseHandle(processInfo.hThread);
+			CloseHandle(pipe);
 
-		//Call onClose if applicable
-		if (onClose)
-			onClose(this);
+			//Call onClose if applicable
+			if (onClose)
+				onClose(this);
 
-		alive = false;
+			alive = false;
+
+			delete[] framebuffer;
+			delete[] depthBuffer;
+		}
 	}
 
 	//Return true if the window process is still active

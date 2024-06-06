@@ -5,6 +5,8 @@
 
 namespace cvid
 {
+	//Draw a point onto a window's framebuffer
+	void DrawPoint(Window* window, Vector2 p1, Color color);
 	//Draw a line onto a window's framebuffer
 	void DrawLine(Window* window, Vector2Int p1, Vector2Int p2, Color color);
 	//Get the x coordinates of a line

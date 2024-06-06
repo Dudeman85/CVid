@@ -4,6 +4,12 @@
 
 namespace cvid
 {
+	//Draw a point onto a window's framebuffer
+	void DrawPoint(Window* window, Vector2 p1, Color color)
+	{
+		window->PutPixel(p1, color);
+	}
+
 	//Draw a line onto a window's framebuffer
 	void DrawLine(Window* window, Vector2Int p1, Vector2Int p2, Color color)
 	{
@@ -204,6 +210,9 @@ namespace cvid
 			rightSegment = fullSegment;
 		}
 
+		//TODO: optimize this out
+		DrawTriangleWireframe(window, p1, p2, p3, Color::BrightCyan);
+
 		//For each y coordinate in the triangle
 		for (int yi = 0; yi < fullSegment.size(); yi++)
 		{
@@ -213,9 +222,6 @@ namespace cvid
 				window->PutPixel(x, yi + std::round(p1.y), color);
 			}
 		}
-
-		//TODO: optimize this out
-		DrawTriangleWireframe(window, p1, p2, p3, color);
 	}
 
 	//Draw a wireframe triangle onto a window's framebuffer

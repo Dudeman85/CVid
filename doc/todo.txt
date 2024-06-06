@@ -1,7 +1,12 @@
-- Close window processes in destructor
-- Fix ipc sync
-- Fix buffer issues
-- buffer issue causes pipe disconnect when sending too much data
-- runtime palette swapping
-- optimize out wireframe drawing over filled triangle
+Rasterizer:
 - Rethink the screenspace coordinate system
+- optimize out wireframe drawing over filled triangle
+Window:
+- Fix ipc sync
+- Add resizing
+- Fix pipe buffer issues
+- buffer issue causes pipe disconnect when sending too much data
+- fix stuff out of bounds (maybe issue with rasterizer)
+
+Futures:
+- runtime palette swapping if possible
