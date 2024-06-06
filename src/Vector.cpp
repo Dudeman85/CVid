@@ -33,6 +33,11 @@ namespace cvid
 		x = _x;
 		y = _y;
 	}
+	Vector2Int::Vector2Int(Vector2 v)
+	{
+		x = std::round(v.x);
+		y = std::round(v.y);
+	}
 
 	//Comparison
 	bool Vector2Int::operator==(const Vector2Int& rhs) const

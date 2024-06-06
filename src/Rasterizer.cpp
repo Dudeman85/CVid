@@ -5,7 +5,7 @@
 namespace cvid
 {
 	//Draw a line onto a window's framebuffer
-	void DrawLine(Window* window, Vector2 p1, Vector2 p2, Color color)
+	void DrawLine(Window* window, Vector2Int p1, Vector2Int p2, Color color)
 	{
 		int dx = p2.x - p1.x;
 		int dy = p2.y - p1.y;
@@ -83,7 +83,7 @@ namespace cvid
 	}
 
 	//Get the x coordinates of a line at every y point
-	std::vector<int> InterpolateX(Vector2 p1, Vector2 p2)
+	std::vector<int> InterpolateX(Vector2Int p1, Vector2Int p2)
 	{
 		int dx = p2.x - p1.x;
 		int dy = p2.y - p1.y;
@@ -210,7 +210,7 @@ namespace cvid
 			//Draw a line from the full segment to the split segment
 			for (int x = leftSegment[yi]; x <= rightSegment[yi]; x++)
 			{
-				window->PutPixel(x, yi + p1.y, color);
+				window->PutPixel(x, yi + std::round(p1.y), color);
 			}
 		}
 

@@ -13,6 +13,8 @@ namespace cvid
 	///Degrees to radians
 	double Radians(double degrees);
 
+	class Vector2;
+	class Vector2Int;
 	class Vector3;
 	class Vector3Int;
 
@@ -24,6 +26,7 @@ namespace cvid
 		Vector2Int();
 		Vector2Int(int64_t all);
 		Vector2Int(int64_t x, int64_t y);
+		Vector2Int(Vector2 v);
 
 		//Indexing
 		int64_t& operator[](int i);

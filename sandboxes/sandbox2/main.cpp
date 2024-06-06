@@ -28,15 +28,18 @@ int main()
 	std::vector<cvid::Vertice> vertices{ { cvid::Vector3(10, 15, 0)}, { cvid::Vector3(-10, 12, 0)}, {cvid::Vector3(5, -2, 0)} };
 	std::vector<cvid::Vector3Int> indices{ {0, 1, 2} };
 
-	float rotation = 0;
+	float rotation = 1;
 
 	while (true)
 	{
-		window.Fill(cvid::Black);
+		window.Fill(cvid::Color::Black);
 
-		rotation++;
-		if (rotation >= 360)
-			rotation -= 360;
+		if (GetKeyState(VK_RIGHT) & 0x8000)
+			rotation++;
+		if (GetKeyState(VK_LEFT) & 0x8000)
+			rotation--;
+		if (rotation < 0)
+			rotation += 360;
 
 		int x = rand() % 60;
 		int y = rand() % 60;
@@ -46,11 +49,11 @@ int main()
 		//Position
 		mvp = glm::translate(mvp, glm::vec3(30, 30.f, 0.f));
 		//X, Y, Z euler rotations
-		mvp = glm::rotate(mvp, glm::radians(rotation), glm::vec3(1.0f, 0.0f, 0.0f));
-		mvp = glm::rotate(mvp, glm::radians(rotation), glm::vec3(0.0f, 1.0f, 0.0f));
+		//mvp = glm::rotate(mvp, glm::radians(rotation), glm::vec3(1.0f, 0.0f, 0.0f));
+		//mvp = glm::rotate(mvp, glm::radians(rotation), glm::vec3(0.0f, 1.0f, 0.0f));
 		mvp = glm::rotate(mvp, glm::radians(rotation), glm::vec3(0.0f, 0.0f, 1.0f));
 
-		cvid::DrawVerticesWireframe(&window, vertices, indices, mvp);
+		cvid::DrawVertices(&window, vertices, indices, mvp);
 
 		std::this_thread::sleep_for(std::chrono::milliseconds(10));
 
