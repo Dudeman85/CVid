@@ -6,7 +6,6 @@ Window:
 - Add resizing
 - Fix pipe buffer issues
 - buffer issue causes pipe disconnect when sending too much data
-- fix stuff out of bounds (maybe issue with rasterizer)
 
 Futures:
 - runtime palette swapping if possible

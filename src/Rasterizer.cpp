@@ -42,7 +42,7 @@ namespace cvid
 			int error = 0;
 
 			//For each x position, plot the corresponding y
-			for (int x = p1.x; x < p2.x; x++)
+			for (int x = p1.x; x <= p2.x; x++)
 			{
 				DrawPoint(window, { x, y }, color);
 
@@ -77,7 +77,7 @@ namespace cvid
 			int error = 0;
 
 			//For each y position, plot the corresponding x
-			for (int y = p1.y; y < p2.y; y++)
+			for (int y = p1.y; y <= p2.y; y++)
 			{
 				DrawPoint(window, { x, y }, color);
 
@@ -219,6 +219,11 @@ namespace cvid
 			rightSegment = fullSegment;
 		}
 
+		//TODO: optimize this out
+		DrawPoint(window, p1, Color::BrightMagenta);
+		DrawPoint(window, p2, Color::BrightMagenta);
+		DrawPoint(window, p3, Color::BrightMagenta);
+		DrawTriangleWireframe(window, p1, p2, p3, Color::BrightCyan);
 
 		int startY = (int)std::round(p3.y);
 		//For each y coordinate in the triangle
@@ -230,8 +235,6 @@ namespace cvid
 				DrawPoint(window, { x, startY + yi }, color);
 			}
 		}
-		//TODO: optimize this out
-		DrawTriangleWireframe(window, p1, p2, p3, Color::BrightCyan);
 	}
 
 	//Draw a wireframe triangle onto a window's framebuffer
