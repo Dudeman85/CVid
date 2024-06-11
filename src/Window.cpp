@@ -101,14 +101,11 @@ namespace cvid
 		return PutPixel(pos.x, pos.y, color);
 	}
 	//Set a pixel on the framebuffer to some color, returns true on success
-	bool Window::PutPixel(int x, int y, Color color)
+	bool Window::PutPixel(uint16_t x, uint16_t y, Color color)
 	{
 		//Make sure the pixel is in bounds
 		if (x >= width || y >= height)
-		{
-			LogWarning("CVid warning in PutPixel: Position out of range");
 			return false;
-		}
 
 		//Pixels are formatted two above each other in one character
 		//We will always print 223 where foreground is the top and background is the bottom.
@@ -131,7 +128,7 @@ namespace cvid
 		return PutChar(pos.x, pos.y, charPixel);
 	}
 	//Set a character on the framebuffer, y is half of resolution
-	bool Window::PutChar(int x, int y, CharPixel charPixel)
+	bool Window::PutChar(uint16_t x, uint16_t y, CharPixel charPixel)
 	{
 		//Make sure the pixel is in bounds
 		if (x >= width || y >= height / 2)
@@ -262,5 +259,11 @@ namespace cvid
 		}
 
 		return alive;
+	}
+
+	//Get the dimensions of this window. Y is in pixel coordinates
+	Vector2Int Window::GetDimensions()
+	{
+		return Vector2Int(width, height);
 	}
 }

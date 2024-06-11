@@ -5,9 +5,12 @@
 namespace cvid
 {
 	//Draw a point onto a window's framebuffer
-	void DrawPoint(Window* window, Vector2 p1, Color color)
+	void DrawPoint(Window* window, Vector2Int pt, Color color)
 	{
-		window->PutPixel(p1, color);
+		//Convert to window coords
+		pt.y = -pt.y;
+		pt += window->GetDimensions() / 2;
+		window->PutPixel(pt, color);
 	}
 
 	//Draw a line onto a window's framebuffer
@@ -41,7 +44,7 @@ namespace cvid
 			//For each x position, plot the corresponding y
 			for (int x = p1.x; x < p2.x; x++)
 			{
-				window->PutPixel(x, y, color);
+				DrawPoint(window, { x, y }, color);
 
 				error += 2 * dy;
 				if (error > abs(dx))
@@ -76,7 +79,7 @@ namespace cvid
 			//For each y position, plot the corresponding x
 			for (int y = p1.y; y < p2.y; y++)
 			{
-				window->PutPixel(x, y, color);
+				DrawPoint(window, { x, y }, color);
 
 				error += 2 * dx;
 				if (error > abs(dy))
@@ -193,42 +196,49 @@ namespace cvid
 			SWAP(p1, p3);
 		if (p2.y > p3.y)
 			SWAP(p2, p3);
+		if (p1.y < p2.y)
+			SWAP(p1, p2);
+		if (p1.y < p3.y)
+			SWAP(p1, p3);
+		if (p2.y < p3.y)
+			SWAP(p2, p3);
 
 		//Get every x point of each segment
-		std::vector<int> combinedSegment = InterpolateX(p1, p2);
+		std::vector<int> combinedSegment = InterpolateX(p2, p3);
 		combinedSegment.pop_back();
-		std::vector<int> shortSegment = InterpolateX(p2, p3);
+		std::vector<int> shortSegment = InterpolateX(p1, p2);
 		combinedSegment.insert(combinedSegment.end(), shortSegment.begin(), shortSegment.end());
 		std::vector<int> fullSegment = InterpolateX(p1, p3);
 
 		//Figure out which segment is on which side
 		std::vector<int> rightSegment = combinedSegment;
 		std::vector<int> leftSegment = fullSegment;
-		if (p3.x > p2.x)
+		if (leftSegment[std::floor(leftSegment.size() / 2)] > rightSegment[std::floor(rightSegment.size() / 2)])
 		{
 			leftSegment = combinedSegment;
 			rightSegment = fullSegment;
 		}
 
-		//TODO: optimize this out
-		DrawTriangleWireframe(window, p1, p2, p3, Color::BrightCyan);
 
+		int startY = (int)std::round(p3.y);
 		//For each y coordinate in the triangle
-		for (int yi = 0; yi < fullSegment.size(); yi++)
+		for (int yi =0; yi < fullSegment.size(); yi++)
 		{
 			//Draw a line from the full segment to the split segment
 			for (int x = leftSegment[yi]; x <= rightSegment[yi]; x++)
 			{
-				window->PutPixel(x, yi + std::round(p1.y), color);
+				DrawPoint(window, { x, startY + yi }, color);
 			}
 		}
+		//TODO: optimize this out
+		DrawTriangleWireframe(window, p1, p2, p3, Color::BrightCyan);
 	}
 
 	//Draw a wireframe triangle onto a window's framebuffer
 	void DrawTriangleWireframe(Window* window, Vector2 p1, Vector2 p2, Vector2 p3, Color color)
 	{
-		DrawLine(window, p1, p2, color);
-		DrawLine(window, p2, p3, color);
+		DrawLine(window, p1, Vector2Int(p2), color);
+		DrawLine(window, Vector2Int(p2), p3, color);
 		DrawLine(window, p1, p3, color);
 	}
 }

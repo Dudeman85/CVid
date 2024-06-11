@@ -11,7 +11,7 @@ namespace cvid
 		{
 			glm::vec4 newVert{ vert.position.x, vert.position.y, vert.position.z, 1.0 };
 			newVert = newVert * mvp;
-			vert.position = Vector3(newVert.x + 30, newVert.y + 30, newVert.z);
+			vert.position = Vector3(newVert.x, newVert.y, newVert.z);
 		}
 
 		//Draw each triangle defined by the indices
@@ -29,7 +29,7 @@ namespace cvid
 		{
 			glm::vec4 newVert{ vert.position.x, vert.position.y, vert.position.z, 1.0 };
 			newVert = newVert * mvp;
-			vert.position = Vector3(newVert.x + 30, newVert.y + 30, newVert.z);
+			vert.position = Vector3(newVert.x, newVert.y, newVert.z);
 		}
 
 		//Draw each triangle defined by the indices

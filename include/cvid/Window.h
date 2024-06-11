@@ -45,11 +45,11 @@ namespace cvid
 		//Set a pixel on the framebuffer to some color, returns true on success
 		bool PutPixel(Vector2Int pos, Color color);
 		//Set a pixel on the framebuffer to some color
-		bool PutPixel(int x, int y, Color color);
+		bool PutPixel(uint16_t x, uint16_t y, Color color);
 		//Put a character on the framebuffer, in this case y is half
 		bool PutChar(Vector2Int pos, CharPixel charPixel);
 		//Put a character on the framebuffer, in this case y is half
-		bool PutChar(int x, int y, CharPixel charPixel);
+		bool PutChar(uint16_t x, uint16_t y, CharPixel charPixel);
 		//Fills the framebuffer with a color
 		bool Fill(Color color);
 		//Set the properties of this window
@@ -62,6 +62,8 @@ namespace cvid
 		void CloseWindow();
 		//Return true if the window process is still active, optionally gives back exit code
 		bool IsAlive(DWORD* exitCode = nullptr);
+		//Get the dimensions of this window. Y is in pixel coordinates
+		Vector2Int GetDimensions();
 
 		//Function to call when the window closes
 		std::function<void(Window*)> onClose;
