@@ -17,7 +17,7 @@ namespace cvid
 		//Draw each triangle defined by the indices
 		for (Vector3Int& triangle : indices)
 		{
-			DrawTriangle(window, vertices[triangle.x].position, vertices[triangle.y].position, vertices[triangle.z].position, Color::BrightGreen);
+			DrawTriangle(window, Vector2Int(vertices[triangle.x].position), Vector2Int(vertices[triangle.y].position), Vector2Int(vertices[triangle.z].position), Color::BrightGreen);
 		}
 	}
 
@@ -35,7 +35,7 @@ namespace cvid
 		//Draw each triangle defined by the indices
 		for (Vector3Int& triangle : indices)
 		{
-			DrawTriangleWireframe(window, vertices[triangle.x].position, vertices[triangle.y].position, vertices[triangle.z].position, Color::BrightGreen);
+			DrawTriangleWireframe(window, Vector2Int(vertices[triangle.x].position), Vector2Int(vertices[triangle.y].position), Vector2Int(vertices[triangle.z].position), Color::BrightGreen);
 		}
 	}
 }

@@ -16,6 +16,13 @@ namespace cvid
 	//Draw a line onto a window's framebuffer
 	void DrawLine(Window* window, Vector2Int p1, Vector2Int p2, Color color)
 	{
+		//Convert to window coords
+		Vector2Int windowHalfSize = window->GetDimensions() / 2;
+		p1.y = -p1.y;
+		p1 += windowHalfSize;
+		p2.y = -p2.y;
+		p2 += windowHalfSize;
+
 		int dx = p2.x - p1.x;
 		int dy = p2.y - p1.y;
 
@@ -44,7 +51,7 @@ namespace cvid
 			//For each x position, plot the corresponding y
 			for (int x = p1.x; x <= p2.x; x++)
 			{
-				DrawPoint(window, { x, y }, color);
+				window->PutPixel(x, y, color);
 
 				error += 2 * dy;
 				if (error > abs(dx))
@@ -79,7 +86,7 @@ namespace cvid
 			//For each y position, plot the corresponding x
 			for (int y = p1.y; y <= p2.y; y++)
 			{
-				DrawPoint(window, { x, y }, color);
+				window->PutPixel(x, y, color);
 
 				error += 2 * dx;
 				if (error > abs(dy))
@@ -187,15 +194,24 @@ namespace cvid
 	}
 
 	//Draw a triangle onto a window's framebuffer
-	void DrawTriangle(Window* window, Vector2 p1, Vector2 p2, Vector2 p3, Color color)
+	void DrawTriangle(Window* window, Vector2Int p1, Vector2Int p2, Vector2Int p3, Color color)
 	{
+		//TODO: optimize this out
+		DrawPoint(window, p1, Color::BrightMagenta);
+		DrawPoint(window, p2, Color::BrightMagenta);
+		DrawPoint(window, p3, Color::BrightMagenta);
+		DrawTriangleWireframe(window, p1, p2, p3, Color::BrightCyan);
+
+		//Convert to window coords
+		Vector2Int windowHalfSize = window->GetDimensions() / 2;
+		p1.y = -p1.y;
+		p1 += windowHalfSize;
+		p2.y = -p2.y;
+		p2 += windowHalfSize;
+		p3.y = -p3.y;
+		p3 += windowHalfSize;
+
 		//Sort the vertices in descending order
-		if (p1.y > p2.y)
-			SWAP(p1, p2);
-		if (p1.y > p3.y)
-			SWAP(p1, p3);
-		if (p2.y > p3.y)
-			SWAP(p2, p3);
 		if (p1.y < p2.y)
 			SWAP(p1, p2);
 		if (p1.y < p3.y)
@@ -218,30 +234,24 @@ namespace cvid
 			leftSegment = combinedSegment;
 			rightSegment = fullSegment;
 		}
-
-		//TODO: optimize this out
-		DrawPoint(window, p1, Color::BrightMagenta);
-		DrawPoint(window, p2, Color::BrightMagenta);
-		DrawPoint(window, p3, Color::BrightMagenta);
-		DrawTriangleWireframe(window, p1, p2, p3, Color::BrightCyan);
-
+		
 		int startY = (int)std::round(p3.y);
 		//For each y coordinate in the triangle
-		for (int yi =0; yi < fullSegment.size(); yi++)
+		for (int yi = 0; yi < fullSegment.size(); yi++)
 		{
 			//Draw a line from the full segment to the split segment
 			for (int x = leftSegment[yi]; x <= rightSegment[yi]; x++)
 			{
-				DrawPoint(window, { x, startY + yi }, color);
+				window->PutPixel(x, startY + yi, color);
 			}
 		}
 	}
 
 	//Draw a wireframe triangle onto a window's framebuffer
-	void DrawTriangleWireframe(Window* window, Vector2 p1, Vector2 p2, Vector2 p3, Color color)
+	void DrawTriangleWireframe(Window* window, Vector2Int p1, Vector2Int p2, Vector2Int p3, Color color)
 	{
-		DrawLine(window, p1, Vector2Int(p2), color);
-		DrawLine(window, Vector2Int(p2), p3, color);
+		DrawLine(window, p1, p2, color);
+		DrawLine(window, p2, p3, color);
 		DrawLine(window, p1, p3, color);
 	}
 }

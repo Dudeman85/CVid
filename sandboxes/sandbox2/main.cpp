@@ -22,6 +22,7 @@ int main()
 
 	std::vector<cvid::Vertice> vertices{ { cvid::Vector3(10, 40, 0)}, { cvid::Vector3(-10, 12, 0)}, {cvid::Vector3(5, -2, 0)} };
 	std::vector<cvid::Vector3Int> indices{ {0, 1, 2} };
+	cvid::Color col = cvid::RandomColor();
 
 	float rotation = 0;
 
