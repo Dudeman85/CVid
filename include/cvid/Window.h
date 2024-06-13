@@ -15,16 +15,19 @@ namespace cvid
 		uint16_t height;
 	};
 
+	//Status message from the window process
+	enum class WindowStatus : uint8_t { Ready = 1 };
 	//Is the data a frame string or properties struct
 	enum class DataType { String = 1, Properties = 2, Frame = 3 };
 	//Color names for the Windows virtual terminal sequences, background is +10
 	enum class Color : uint8_t
 	{
 		Black = 30, Red = 31, Green = 32, Yellow = 33, Blue = 34, Magenta = 35, Cyan = 36, White = 37,
-		BrightBlack = 90, BrightRed = 91, BrightGreen = 92, BrightYellow = 93, 
+		BrightBlack = 90, BrightRed = 91, BrightGreen = 92, BrightYellow = 93,
 		BrightBlue = 94, BrightMagenta = 95, BrightCyan = 96, BrightWhite = 97
 	};
 
+	//Ascii representation of two vertically stacked pixels
 	struct CharPixel
 	{
 		Color foregroundColor = Color::Black;
@@ -57,7 +60,7 @@ namespace cvid
 		//Draw the current framebuffer
 		bool DrawFrame();
 		//Send some arbitrary data to the window
-		bool SendData(const void* data, size_t amount, DataType type);
+		bool SendData(const void* data, size_t amount, DataType type, bool block = true);
 		//Closes the window process
 		void CloseWindow();
 		//Return true if the window process is still active, optionally gives back exit code
@@ -89,8 +92,10 @@ namespace cvid
 		uint16_t maxHeight;
 
 		//Pipe to send data to the window process
-		std::string pipeName;
-		HANDLE pipe;
+		std::string outPipeName;
+		std::string inPipeName;
+		HANDLE outPipe;
+		HANDLE inPipe;
 		PROCESS_INFORMATION processInfo;
 	};
 }

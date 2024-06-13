@@ -22,21 +22,42 @@ namespace cvid
 		//Size the depth buffer
 		depthBuffer = new double[width * height / 2];
 
-		//Create the pipe to the new console process
+		//Create the outbound pipe to the new console process
 		unsigned int pid = GetCurrentProcessId();
-		pipeName = std::format("\\\\.\\pipe\\process{}window{}", pid, numWindowsCreated);
-		pipe = CreateNamedPipeA(
-			pipeName.c_str(),
+		std::string genericPipeName = std::format("\\\\.\\pipe\\process{}window{}", pid, numWindowsCreated);
+		outPipeName = genericPipeName + "out";
+		outPipe = CreateNamedPipeA(
+			outPipeName.c_str(),
 			PIPE_ACCESS_OUTBOUND,
-			PIPE_TYPE_MESSAGE | PIPE_READMODE_BYTE | PIPE_WAIT,
+			PIPE_TYPE_MESSAGE | PIPE_READMODE_BYTE | PIPE_NOWAIT,
 			1, //Max instances
 			16386, //Output buffer size 
 			0, //Input buffer size
+			1000, //Time out in ms
+			NULL //Security attributes
+		);
+		//Make sure the pipe creation worked
+		if (outPipe == NULL || outPipe == INVALID_HANDLE_VALUE)
+		{
+			LogError("CVid error in Window: Failed to create pipe, code " + std::to_string(GetLastError()));
+			throw std::runtime_error("Failed to create pipe");
+			return;
+		}
+
+		//Create the inbound pipe from the new console process
+		inPipeName = genericPipeName + "in";
+		inPipe = CreateNamedPipeA(
+			inPipeName.c_str(),
+			PIPE_ACCESS_INBOUND,
+			PIPE_TYPE_MESSAGE | PIPE_READMODE_BYTE | PIPE_WAIT,
+			1, //Max instances
+			0, //Output buffer size 
+			8, //Input buffer size
 			50, //Time out in ms
 			NULL //Security attributes
 		);
 		//Make sure the pipe creation worked
-		if (pipe == NULL || pipe == INVALID_HANDLE_VALUE)
+		if (inPipe == NULL || inPipe == INVALID_HANDLE_VALUE)
 		{
 			LogError("CVid error in Window: Failed to create pipe, code " + std::to_string(GetLastError()));
 			throw std::runtime_error("Failed to create pipe");
@@ -47,13 +68,13 @@ namespace cvid
 		//Setup startup info
 		STARTUPINFO startupInfo;
 		ZeroMemory(&startupInfo, sizeof(startupInfo));
-		startupInfo.cb = sizeof(startupInfo);
-		startupInfo.lpTitle = const_cast<LPSTR>(name.c_str());
 		ZeroMemory(&processInfo, sizeof(processInfo));
+		startupInfo.cb = sizeof(startupInfo);
+		startupInfo.lpTitle = name.data();
 
 		//Create the process
 		std::string cmdline("ConsoleWindowApp.exe ");
-		cmdline.append(pipeName);
+		cmdline.append(genericPipeName);
 		bool createProcessSuccess = CreateProcessA(
 			NULL, //App name, default to cmd
 			cmdline.data(), //Comand line, send the pipe name
@@ -72,13 +93,34 @@ namespace cvid
 			return;
 		}
 
-		//Connect the process via the pipe
-		bool connectPipeSuccess = ConnectNamedPipe(pipe, NULL);
-		//Make sure the pipe connected successfully
+		//Connect the pipes
+		bool connectPipeSuccess = ConnectNamedPipe(inPipe, NULL);
 		if (!connectPipeSuccess)
 		{
+			//Some other error
 			LogError("CVid error in Window: Failed to connect pipe, code " + std::to_string(GetLastError()));
-			CloseHandle(pipe);
+			CloseHandle(inPipe);
+			throw std::runtime_error("Failed to connect pipe");
+			return;
+		}
+
+		connectPipeSuccess = ConnectNamedPipe(outPipe, NULL);
+		//Make sure the pipe connected successfully
+		while (!connectPipeSuccess)
+		{
+			//Wait for process to connect
+			if (GetLastError() == ERROR_PIPE_LISTENING)
+			{
+				connectPipeSuccess = ConnectNamedPipe(outPipe, NULL);
+				continue;
+			}
+
+			if (GetLastError() == ERROR_PIPE_CONNECTED)
+				break;
+
+			//Some other error
+			LogError("CVid error in Window: Failed to connect pipe, code " + std::to_string(GetLastError()));
+			CloseHandle(outPipe);
 			throw std::runtime_error("Failed to connect pipe");
 			return;
 		}
@@ -178,13 +220,13 @@ namespace cvid
 	//Draw the current framebuffer
 	bool Window::DrawFrame()
 	{
-		size_t frameSize = (size_t)width * (height / 2);
+		const size_t frameSize = (size_t)width * (height / 2);
 
 		return SendData(framebuffer, frameSize * sizeof(CharPixel), DataType::Frame);
 	}
 
 	//Send data to the window process
-	bool Window::SendData(const void* data, size_t amount, DataType type)
+	bool Window::SendData(const void* data, size_t amount, DataType type, bool block)
 	{
 		if (!alive)
 			return false;
@@ -198,18 +240,38 @@ namespace cvid
 			return false;
 		}
 
+		//Block untill app sends a ready status if specified
+		if (block)
+		{
+			//Read the status data
+			char buffer[8];
+			DWORD numBytesRead = 0;
+			bool readPipeSuccess = ReadFile(
+				inPipe,
+				buffer, //The destination for the data from the pipe
+				1 * sizeof(char), //Attempt to read this many bytes
+				&numBytesRead,
+				NULL //Not using overlapped IO
+			);
+		}
+
 		//Prefix the data with it's type
 		char* cdata = new char[amount + 1];
 		cdata[0] = (char)type;
 		memcpy(cdata + 1, data, amount);
 
+		cvid::StartTimePoint();
+
 		//Send the data
 		bool sendSuccess = WriteFile(
-			pipe,
+			outPipe,
 			cdata,
 			(amount + 1) * sizeof(char), //How many bytes to send
 			NULL, NULL //Irrelevant
 		);
+
+		std::cout << amount * sizeof(char) << ", " << cvid::EndTimePoint() << std::endl;
+
 		delete[] cdata;
 
 		//Make sure the data was sent
@@ -229,7 +291,7 @@ namespace cvid
 			//Close all handles.
 			CloseHandle(processInfo.hProcess);
 			CloseHandle(processInfo.hThread);
-			CloseHandle(pipe);
+			CloseHandle(outPipe);
 
 			//Call onClose if applicable
 			if (onClose)

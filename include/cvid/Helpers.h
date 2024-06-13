@@ -2,6 +2,7 @@
 #pragma once
 #include <string>
 #include <iostream>
+#include <chrono>
 
 namespace cvid 
 {
@@ -20,6 +21,19 @@ namespace cvid
 	{
 		std::cout << errorFormat << message << normalFormat << std::endl;
 	}
+
+	//Profiler tools
+	static std::chrono::time_point<std::chrono::high_resolution_clock> timePointStart;
+	static inline void StartTimePoint()
+	{
+		timePointStart = std::chrono::high_resolution_clock::now();
+	}
+	static inline double EndTimePoint()
+	{
+		std::chrono::duration<double> duration = std::chrono::high_resolution_clock::now() - timePointStart;
+		return duration.count();
+	}
+
 	//Get a random color
 	static inline cvid::Color RandomColor()
 	{

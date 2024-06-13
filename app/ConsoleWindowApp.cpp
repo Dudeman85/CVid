@@ -26,20 +26,55 @@ int main(int argc, char* argv[])
 		return -1;
 	}
 
-	//Open the pipe
-	HANDLE pipe = CreateFileA(
-		argv[1], //Name of the pipe
+	//Pipes
+	std::string genericPipeName = std::string(argv[1]);
+	//Open the outbound pipe
+	HANDLE outPipe = CreateFileA(
+		(genericPipeName + "in").c_str(), //Inbound to server
+		GENERIC_WRITE, //Write only for this pipe
+		FILE_SHARE_READ | FILE_SHARE_WRITE,
+		NULL, //Security attributes
+		OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL //Unimportant for pipes
+	);
+	//Make sure the pipe connected
+	if (outPipe == INVALID_HANDLE_VALUE)
+	{
+		cvid::LogError("CVid error in create window: Failed to connect pipe, error " + std::to_string(GetLastError()));
+		system("pause");
+		return -2;
+	}
+
+	//Open the inbound pipe
+	HANDLE inPipe = CreateFileA(
+		(genericPipeName + "out").c_str(), //Outbound from server
 		GENERIC_READ, //Read only for this pipe
 		FILE_SHARE_READ | FILE_SHARE_WRITE,
 		NULL, //Security attributes
 		OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL //Unimportant for pipes
 	);
 	//Make sure the pipe connected
-	if (pipe == INVALID_HANDLE_VALUE)
+	if (inPipe == INVALID_HANDLE_VALUE)
 	{
 		cvid::LogError("CVid error in create window: Failed to connect pipe, error " + std::to_string(GetLastError()));
 		system("pause");
 		return -2;
+	}
+
+	//Send a ready status
+	char cdata = (char)cvid::WindowStatus::Ready;
+	bool sendSuccess = WriteFile(
+		outPipe,
+		&cdata,
+		1 * sizeof(char), //How many bytes to send
+		NULL, NULL //Irrelevant
+	);
+
+	//Make sure the data was sent
+	if (!sendSuccess)
+	{
+		cvid::LogWarning("CVid warning in Window: Failed to send status message " + std::to_string(GetLastError()));
+		system("pause");
+		return -3;
 	}
 
 	//Hide the cursor
@@ -52,7 +87,7 @@ int main(int argc, char* argv[])
 		char buffer[8193];
 		DWORD numBytesRead = 0;
 		bool readPipeSuccess = ReadFile(
-			pipe,
+			inPipe,
 			buffer, //The destination for the data from the pipe
 			8192 * sizeof(char), //Attempt to read this many bytes
 			&numBytesRead,
@@ -64,6 +99,7 @@ int main(int argc, char* argv[])
 		{
 			//If the pipe fails, kill the process
 			cvid::LogWarning("CVid error in update window: Failed to read from pipe, code " + std::to_string(GetLastError()));
+			system("pause");
 			return -2;
 		}
 
@@ -125,6 +161,23 @@ int main(int argc, char* argv[])
 			std::cout << "\x1b[0;0f" << frameString;
 
 			break;
+		}
+
+		//Send a ready status
+		char cdata = (char)cvid::WindowStatus::Ready;
+		bool sendSuccess = WriteFile(
+			outPipe,
+			&cdata,
+			1 * sizeof(char), //How many bytes to send
+			NULL, NULL //Irrelevant
+		);
+
+		//Make sure the data was sent
+		if (!sendSuccess)
+		{
+			cvid::LogWarning("CVid warning in Window: Failed to send status message " + std::to_string(GetLastError()));
+			system("pause");
+			return -3;
 		}
 	}
 }

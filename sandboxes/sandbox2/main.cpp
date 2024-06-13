@@ -1,5 +1,6 @@
 #include <format>
 #include <thread>
+#include <chrono>
 #include <cvid/Window.h>
 #include <cvid/Rasterizer.h>
 #include <cvid/Helpers.h>
@@ -18,7 +19,7 @@ int main()
 
 	//Probably fix this by checking if the message was received
 	//Probably need to make another pipe to send data from app to main
-	//window.SendData("asdadawdgfdagsgfgd", 16, cvid::DataType::String);
+	//window.SetProperties({100, 61});
 
 	std::vector<cvid::Vertice> vertices{ { cvid::Vector3(10, 40, 0)}, { cvid::Vector3(-10, 12, 0)}, {cvid::Vector3(5, -2, 0)} };
 	std::vector<cvid::Vector3Int> indices{ {0, 1, 2} };
@@ -30,17 +31,6 @@ int main()
 
 	while (true)
 	{
-		MSG msg;
-		while (PeekMessage(&msg, cwind, 0, 0, PM_REMOVE))
-		{
-			switch (msg.message)
-			{
-			case WM_LBUTTONDOWN:
-				std::cout << msg.pt.x << ", " << msg.pt.y << std::endl;
-				break;
-			}
-		}
-		
 		if (GetKeyState(VK_ESCAPE) & 0x8000)
 			return 0;
 
@@ -78,7 +68,6 @@ int main()
 
 		if (!window.DrawFrame())
 			return 0;
-		std::this_thread::sleep_for(std::chrono::milliseconds(10));
 	}
 
 	return 0;
