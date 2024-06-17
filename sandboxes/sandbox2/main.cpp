@@ -22,23 +22,26 @@ int main()
 	window.SetProperties({ 100, 64 });
 
 	std::vector<cvid::Vertice> pyramidVertices{
-		{ cvid::Vector3(0, 20, -20)},
-		{ cvid::Vector3(-20, -20, 0)},
-		{ cvid::Vector3(20, -20, 0)},
-		{ cvid::Vector3(0, -20, -40)},
+		{ cvid::Vector3(0, 20, 0)},
+		{ cvid::Vector3(-20, -20, 20)},
+		{ cvid::Vector3(20, -20, 20)},
+		{ cvid::Vector3(-20, -20, -20)},
+		{ cvid::Vector3(20, -20, -20)},
 	};
 	std::vector<cvid::Vector3Int> pyramidIndices{
 		{0, 1, 2},
 		{0, 3, 1},
-		{0, 3, 2},
+		{0, 3, 4},
+		{0, 4, 2},
 		{3, 1, 2},
+		{3, 4, 2},
 	};
 
 	std::vector<cvid::Vertice> vertices{ { cvid::Vector3(10, 40, 0)}, { cvid::Vector3(-10, 12, 0)}, {cvid::Vector3(5, -2, 0)} };
 	std::vector<cvid::Vector3Int> indices{ {0, 1, 2} };
 	cvid::Color col = cvid::RandomColor();
 
-	float rotation = 0;
+	cvid::Vector3 rotation = 0;
 
 	bool sd = false;
 
@@ -61,19 +64,28 @@ int main()
 			sd = false;
 
 		if (GetKeyState(VK_RIGHT) & 0x8000)
-			rotation++;
+			rotation += 1;
 		if (GetKeyState(VK_LEFT) & 0x8000)
-			rotation--;
-		if (rotation < 0)
-			rotation += 360;
+			rotation -= 1;
 
 		window.Fill(cvid::Color::Black);
 		window.ClearDepthBuffer();
 
-		cvid::Matrix4 model = cvid::Matrix4::Identity();
+		//GLM matrix
+		glm::mat4 glmModel(1);
+		glmModel = glm::rotate(glmModel, (float)glm::radians(rotation.x), { 1.0, 0, 0 });
+		glmModel = glm::rotate(glmModel, (float)glm::radians(rotation.y), { 0, 1.0, 0 });
+		glmModel = glm::rotate(glmModel, (float)glm::radians(rotation.z), { 0, 0, 1.0 });
+		glmModel = glm::translate(glmModel, { 0, 0, 20 });
 
-		model = model.RotateY(cvid::Radians(rotation));
-		model = model.Translate({ 0, -50, 0 });
+		cvid::DrawVerticesWireframe(&window, pyramidVertices, pyramidIndices, glmModel);
+
+		//My matrix
+		cvid::Matrix4 model = cvid::Matrix4::Identity();
+		model = model.RotateX(cvid::Radians(rotation.x));
+		model = model.RotateY(cvid::Radians(rotation.y));
+		model = model.RotateZ(cvid::Radians(rotation.z));
+		model = model.Translate({0, 0, 20});
 
 		//cvid::DrawVertices(&window, vertices, indices, mvp);
 		cvid::DrawVerticesWireframe(&window, pyramidVertices, pyramidIndices, model);

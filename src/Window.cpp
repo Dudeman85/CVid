@@ -288,8 +288,6 @@ namespace cvid
 		cdata[0] = (char)type;
 		memcpy(cdata + 1, data, amount);
 
-		cvid::StartTimePoint();
-
 		//Send the data
 		bool sendSuccess = WriteFile(
 			outPipe,
@@ -297,8 +295,6 @@ namespace cvid
 			(amount + 1) * sizeof(char), //How many bytes to send
 			NULL, NULL //Irrelevant
 		);
-
-		std::cout << amount * sizeof(char) << ", " << cvid::EndTimePoint() << std::endl;
 
 		delete[] cdata;
 

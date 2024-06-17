@@ -10,5 +10,5 @@ Window:
 - adaptive palette swapping
 - depth buffer
 Renderer:
-- Figure out transforms
-- Load models through either tinyobjloader or assimp
+- Load models through tinyobjloader
+- Fix matrix weirdness if its an issue

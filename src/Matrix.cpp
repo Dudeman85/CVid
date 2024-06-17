@@ -440,8 +440,8 @@ namespace cvid
 	}
 	Matrix4 Matrix4::RotateX(double angle)
 	{
-		const double c = cos(angle);
-		const double s = sin(angle);
+		const double c = cos(-angle);
+		const double s = sin(-angle);
 
 		Matrix4 m;
 		m[0][0] = 1;
@@ -454,8 +454,8 @@ namespace cvid
 	}
 	Matrix4 Matrix4::RotateY(double angle)
 	{
-		const double c = cos(angle);
-		const double s = sin(angle);
+		const double c = cos(-angle);
+		const double s = sin(-angle);
 
 		Matrix4 m;
 		m[0][0] = c;
@@ -468,8 +468,8 @@ namespace cvid
 	}
 	Matrix4 Matrix4::RotateZ(double angle)
 	{
-		const double c = cos(angle);
-		const double s = sin(angle);
+		const double c = cos(-angle);
+		const double s = sin(-angle);
 
 		Matrix4 m;
 		m[0][0] = c;
