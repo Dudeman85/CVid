@@ -3,6 +3,8 @@
 
 namespace cvid
 {
+	std::vector<Color> colors{Color::Red, Color::Blue, Color::Green, Color::Magenta};
+
 	//Render an amount of vertices to the window's framebuffer
 	void DrawVertices(Window* window, std::vector<Vertice> vertices, std::vector<Vector3Int> indices, glm::mat4x4 mvp)
 	{
@@ -14,10 +16,16 @@ namespace cvid
 			vert.position = Vector3(newVert.x, newVert.y, newVert.z);
 		}
 
+		int i = 0;
 		//Draw each triangle defined by the indices
 		for (Vector3Int& triangle : indices)
 		{
-			DrawTriangle(window, Vector2Int(vertices[triangle.x].position), Vector2Int(vertices[triangle.y].position), Vector2Int(vertices[triangle.z].position), Color::BrightGreen);
+			DrawTriangle(window, 
+						 Vector2Int(vertices[triangle.x].position), 
+						 Vector2Int(vertices[triangle.y].position), 
+						 Vector2Int(vertices[triangle.z].position), 
+						 colors[i]);
+			i++;
 		}
 	}
 

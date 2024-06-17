@@ -9,6 +9,7 @@ add_subdirectory("ext/glm-0.9.9.7")
 add_subdirectory("engine")
 
 include_directories("include")
+include_directories("ext")
 
 file(GLOB_RECURSE SOURCE_FILES "./src/*.cpp")
 file(GLOB_RECURSE HEADER_FILES "./include/cvid/*.h")

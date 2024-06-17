@@ -8,6 +8,7 @@ Window:
 - Fix pipe buffer issues
 - buffer issue causes pipe disconnect when sending too much data
 - adaptive palette swapping
+- depth buffer
 Renderer:
 - Figure out transforms
 - Load models through either tinyobjloader or assimp

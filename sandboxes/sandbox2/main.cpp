@@ -6,6 +6,7 @@
 #include <cvid/Helpers.h>
 #include <cvid/Renderer.h>
 #include <glm/gtc/matrix_transform.hpp>
+#include <tiny_obj_loader.h>
 
 //https://gabrielgambetta.com/computer-graphics-from-scratch/
 //https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-defwindowproca
@@ -19,6 +20,19 @@ int main()
 
 	window.SetProperties({100, 64});
 
+	std::vector<cvid::Vertice> pyramidVertices{ 
+		{ cvid::Vector3(0, 20, -20)}, 
+		{ cvid::Vector3(-20, -20, 0)}, 
+		{ cvid::Vector3(20, -20, 0)}, 
+		{ cvid::Vector3(0, -20, -40)},
+	};	
+	std::vector<cvid::Vector3Int> pyramidIndices{ 
+		{0, 1, 2},
+		{0, 3, 1},
+		{0, 3, 2},
+		{3, 1, 2},
+	};
+	
 	std::vector<cvid::Vertice> vertices{ { cvid::Vector3(10, 40, 0)}, { cvid::Vector3(-10, 12, 0)}, {cvid::Vector3(5, -2, 0)} };
 	std::vector<cvid::Vector3Int> indices{ {0, 1, 2} };
 	cvid::Color col = cvid::RandomColor();
@@ -60,9 +74,10 @@ int main()
 		//X, Y, Z euler rotations
 		//mvp = glm::rotate(mvp, glm::radians(rotation), glm::vec3(1.0f, 0.0f, 0.0f));
 		//mvp = glm::rotate(mvp, glm::radians(rotation), glm::vec3(0.0f, 1.0f, 0.0f));
-		mvp = glm::rotate(mvp, glm::radians(rotation), glm::vec3(0.0f, 0.0f, 1.0f));
+		mvp = glm::rotate(mvp, glm::radians(rotation), glm::vec3(0.0f, 1.0f, 0.0f));
 
-		cvid::DrawVertices(&window, vertices, indices, mvp);
+		//cvid::DrawVertices(&window, vertices, indices, mvp);
+		cvid::DrawVertices(&window, pyramidVertices, pyramidIndices, mvp);
 
 		if (!window.DrawFrame())
 			return 0;
