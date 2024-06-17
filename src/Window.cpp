@@ -17,9 +17,7 @@ namespace cvid
 		maxWidth = GetLargestConsoleWindowSize(console).X;
 		maxHeight = GetLargestConsoleWindowSize(console).Y * 2;
 
-		//Size the framebuffer
 		framebuffer = new CharPixel[width * height / 2];
-		//Size the depth buffer
 		depthBuffer = new double[width * height / 2];
 
 		//Create the outbound pipe to the new console process
@@ -138,16 +136,23 @@ namespace cvid
 	}
 
 	//Set a pixel on the framebuffer to some color, returns true on success
-	bool Window::PutPixel(Vector2Int pos, Color color)
+	bool Window::PutPixel(Vector2Int pos, Color color, double z)
 	{
-		return PutPixel(pos.x, pos.y, color);
+		return PutPixel(pos.x, pos.y, color, z);
 	}
 	//Set a pixel on the framebuffer to some color, returns true on success
-	bool Window::PutPixel(uint16_t x, uint16_t y, Color color)
+	bool Window::PutPixel(uint16_t x, uint16_t y, Color color, double z)
 	{
 		//Make sure the pixel is in bounds
 		if (x >= width || y >= height)
 			return false;
+
+		//If the current pixel in the depth buffer is in front of this pixel
+		double& currentDepth = depthBuffer[(y / 2) * width + x];
+		if (currentDepth < z)
+			return false;
+
+		currentDepth = z;
 
 		//Pixels are formatted two above each other in one character
 		//We will always print 223 where foreground is the top and background is the bottom.
@@ -193,6 +198,19 @@ namespace cvid
 			for (size_t x = 0; x < width; x++)
 			{
 				framebuffer[y * width + x] = charPixel;
+			}
+		}
+		return true;
+	}
+	
+	//Clear the depthbuffer, setting everything to 0
+	bool Window::ClearDepthBuffer()
+	{
+		for (size_t y = 0; y < height / 2; y++)
+		{
+			for (size_t x = 0; x < width; x++)
+			{
+				depthBuffer[y * width + x] = 0;
 			}
 		}
 		return true;

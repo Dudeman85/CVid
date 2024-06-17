@@ -67,6 +67,7 @@ int main()
 			rotation += 360;
 
 		window.Fill(cvid::Color::Black);
+		window.ClearDepthBuffer();
 
 		glm::mat4 mvp = glm::mat4(1);
 		//Position
@@ -77,7 +78,7 @@ int main()
 		mvp = glm::rotate(mvp, glm::radians(rotation), glm::vec3(0.0f, 1.0f, 0.0f));
 
 		//cvid::DrawVertices(&window, vertices, indices, mvp);
-		cvid::DrawVertices(&window, pyramidVertices, pyramidIndices, mvp);
+		cvid::DrawVerticesWireframe(&window, pyramidVertices, pyramidIndices, mvp);
 
 		if (!window.DrawFrame())
 			return 0;
