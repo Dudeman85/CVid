@@ -22,7 +22,6 @@ int main(int argc, char* argv[])
 	if (argc < 2)
 	{
 		cvid::LogError("CVid error in create window: No pipe given");
-		system("pause");
 		return -1;
 	}
 
@@ -40,7 +39,6 @@ int main(int argc, char* argv[])
 	if (outPipe == INVALID_HANDLE_VALUE)
 	{
 		cvid::LogError("CVid error in create window: Failed to connect pipe, error " + std::to_string(GetLastError()));
-		system("pause");
 		return -2;
 	}
 
@@ -56,7 +54,6 @@ int main(int argc, char* argv[])
 	if (inPipe == INVALID_HANDLE_VALUE)
 	{
 		cvid::LogError("CVid error in create window: Failed to connect pipe, error " + std::to_string(GetLastError()));
-		system("pause");
 		return -2;
 	}
 
@@ -73,7 +70,6 @@ int main(int argc, char* argv[])
 	if (!sendSuccess)
 	{
 		cvid::LogWarning("CVid warning in Window: Failed to send status message " + std::to_string(GetLastError()));
-		system("pause");
 		return -3;
 	}
 
@@ -101,7 +97,6 @@ int main(int argc, char* argv[])
 		{
 			//If the pipe fails, kill the process
 			cvid::LogWarning("CVid error in update window: Failed to read from pipe, code " + std::to_string(GetLastError()));
-			system("pause");
 			return -2;
 		}
 
@@ -139,7 +134,7 @@ int main(int argc, char* argv[])
 			}
 
 			//Resize the buffer
-			bufferSize = (size_t)width* (height / 2) * sizeof(cvid::CharPixel);
+			bufferSize = (size_t)width * (height / 2) * sizeof(cvid::CharPixel);
 			delete[] buffer;
 			buffer = new char[bufferSize];
 			break;
@@ -183,7 +178,6 @@ int main(int argc, char* argv[])
 		if (!sendSuccess)
 		{
 			cvid::LogWarning("CVid warning in Window: Failed to send status message " + std::to_string(GetLastError()));
-			system("pause");
 			return -3;
 		}
 	}

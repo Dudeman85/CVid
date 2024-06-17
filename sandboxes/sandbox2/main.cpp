@@ -41,7 +41,7 @@ int main()
 	std::vector<cvid::Vector3Int> indices{ {0, 1, 2} };
 	cvid::Color col = cvid::RandomColor();
 
-	cvid::Vector3 rotation = 0;
+	cvid::Vector3 rotation = {0, 0, 42};
 
 	bool sd = false;
 
@@ -73,19 +73,21 @@ int main()
 
 		//GLM matrix
 		glm::mat4 glmModel(1);
-		glmModel = glm::rotate(glmModel, (float)glm::radians(rotation.x), { 1.0, 0, 0 });
-		glmModel = glm::rotate(glmModel, (float)glm::radians(rotation.y), { 0, 1.0, 0 });
+		//glmModel = glm::rotate(glmModel, (float)glm::radians(rotation.x), { 1.0, 0, 0 });
+		//glmModel = glm::rotate(glmModel, (float)glm::radians(rotation.y), { 0, 1.0, 0 });
 		glmModel = glm::rotate(glmModel, (float)glm::radians(rotation.z), { 0, 0, 1.0 });
-		glmModel = glm::translate(glmModel, { 0, 0, 20 });
+		glmModel = glm::translate(glmModel, { 0, 20, 00 });
 
 		cvid::DrawVerticesWireframe(&window, pyramidVertices, pyramidIndices, glmModel);
 
 		//My matrix
 		cvid::Matrix4 model = cvid::Matrix4::Identity();
+		model = model.Scale({ 0.7 });
 		model = model.RotateX(cvid::Radians(rotation.x));
 		model = model.RotateY(cvid::Radians(rotation.y));
 		model = model.RotateZ(cvid::Radians(rotation.z));
-		model = model.Translate({0, 0, 20});
+		model = model.Translate({ -25, 20, 0 });
+
 
 		//cvid::DrawVertices(&window, vertices, indices, mvp);
 		cvid::DrawVerticesWireframe(&window, pyramidVertices, pyramidIndices, model);

@@ -427,7 +427,8 @@ namespace cvid
 	Matrix4 Matrix4::Translate(const Vector3& tv)
 	{
 		Matrix4 m = *this;
-		m[3] = m[0] * tv[0] + m[1] * tv[1] + m[2] * tv[2] + m[3];
+		//m[3] = m[0] * tv[0] + m[1] * tv[1] + m[2] * tv[2] + m[3];
+		m[3] = Vector4(tv, 1.0);
 		return m;
 	}
 	Matrix4 Matrix4::Rotate(const Vector3& rotation)
@@ -440,8 +441,8 @@ namespace cvid
 	}
 	Matrix4 Matrix4::RotateX(double angle)
 	{
-		const double c = cos(-angle);
-		const double s = sin(-angle);
+		const double c = cos(angle);
+		const double s = sin(angle);
 
 		Matrix4 m;
 		m[0][0] = 1;
@@ -454,8 +455,8 @@ namespace cvid
 	}
 	Matrix4 Matrix4::RotateY(double angle)
 	{
-		const double c = cos(-angle);
-		const double s = sin(-angle);
+		const double c = cos(angle);
+		const double s = sin(angle);
 
 		Matrix4 m;
 		m[0][0] = c;
@@ -468,8 +469,8 @@ namespace cvid
 	}
 	Matrix4 Matrix4::RotateZ(double angle)
 	{
-		const double c = cos(-angle);
-		const double s = sin(-angle);
+		const double c = cos(angle);
+		const double s = sin(angle);
 
 		Matrix4 m;
 		m[0][0] = c;
