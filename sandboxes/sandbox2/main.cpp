@@ -71,7 +71,7 @@ int main()
 
 		glm::mat4 mvp = glm::mat4(1);
 		//Position
-		//mvp = glm::translate(mvp, glm::vec3(30, 30.f, 0.f));
+		mvp = glm::translate(mvp, glm::vec3(30, 30.f, 0.f));
 		//X, Y, Z euler rotations
 		//mvp = glm::rotate(mvp, glm::radians(rotation), glm::vec3(1.0f, 0.0f, 0.0f));
 		//mvp = glm::rotate(mvp, glm::radians(rotation), glm::vec3(0.0f, 1.0f, 0.0f));
