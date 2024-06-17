@@ -55,12 +55,12 @@ namespace cvid
 		bool PutChar(uint16_t x, uint16_t y, CharPixel charPixel);
 		//Fills the framebuffer with a color
 		bool Fill(Color color);
-		//Set the properties of this window
-		bool SetProperties(WindowProperties properties);
 		//Draw the current framebuffer
 		bool DrawFrame();
 		//Send some arbitrary data to the window
 		bool SendData(const void* data, size_t amount, DataType type, bool block = true);
+		//Set the properties of this window, clears the framebuffer
+		bool SetProperties(WindowProperties properties);
 		//Closes the window process
 		void CloseWindow();
 		//Return true if the window process is still active, optionally gives back exit code
@@ -70,6 +70,8 @@ namespace cvid
 
 		//Function to call when the window closes
 		std::function<void(Window*)> onClose;
+		//Should adaptive palette swapping be used
+		bool useAdaptivePalette = false;
 
 	private:
 		//Bitmap of each character pixel for the window
@@ -91,7 +93,7 @@ namespace cvid
 		uint16_t maxWidth;
 		uint16_t maxHeight;
 
-		//Pipe to send data to the window process
+		//Pipes to send data to the window process
 		std::string outPipeName;
 		std::string inPipeName;
 		HANDLE outPipe;

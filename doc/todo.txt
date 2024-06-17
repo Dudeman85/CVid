@@ -1,11 +1,13 @@
 Rasterizer:
-- Rethink the screenspace coordinate system
 - optimize out wireframe drawing over filled triangle
+- texturing
+- sprite rendering
+- refactor for normal colors
+- dithering for blending
 Window:
-- Fix ipc sync
-- Add resizing
 - Fix pipe buffer issues
 - buffer issue causes pipe disconnect when sending too much data
-
-Futures:
-- runtime palette swapping if possible
+- adaptive palette swapping
+Renderer:
+- Figure out transforms
+- Load models through either tinyobjloader or assimp

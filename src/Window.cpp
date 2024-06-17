@@ -198,7 +198,7 @@ namespace cvid
 		return true;
 	}
 
-	//Set the properties of this window
+	//Set the properties of this window, clears the framebuffer
 	bool Window::SetProperties(WindowProperties properties)
 	{
 		//Make sure the window is not sized too big
@@ -208,11 +208,21 @@ namespace cvid
 			return false;
 		}
 
+		//Send it to the console app
+		if (!SendData(&properties, sizeof(properties), DataType::Properties))
+			return false;
+
+		//Round height to upper multiple of 2
+		properties.height += properties.height % 2;
+
 		width = properties.width;
 		height = properties.height;
 
-		//Send it to the console app
-		SendData(&properties, sizeof(properties), DataType::Properties);
+		//Resize the framebuffer and depth buffer
+		delete[] framebuffer;
+		delete[] depthBuffer;
+		framebuffer = new CharPixel[width * height / 2];
+		depthBuffer = new double[width * height / 2];
 
 		return true;
 	}

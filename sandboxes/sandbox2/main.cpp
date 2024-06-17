@@ -17,9 +17,7 @@ int main()
 
 	cvid::Window window(60, 60, "Triangle Test");
 
-	//Probably fix this by checking if the message was received
-	//Probably need to make another pipe to send data from app to main
-	//window.SetProperties({100, 61});
+	window.SetProperties({100, 64});
 
 	std::vector<cvid::Vertice> vertices{ { cvid::Vector3(10, 40, 0)}, { cvid::Vector3(-10, 12, 0)}, {cvid::Vector3(5, -2, 0)} };
 	std::vector<cvid::Vector3Int> indices{ {0, 1, 2} };

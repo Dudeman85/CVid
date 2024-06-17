@@ -80,16 +80,18 @@ int main(int argc, char* argv[])
 	//Hide the cursor
 	std::cout << "\x1b[?25l";
 
+	size_t bufferSize = (sizeof(cvid::WindowProperties) + 1) * sizeof(char);
+	char* buffer = new char[bufferSize];
+
 	//Update loop
 	while (true)
 	{
-		//Read the initial setup data
-		char buffer[8193];
+		//Read the data from the pipe
 		DWORD numBytesRead = 0;
 		bool readPipeSuccess = ReadFile(
 			inPipe,
 			buffer, //The destination for the data from the pipe
-			8192 * sizeof(char), //Attempt to read this many bytes
+			bufferSize * sizeof(char), //Attempt to read this many bytes
 			&numBytesRead,
 			NULL //Not using overlapped IO
 		);
@@ -135,6 +137,11 @@ int main(int argc, char* argv[])
 				cvid::LogWarning("Error, code " + std::to_string(GetLastError()));
 				//TODO: Handle error
 			}
+
+			//Resize the buffer
+			bufferSize = (size_t)width* (height / 2) * sizeof(cvid::CharPixel);
+			delete[] buffer;
+			buffer = new char[bufferSize];
 			break;
 		}
 
