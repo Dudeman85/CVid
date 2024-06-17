@@ -10,10 +10,11 @@ namespace cvid
 	public:
 		//Constructors
 		Matrix3();
-		Matrix3(float all);
-		Matrix3(float mat[9]);
+		Matrix3(double all);
+		Matrix3(double mat[9]);
+		static Matrix3 Identity();
 
-		//Indexing
+		//Indexing, [col][row]
 		Vector3& operator[](int i);
 		const Vector3& operator[](int i) const;
 
@@ -25,14 +26,14 @@ namespace cvid
 		Matrix3 operator*(Matrix3& rhs);
 
 		//Functions
-		float Determinant();
+		double Determinant();
 		Matrix3 Transpose();
 		Matrix3 Inverse();
 
 		//Generate Transform Matrices
-		static Matrix3 Scaling(const Vector2& scale);
-		static Matrix3 Rotation(float radians);
-		static Matrix3 Translation(const Vector2& translate);
+		Matrix3 Scale(const Vector2& scale);
+		Matrix3 Rotate(double radians);
+		Matrix3 Translate(const Vector2& translate);
 
 		std::string ToString();
 
@@ -45,10 +46,11 @@ namespace cvid
 	public:
 		//Constructors
 		Matrix4();
-		Matrix4(float all);
-		Matrix4(float mat[16]);
+		Matrix4(double all);
+		Matrix4(double mat[16]);
+		static Matrix4 Identity();
 
-		//Indexing
+		//Indexing, [col][row]
 		Vector4& operator[](int i);
 		const Vector4& operator[](int i) const;
 
@@ -57,20 +59,21 @@ namespace cvid
 		bool operator!=(const Matrix4& rhs);
 
 		//Multiply
-		Vector4 operator*(Vector4& rhs);
-		Matrix4 operator*(Matrix4& rhs);
+		Vector4 operator*(const Vector4& rhs);
+		Matrix4 operator*(const Matrix4& rhs);
 
 		//Functions
-		float Determinant();
+		double Determinant();
 		Matrix4 Transpose();
 		Matrix4 Inverse();
 
 		//Generate Transform Matrices
-		static Matrix4 Scaling(const Vector3& scale);
-		static Matrix4 Translation(const Vector3& translate);
-		static Matrix4 RotationX(float radians);
-		static Matrix4 RotationY(float radians);
-		static Matrix4 RotationZ(float radians);
+		Matrix4 Scale(const Vector3& scale);
+		Matrix4 Translate(const Vector3& translation);
+		Matrix4 Rotate(const Vector3& rotation);
+		Matrix4 RotateX(double radians);
+		Matrix4 RotateY(double radians);
+		Matrix4 RotateZ(double radians);
 
 		std::string ToString();
 

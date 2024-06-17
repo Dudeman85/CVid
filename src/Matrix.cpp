@@ -13,17 +13,25 @@ namespace cvid
 		c2 = Vector3(0);
 		c3 = Vector3(0);
 	}
-	Matrix3::Matrix3(float all)
+	Matrix3::Matrix3(double all)
 	{
 		c1 = Vector3(all);
 		c2 = Vector3(all);
 		c3 = Vector3(all);
 	}
-	Matrix3::Matrix3(float mat[9])
+	Matrix3::Matrix3(double mat[9])
 	{
 		c1 = Vector3(mat[0], mat[3], mat[6]);
 		c2 = Vector3(mat[1], mat[4], mat[7]);
 		c3 = Vector3(mat[2], mat[5], mat[8]);
+	}
+	Matrix3 Matrix3::Identity()
+	{
+		Matrix3 mat;
+		mat[0][0] = 1;
+		mat[1][1] = 1;
+		mat[2][2] = 1;
+		return mat;
 	}
 
 	//Indexing
@@ -111,7 +119,7 @@ namespace cvid
 	}
 
 	//Operations
-	float Matrix3::Determinant()
+	double Matrix3::Determinant()
 	{
 		Matrix3& self = *this;
 
@@ -121,7 +129,7 @@ namespace cvid
 	}
 	Matrix3 Matrix3::Transpose()
 	{
-		float t[]
+		double t[]
 		{
 			c1[0], c1[1], c1[2],
 			c2[0], c2[1], c2[2],
@@ -131,7 +139,7 @@ namespace cvid
 	}
 	Matrix3 Matrix3::Inverse()
 	{
-		float inverseDet = 1 / Determinant();
+		double inverseDet = 1 / Determinant();
 
 		Matrix3& self = *this;
 		Matrix3 inverse;
@@ -148,7 +156,7 @@ namespace cvid
 		return inverse;
 	}
 
-	Matrix3 Matrix3::Scaling(const Vector2& scale)
+	Matrix3 Matrix3::Scale(const Vector2& scale)
 	{
 		Matrix3 scalingMatrix;
 		scalingMatrix[0][0] = scale.x;
@@ -156,7 +164,7 @@ namespace cvid
 		scalingMatrix[2][2] = 1;
 		return scalingMatrix;
 	}
-	Matrix3 Matrix3::Rotation(float radians)
+	Matrix3 Matrix3::Rotate(double radians)
 	{
 		Matrix3 rotationMatrix;
 		rotationMatrix[0][0] = cos(radians);
@@ -166,7 +174,7 @@ namespace cvid
 		rotationMatrix[2][2] = 1;
 		return rotationMatrix;
 	}
-	Matrix3 Matrix3::Translation(const Vector2& translate)
+	Matrix3 Matrix3::Translate(const Vector2& translate)
 	{
 		Matrix3 translationMatrix;
 		translationMatrix[0][0] = 1;
@@ -194,19 +202,28 @@ namespace cvid
 		c3 = Vector4(0);
 		c4 = Vector4(0);
 	}
-	Matrix4::Matrix4(float all)
+	Matrix4::Matrix4(double all)
 	{
 		c1 = Vector4(all);
 		c2 = Vector4(all);
 		c3 = Vector4(all);
 		c4 = Vector4(all);
 	}
-	Matrix4::Matrix4(float mat[16])
+	Matrix4::Matrix4(double mat[16])
 	{
 		c1 = Vector4(mat[0], mat[4], mat[8], mat[12]);
 		c2 = Vector4(mat[1], mat[5], mat[9], mat[13]);
 		c3 = Vector4(mat[2], mat[6], mat[10], mat[14]);
 		c4 = Vector4(mat[3], mat[7], mat[11], mat[15]);
+	}
+	Matrix4 Matrix4::Identity()
+	{
+		Matrix4 mat;
+		mat[0][0] = 1;
+		mat[1][1] = 1;
+		mat[2][2] = 1;
+		mat[3][3] = 1;
+		return mat;
 	}
 
 	//Indexing
@@ -272,7 +289,7 @@ namespace cvid
 	}
 
 	//Operations
-	float Matrix4::Determinant()
+	double Matrix4::Determinant()
 	{
 		Matrix4& self = *this;
 
@@ -302,7 +319,7 @@ namespace cvid
 	}
 	Matrix4 Matrix4::Transpose()
 	{
-		float t[]
+		double t[]
 		{
 			c1[0], c1[1], c1[2], c1[3],
 			c2[0], c2[1], c2[2], c2[3],
@@ -357,7 +374,7 @@ namespace cvid
 
 		return inverse;
 	}
-	Vector4 Matrix4::operator*(Vector4& rhs)
+	Vector4 Matrix4::operator*(const Vector4& rhs)
 	{
 		Matrix4& lhs = *this;
 		Vector4 mult;
@@ -366,15 +383,15 @@ namespace cvid
 		mult[2] = (lhs[0][2] * rhs[0] + lhs[1][2] * rhs[1] + lhs[2][2] * rhs[2] + lhs[3][2] * rhs[3]);
 		mult[3] = (lhs[0][3] * rhs[0] + lhs[1][3] * rhs[1] + lhs[2][3] * rhs[2] + lhs[3][3] * rhs[3]);
 
-		auto q = lhs[0][3] * rhs[0];
-		auto w = lhs[1][3] * rhs[1];
-		auto e = lhs[2][3] * rhs[2];
-		auto r = lhs[3][3] * rhs[3];
-		auto a = (q + w + e + r);
+		double q = lhs[0][3] * rhs[0];
+		double w = lhs[1][3] * rhs[1];
+		double e = lhs[2][3] * rhs[2];
+		double r = lhs[3][3] * rhs[3];
+		double a = (q + w + e + r);
 
 		return mult;
 	}
-	Matrix4 Matrix4::operator*(Matrix4& rhs)
+	Matrix4 Matrix4::operator*(const Matrix4& rhs)
 	{
 		Matrix4& lhs = *this;
 		Matrix4 mult;
@@ -398,64 +415,75 @@ namespace cvid
 		return mult;
 	}
 
-	Matrix4 Matrix4::Scaling(const Vector3& scale)
+	Matrix4 Matrix4::Scale(const Vector3& sv)
 	{
-		Matrix4 scalingMatrix;
-		scalingMatrix[0][0] = scale.x;
-		scalingMatrix[1][1] = scale.y;
-		scalingMatrix[2][2] = scale.z;
-		scalingMatrix[3][3] = 1;
-		return scalingMatrix;
+		Matrix4 m = *this;
+		m[0] = m[0] * sv[0];
+		m[1] = m[1] * sv[1];
+		m[2] = m[2] * sv[2];
+		m[3] = m[3];
+		return m;
 	}
-	Matrix4 Matrix4::Translation(const Vector3& translate)
+	Matrix4 Matrix4::Translate(const Vector3& tv)
 	{
-		Matrix4 translationMatrix;
-		translationMatrix[0][0] = 1;
-		translationMatrix[1][1] = 1;
-		translationMatrix[2][2] = 1;
-		translationMatrix[3][3] = 1;
-		translationMatrix[0][3] = translate.x;
-		translationMatrix[1][3] = translate.y;
-		translationMatrix[1][3] = translate.z;
-		return translationMatrix;
+		Matrix4 m = *this;
+		m[3] = m[0] * tv[0] + m[1] * tv[1] + m[2] * tv[2] + m[3];
+		return m;
 	}
-	Matrix4 Matrix4::RotationX(float radians)
+	Matrix4 Matrix4::Rotate(const Vector3& rotation)
 	{
-		Matrix4 rotationMatrix;
-		rotationMatrix[0][0] = 1;
-		rotationMatrix[1][1] = cos(radians);
-		rotationMatrix[2][1] = -sin(radians);
-		rotationMatrix[1][2] = sin(radians);
-		rotationMatrix[2][2] = cos(radians);
-		rotationMatrix[3][3] = 1;
-		return rotationMatrix;
+		Matrix4 m = *this;
+		m = m.RotateX(rotation.x);
+		m = m.RotateY(rotation.y);
+		m = m.RotateZ(rotation.z);
+		return m;
 	}
-	Matrix4 Matrix4::RotationY(float radians)
+	Matrix4 Matrix4::RotateX(double angle)
 	{
-		Matrix4 rotationMatrix;
-		rotationMatrix[0][0] = cos(radians);
-		rotationMatrix[2][0] = sin(radians);
-		rotationMatrix[1][1] = 1;
-		rotationMatrix[0][2] = -sin(radians);
-		rotationMatrix[2][2] = cos(radians);
-		rotationMatrix[3][3] = 1;
-		return rotationMatrix;
+		const double c = cos(angle);
+		const double s = sin(angle);
+
+		Matrix4 m;
+		m[0][0] = 1;
+		m[1][1] = c;
+		m[2][1] = -s;
+		m[1][2] = s;
+		m[2][2] = c;
+		m[3][3] = 1;
+		return m * (*this);
 	}
-	Matrix4 Matrix4::RotationZ(float radians)
+	Matrix4 Matrix4::RotateY(double angle)
 	{
-		Matrix4 rotationMatrix;
-		rotationMatrix[0][0] = cos(radians);
-		rotationMatrix[1][0] = -sin(radians);
-		rotationMatrix[0][1] = sin(radians);
-		rotationMatrix[1][1] = cos(radians);
-		rotationMatrix[2][2] = 1;
-		rotationMatrix[3][3] = 1;
-		return rotationMatrix;
+		const double c = cos(angle);
+		const double s = sin(angle);
+
+		Matrix4 m;
+		m[0][0] = c;
+		m[2][0] = s;
+		m[1][1] = 1;
+		m[0][2] = -s;
+		m[2][2] = c;
+		m[3][3] = 1;
+		return m * (* this);
+	}
+	Matrix4 Matrix4::RotateZ(double angle)
+	{
+		const double c = cos(angle);
+		const double s = sin(angle);
+
+		Matrix4 m;
+		m[0][0] = c;
+		m[1][0] = -s;
+		m[0][1] = s;
+		m[1][1] = c;
+		m[2][2] = 1;
+		m[3][3] = 1;
+		return m * (*this);
 	}
 
 	std::string Matrix4::ToString()
 	{
 		Matrix4& self = *this;
-		return std::format("[{}, {}, {}, {},\n {}, {}, {}, {},\n {}, {}, {}, {},\n{}, {}, {}, {}]", self[0][0], self[1][0], self[2][0], self[3][0], self[0][1], self[1][1], self[2][1], self[3][1], self[0][2], self[1][2], self[2][2], self[3][2], self[0][3], self[1][3], self[2][3], self[3][3]);
+		return std::format("[{}, {}, {}, {},\n {}, {}, {}, {},\n {}, {}, {}, {},\n {}, {}, {}, {}]", self[0][0], self[1][0], self[2][0], self[3][0], self[0][1], self[1][1], self[2][1], self[3][1], self[0][2], self[1][2], self[2][2], self[3][2], self[0][3], self[1][3], self[2][3], self[3][3]);
 	}
 }

@@ -7,16 +7,17 @@ namespace cvid
 	constexpr double PI = 3.14159265;
 	constexpr double comparisonPrecision = 0.0001f;
 
-	///Radians to degrees
+	//Radians to degrees
 	double Degrees(double radians);
 
-	///Degrees to radians
+	//Degrees to radians
 	double Radians(double degrees);
 
 	class Vector2;
 	class Vector2Int;
 	class Vector3;
 	class Vector3Int;
+	class Vector4;
 
 	//Two 64-bit ints in one
 	class Vector2Int
@@ -120,6 +121,7 @@ namespace cvid
 		Vector3(double all);
 		Vector3(double x, double y, double z);
 		Vector3(Vector2 vec2, double z = 0);
+		Vector3(Vector4 vec4);
 
 		//Indexing
 		double& operator[](int i);
@@ -209,7 +211,8 @@ namespace cvid
 		//Constructors
 		Vector4();
 		Vector4(double all);
-		Vector4(double _x, double _y, double _z, double _w);
+		Vector4(double x, double y, double z, double w);
+		Vector4(Vector3, double w);
 
 		//Indexing
 		double& operator[](int i);

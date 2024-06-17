@@ -311,6 +311,12 @@ namespace cvid
 		y = vec2.y;
 		z = _z;
 	}
+	Vector3::Vector3(Vector4 vec4)
+	{
+		x = vec4.x;
+		y = vec4.y;
+		z = vec4.z;
+	}
 
 	//Comparison
 	bool Vector3::operator==(const Vector3& rhs) const
@@ -607,6 +613,13 @@ namespace cvid
 		y = _y;
 		z = _z;
 		w = _w;
+	}
+	Vector4::Vector4(Vector3 vec3, double w)
+	{
+		x = vec3.x;
+		y = vec3.y;
+		z = vec3.z;
+		this->w = w;
 	}
 
 	//Comparison
