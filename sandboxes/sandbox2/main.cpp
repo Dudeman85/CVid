@@ -15,11 +15,11 @@
 
 int main()
 {
-	HWND cwind = GetConsoleWindow();
-
 	cvid::Window window(60, 60, "Triangle Test");
 
 	window.SetProperties({ 100, 64 });
+
+	cvid::Camera cam({-30, 20, 0}, 100, 64, 1);
 
 	std::vector<cvid::Vertice> pyramidVertices{
 		{ cvid::Vector3(0, 20, 0)},
@@ -71,16 +71,7 @@ int main()
 		window.Fill(cvid::Color::Black);
 		window.ClearDepthBuffer();
 
-		//GLM matrix
-		glm::mat4 glmModel(1);
-		//glmModel = glm::rotate(glmModel, (float)glm::radians(rotation.x), { 1.0, 0, 0 });
-		//glmModel = glm::rotate(glmModel, (float)glm::radians(rotation.y), { 0, 1.0, 0 });
-		glmModel = glm::rotate(glmModel, (float)glm::radians(rotation.z), { 0, 0, 1.0 });
-		glmModel = glm::translate(glmModel, { 0, 20, 00 });
 
-		cvid::DrawVerticesWireframe(&window, pyramidVertices, pyramidIndices, glmModel);
-
-		//My matrix
 		cvid::Matrix4 model = cvid::Matrix4::Identity();
 		model = model.Scale({ 0.7 });
 		model = model.RotateX(cvid::Radians(rotation.x));
@@ -89,8 +80,8 @@ int main()
 		model = model.Translate({ -25, 20, 0 });
 
 
-		//cvid::DrawVertices(&window, vertices, indices, mvp);
-		cvid::DrawVerticesWireframe(&window, pyramidVertices, pyramidIndices, model);
+		//cvid::DrawVertices(&window, pyramidVertices, indices, model);
+		cvid::DrawVerticesWireframe(&window, &cam, pyramidVertices, pyramidIndices, model);
 
 		if (!window.DrawFrame())
 			return 0;

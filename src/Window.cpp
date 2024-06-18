@@ -17,8 +17,8 @@ namespace cvid
 		maxWidth = GetLargestConsoleWindowSize(console).X;
 		maxHeight = GetLargestConsoleWindowSize(console).Y * 2;
 
-		framebuffer = new CharPixel[width * height / 2];
-		depthBuffer = new double[width * height / 2];
+		framebuffer = new CharPixel[(size_t)width * height / 2];
+		depthBuffer = new double[(size_t)width * height / 2];
 
 		//Create the outbound pipe to the new console process
 		unsigned int pid = GetCurrentProcessId();
