@@ -1,14 +1,17 @@
 REQUIRED:
 Rasterizer:
-- texturing
-- sprite rendering
+4. - texturing
+5. - sprite rendering
+- Add triangle and line draw functions to allow for mvp 
 Window:
 - Fix pipe buffer issues
 - buffer issue causes pipe disconnect when sending too much data
-- depth buffer
+1. - depth buffer
+- handle window events
 Renderer:
-- Load models through tinyobjloader
+3. - Load models through tinyobjloader
 - Fix matrix weirdness if its an issue
+2. - Fix camera rotation and projection
 
 WOULD BE NICE:
 Rasterizer:
@@ -17,3 +20,5 @@ Rasterizer:
 - dithering for blending
 Window:
 - adaptive palette swapping
+Renderer:
+- allow for drawing wireframe indexed polygons

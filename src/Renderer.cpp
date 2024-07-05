@@ -5,6 +5,34 @@ namespace cvid
 {
 	std::vector<Color> colors{ Color::Red, Color::Blue, Color::Green, Color::Magenta, Color::BrightBlue, Color::BrightCyan };
 
+	//Render a point to the window's framebuffer
+	void DrawPoint(Vector3 point, Color color, Matrix4 transform, Camera* cam, Window* window)
+	{
+		//Apply the mvp
+		Vector4 v = Vector4(point, 1.0);
+		v = transform * v;
+		v = cam->GetView() * v;
+		//v = cam->GetProjection() * v;
+
+		RasterizePoint(window, v, color);
+	}
+
+	//Render a line to the window's framebuffer
+	void DrawLine(Vector3 p1, Vector3 p2, Color color, Matrix4 transform, Camera* cam, Window* window)
+	{
+		//Apply the mvp
+		Vector4 v1 = Vector4(p1, 1.0);
+		v1 = transform * v1;
+		v1 = cam->GetView() * v1;
+		//v1 = cam->GetProjection() * v1;
+		Vector4 v2 = Vector4(p2, 1.0);
+		v2 = transform * v2;
+		v2 = cam->GetView() * v2;
+		//v2 = cam->GetProjection() * v2;
+
+		RasterizeLine(window, v1, v2, color);
+	}
+
 	//Render an amount of vertices to the window's framebuffer
 	void DrawVertices(std::vector<Vertice> vertices, std::vector<Vector3Int> indices, Matrix4 transform, Camera* cam, Window* window)
 	{
@@ -18,7 +46,7 @@ namespace cvid
 		//Draw each triangle defined by the indices
 		for (Vector3Int& triangle : indices)
 		{
-			DrawTriangle(window,
+			RasterizeTriangle(window,
 						 Vector2Int(vertices[triangle.x].position),
 						 Vector2Int(vertices[triangle.y].position),
 						 Vector2Int(vertices[triangle.z].position),
@@ -45,7 +73,7 @@ namespace cvid
 		//Draw each triangle defined by the indices
 		for (Vector3Int& triangle : indices)
 		{
-			DrawTriangleWireframe(window,
+			RasterizeTriangleWireframe(window,
 								  vertices[triangle.x].position,
 								  vertices[triangle.y].position,
 								  vertices[triangle.z].position,
@@ -53,13 +81,13 @@ namespace cvid
 		}
 	}
 
-	//Render a model to the window's frambuffer
+	//Render a model to the window's framebuffer
 	inline void DrawModel(Model* model, Matrix4 transform, Camera* cam, Window* window)
 	{
 		DrawVertices(model->vertices, model->indices, transform, cam, window);
 	}
 
-	//Render a model as wireframe to the window's frambuffer
+	//Render a model as wireframe to the window's framebuffer
 	inline void DrawModelWireframe(Model* model, Matrix4 transform, Camera* cam, Window* window)
 	{
 		DrawVerticesWireframe(model->vertices, model->indices, transform, cam, window);

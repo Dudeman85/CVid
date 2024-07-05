@@ -485,19 +485,19 @@ namespace cvid
 		y = 0;
 		z = 0;
 	}
-	Vector3Int::Vector3Int(uint64_t all)
+	Vector3Int::Vector3Int(int64_t all)
 	{
 		x = all;
 		y = all;
 		z = all;
 	}
-	Vector3Int::Vector3Int(uint64_t _x, uint64_t _y, uint64_t _z)
+	Vector3Int::Vector3Int(int64_t _x, int64_t _y, int64_t _z)
 	{
 		x = _x;
 		y = _y;
 		z = _z;
 	}
-	Vector3Int::Vector3Int(Vector2Int vec2, uint64_t _z)
+	Vector3Int::Vector3Int(Vector2Int vec2, int64_t _z)
 	{
 		x = vec2.x;
 		y = vec2.y;
@@ -515,7 +515,7 @@ namespace cvid
 	}
 
 	//Indexing
-	uint64_t& Vector3Int::operator[](int i)
+	int64_t& Vector3Int::operator[](int i)
 	{
 		switch (i)
 		{
@@ -529,7 +529,7 @@ namespace cvid
 			throw std::out_of_range("Index in Vector3Int out of range");
 		}
 	}
-	const uint64_t& Vector3Int::operator[](int i) const
+	const int64_t& Vector3Int::operator[](int i) const
 	{
 		switch (i)
 		{
@@ -545,7 +545,7 @@ namespace cvid
 	}
 
 	//Addition
-	Vector3Int Vector3Int::operator+(const uint64_t& add) const
+	Vector3Int Vector3Int::operator+(const int64_t& add) const
 	{
 		return Vector3Int(x + add, y + add, z + add);
 	}
@@ -562,7 +562,7 @@ namespace cvid
 	}
 
 	//Subtraction
-	Vector3Int Vector3Int::operator-(const uint64_t& sub) const
+	Vector3Int Vector3Int::operator-(const int64_t& sub) const
 	{
 		return Vector3Int(x - sub, y - sub, z - sub);
 	}
@@ -579,7 +579,7 @@ namespace cvid
 	}
 
 	//Multiplication
-	Vector3Int Vector3Int::operator*(const uint64_t& mult) const
+	Vector3Int Vector3Int::operator*(const int64_t& mult) const
 	{
 		return Vector3Int(x * mult, y * mult, z * mult);
 	}
@@ -587,7 +587,7 @@ namespace cvid
 	{
 		return Vector3Int(x * mult.x, y * mult.y, z * mult.z);
 	}
-	Vector3Int& Vector3Int::operator*=(const uint64_t& mult)
+	Vector3Int& Vector3Int::operator*=(const int64_t& mult)
 	{
 		x *= mult;
 		y *= mult;
@@ -596,7 +596,7 @@ namespace cvid
 	}
 
 	//Division
-	Vector3Int Vector3Int::operator/(const uint64_t& div) const
+	Vector3Int Vector3Int::operator/(const int64_t& div) const
 	{
 		return Vector3Int(x / div, y / div, z / div);
 	}
@@ -604,7 +604,7 @@ namespace cvid
 	{
 		return Vector3Int(x / div.x, y / div.y, z / div.z);
 	}
-	Vector3Int& Vector3Int::operator/=(const uint64_t& div)
+	Vector3Int& Vector3Int::operator/=(const int64_t& div)
 	{
 		x /= div;
 		y /= div;

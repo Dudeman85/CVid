@@ -5,7 +5,7 @@
 namespace cvid
 {
 	//Draw a point onto a window's framebuffer
-	void DrawPoint(Window* window, Vector3 pt, Color color)
+	void RasterizePoint(Window* window, Vector3 pt, Color color)
 	{
 		//Convert to window coords
 		pt.y = -pt.y;
@@ -14,7 +14,7 @@ namespace cvid
 	}
 
 	//Draw a line onto a window's framebuffer
-	void DrawLine(Window* window, Vector3 p1f, Vector3 p2f, Color color)
+	void RasterizeLine(Window* window, Vector3 p1f, Vector3 p2f, Color color)
 	{
 		//Convert to window coords
 		Vector2Int windowHalfSize = window->GetDimensions() / 2;
@@ -197,10 +197,10 @@ namespace cvid
 
 	//Draw a triangle onto a window's framebuffer
 		//TODO: this function needs to be updated to work with depth buffer
-	void DrawTriangle(Window* window, Vector3 p1f, Vector3 p2f, Vector3 p3f, Color color)
+	void RasterizeTriangle(Window* window, Vector3 p1f, Vector3 p2f, Vector3 p3f, Color color)
 	{
 		//TODO: optimize this out maybe, or not lol this is totally permanent
-		DrawTriangleWireframe(window, p1f, p2f, p3f, color);
+		RasterizeTriangleWireframe(window, p1f, p2f, p3f, color);
 
 		//Convert to window coords
 		Vector2Int windowHalfSize = window->GetDimensions() / 2;
@@ -251,10 +251,10 @@ namespace cvid
 	}
 
 	//Draw a wireframe triangle onto a window's framebuffer
-	void DrawTriangleWireframe(Window* window, Vector3 p1, Vector3 p2, Vector3 p3, Color color)
+	void RasterizeTriangleWireframe(Window* window, Vector3 p1, Vector3 p2, Vector3 p3, Color color)
 	{
-		DrawLine(window, p1, p2, color);
-		DrawLine(window, p2, p3, color);
-		DrawLine(window, p1, p3, color);
+		RasterizeLine(window, p1, p2, color);
+		RasterizeLine(window, p2, p3, color);
+		RasterizeLine(window, p1, p3, color);
 	}
 }

@@ -65,26 +65,32 @@ int main()
 			sd = false;
 
 		if (GetKeyState(VK_RIGHT) & 0x8000)
-			rotation += 1;
+			rotation.y += 1;
 		if (GetKeyState(VK_LEFT) & 0x8000)
-			rotation -= 1;
+			rotation.y -= 1;
+		if (GetKeyState(VK_UP) & 0x8000)
+			rotation.x += 1;
+		if (GetKeyState(VK_DOWN) & 0x8000)
+			rotation.x -= 1;
 
 		window.Fill(cvid::Color::Black);
 		window.ClearDepthBuffer();
 
-		//cam.SetRotation(rotation * (cvid::PI / 180));
+		cam.SetRotation(rotation * (cvid::PI / 180));
 
+		//Draw axis lines
+		cvid::DrawLine({ -100, 0, 0 }, { 100, 0, 0 }, cvid::Color::Red, cvid::Matrix4::Identity(), &cam, &window);
+		cvid::DrawLine({ 0, -100, 0 }, { 0, 100, 0 }, cvid::Color::Green, cvid::Matrix4::Identity(), &cam, &window);
+		cvid::DrawLine({ 0, 0, -100 }, { 0, 0, 100 }, cvid::Color::Blue, cvid::Matrix4::Identity(), &cam, &window);
 
 		cvid::Matrix4 model = cvid::Matrix4::Identity();
 		model = model.Scale({ 0.7 });
-		model = model.RotateX(cvid::Radians(rotation.x));
-		model = model.RotateY(cvid::Radians(rotation.y));
-		model = model.RotateZ(cvid::Radians(rotation.z));
+		//model = model.RotateX(cvid::Radians(rotation.x));
+		//model = model.RotateY(cvid::Radians(rotation.y));
+		//model = model.RotateZ(cvid::Radians(rotation.z));
 		model = model.Translate({ -25, 20, 0 });
 
-
-		//cvid::DrawVertices(&window, pyramidVertices, pyramidIndices, model);
-		cvid::DrawVertices(pyramidVertices, pyramidIndices, model, &cam, &window);
+		cvid::DrawVerticesWireframe(pyramidVertices, pyramidIndices, model, &cam, &window);
 
 		if (!window.DrawFrame())
 			return 0;

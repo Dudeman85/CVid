@@ -174,39 +174,39 @@ namespace cvid
 	public:
 		//Constructors
 		Vector3Int();
-		Vector3Int(uint64_t all);
-		Vector3Int(uint64_t x, uint64_t y, uint64_t z);
-		Vector3Int(Vector2Int vec2, uint64_t z = 0);
+		Vector3Int(int64_t all);
+		Vector3Int(int64_t x, int64_t y, int64_t z);
+		Vector3Int(Vector2Int vec2, int64_t z = 0);
 
 		//Indexing
-		uint64_t& operator[](int i);
-		const uint64_t& operator[](int i) const;
+		int64_t& operator[](int i);
+		const int64_t& operator[](int i) const;
 
 		//Comparison
 		bool operator==(const Vector3Int& rhs) const;
 		bool operator!=(const Vector3Int& rhs) const;
 
 		//Add
-		Vector3Int operator+(const uint64_t& add) const;
+		Vector3Int operator+(const int64_t& add) const;
 		Vector3Int operator+(const Vector3Int& add) const;
 		Vector3Int& operator+=(const Vector3Int& add);
 		//Subtract
-		Vector3Int operator-(const uint64_t& sub) const;
+		Vector3Int operator-(const int64_t& sub) const;
 		Vector3Int operator-(const Vector3Int& sub) const;
 		Vector3Int& operator-=(const Vector3Int& sub);
 		//Multiply
-		Vector3Int operator*(const uint64_t& mult) const;
+		Vector3Int operator*(const int64_t& mult) const;
 		Vector3Int operator*(const Vector3Int& mult) const;
-		Vector3Int& operator*=(const uint64_t& mult);
+		Vector3Int& operator*=(const int64_t& mult);
 		//Divide
-		Vector3Int operator/(const uint64_t& div) const;
+		Vector3Int operator/(const int64_t& div) const;
 		Vector3Int operator/(const Vector3Int& div) const;
-		Vector3Int& operator/=(const uint64_t& div);
+		Vector3Int& operator/=(const int64_t& div);
 
 		//Return a string of this vector in format "(x, y, z)"
 		std::string ToString() const;
 
-		uint64_t x, y, z;
+		int64_t x, y, z;
 	};
 
 	//Four doubles in one
