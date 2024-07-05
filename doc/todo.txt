@@ -1,14 +1,19 @@
+REQUIRED:
 Rasterizer:
-- optimize out wireframe drawing over filled triangle
 - texturing
 - sprite rendering
-- refactor for normal colors
-- dithering for blending
 Window:
 - Fix pipe buffer issues
 - buffer issue causes pipe disconnect when sending too much data
-- adaptive palette swapping
 - depth buffer
 Renderer:
 - Load models through tinyobjloader
 - Fix matrix weirdness if its an issue
+
+WOULD BE NICE:
+Rasterizer:
+- optimize out wireframe drawing over filled triangle
+- refactor for normal colors
+- dithering for blending
+Window:
+- adaptive palette swapping

@@ -15,11 +15,12 @@
 
 int main()
 {
-	cvid::Window window(60, 60, "Triangle Test");
+	cvid::Window window(60, 60, "MVP Test");
 
 	window.SetProperties({ 100, 64 });
 
-	cvid::Camera cam({-30, 20, 0}, 100, 64, 1);
+	cvid::Camera cam({ -30, 20, 0 }, 100, 64, 1);
+	cam.SetRotation({ 0, 0, 0 });
 
 	std::vector<cvid::Vertice> pyramidVertices{
 		{ cvid::Vector3(0, 20, 0)},
@@ -41,7 +42,7 @@ int main()
 	std::vector<cvid::Vector3Int> indices{ {0, 1, 2} };
 	cvid::Color col = cvid::RandomColor();
 
-	cvid::Vector3 rotation = {0, 0, 42};
+	cvid::Vector3 rotation = { 0, 0, 42 };
 
 	bool sd = false;
 
@@ -71,6 +72,8 @@ int main()
 		window.Fill(cvid::Color::Black);
 		window.ClearDepthBuffer();
 
+		//cam.SetRotation(rotation * (cvid::PI / 180));
+
 
 		cvid::Matrix4 model = cvid::Matrix4::Identity();
 		model = model.Scale({ 0.7 });
@@ -80,8 +83,8 @@ int main()
 		model = model.Translate({ -25, 20, 0 });
 
 
-		//cvid::DrawVertices(&window, pyramidVertices, indices, model);
-		cvid::DrawVerticesWireframe(&window, &cam, pyramidVertices, pyramidIndices, model);
+		//cvid::DrawVertices(&window, pyramidVertices, pyramidIndices, model);
+		cvid::DrawVertices(pyramidVertices, pyramidIndices, model, &cam, &window);
 
 		if (!window.DrawFrame())
 			return 0;

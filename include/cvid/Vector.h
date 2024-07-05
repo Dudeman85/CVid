@@ -28,6 +28,8 @@ namespace cvid
 		Vector2Int(int64_t all);
 		Vector2Int(int64_t x, int64_t y);
 		Vector2Int(Vector2 v);
+		Vector2Int(Vector3Int v);
+		Vector2Int(Vector3 v);
 
 		//Indexing
 		int64_t& operator[](int i);
@@ -68,6 +70,7 @@ namespace cvid
 		Vector2();
 		Vector2(double all);
 		Vector2(double x, double y);
+		Vector2(Vector2Int v);
 		Vector2(Vector3 vec3);
 
 		//Indexing
@@ -121,6 +124,8 @@ namespace cvid
 		Vector3(double all);
 		Vector3(double x, double y, double z);
 		Vector3(Vector2 vec2, double z = 0);
+		Vector3(Vector2Int vec2, double z = 0);
+		Vector3(Vector3Int v);
 		Vector3(Vector4 vec4);
 
 		//Indexing

@@ -5,19 +5,21 @@
 namespace cvid
 {
 	//Draw a point onto a window's framebuffer
-	void DrawPoint(Window* window, Vector2Int pt, Color color)
+	void DrawPoint(Window* window, Vector3 pt, Color color)
 	{
 		//Convert to window coords
 		pt.y = -pt.y;
-		pt += window->GetDimensions() / 2;
-		window->PutPixel(pt, color);
+		pt += Vector3(window->GetDimensions() / 2);
+		window->PutPixel(Vector2Int(pt), color, pt.z);
 	}
 
 	//Draw a line onto a window's framebuffer
-	void DrawLine(Window* window, Vector2Int p1, Vector2Int p2, Color color)
+	void DrawLine(Window* window, Vector3 p1f, Vector3 p2f, Color color)
 	{
 		//Convert to window coords
 		Vector2Int windowHalfSize = window->GetDimensions() / 2;
+		Vector2Int p1 = p1f;
+		Vector2Int p2 = p2f;
 		p1.y = -p1.y;
 		p1 += windowHalfSize;
 		p2.y = -p2.y;
@@ -194,16 +196,17 @@ namespace cvid
 	}
 
 	//Draw a triangle onto a window's framebuffer
-	void DrawTriangle(Window* window, Vector2Int p1, Vector2Int p2, Vector2Int p3, Color color)
+		//TODO: this function needs to be updated to work with depth buffer
+	void DrawTriangle(Window* window, Vector3 p1f, Vector3 p2f, Vector3 p3f, Color color)
 	{
-		//TODO: optimize this out
-		DrawPoint(window, p1, Color::BrightMagenta);
-		DrawPoint(window, p2, Color::BrightMagenta);
-		DrawPoint(window, p3, Color::BrightMagenta);
-		DrawTriangleWireframe(window, p1, p2, p3, Color::BrightCyan);
+		//TODO: optimize this out maybe, or not lol this is totally permanent
+		DrawTriangleWireframe(window, p1f, p2f, p3f, color);
 
 		//Convert to window coords
 		Vector2Int windowHalfSize = window->GetDimensions() / 2;
+		Vector2Int p1 = p1f;
+		Vector2Int p2 = p2f;
+		Vector2Int p3 = p3f;
 		p1.y = -p1.y;
 		p1 += windowHalfSize;
 		p2.y = -p2.y;
@@ -234,7 +237,7 @@ namespace cvid
 			leftSegment = combinedSegment;
 			rightSegment = fullSegment;
 		}
-		
+
 		int startY = (int)std::round(p3.y);
 		//For each y coordinate in the triangle
 		for (int yi = 0; yi < fullSegment.size(); yi++)
@@ -248,7 +251,7 @@ namespace cvid
 	}
 
 	//Draw a wireframe triangle onto a window's framebuffer
-	void DrawTriangleWireframe(Window* window, Vector2Int p1, Vector2Int p2, Vector2Int p3, Color color)
+	void DrawTriangleWireframe(Window* window, Vector3 p1, Vector3 p2, Vector3 p3, Color color)
 	{
 		DrawLine(window, p1, p2, color);
 		DrawLine(window, p2, p3, color);

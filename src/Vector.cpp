@@ -38,6 +38,16 @@ namespace cvid
 		x = std::round(v.x);
 		y = std::round(v.y);
 	}
+	Vector2Int::Vector2Int(Vector3Int v)
+	{
+		x = v.x;
+		y = v.y;
+	}
+	Vector2Int::Vector2Int(Vector3 v)
+	{
+		x = std::round(v.x);
+		y = std::round(v.y);
+	}
 
 	//Comparison
 	bool Vector2Int::operator==(const Vector2Int& rhs) const
@@ -155,6 +165,11 @@ namespace cvid
 	{
 		x = _x;
 		y = _y;
+	}
+	Vector2::Vector2(Vector2Int v)
+	{
+		x = v.x;
+		y = v.y;
 	}
 	Vector2::Vector2(Vector3 vec3)
 	{
@@ -310,6 +325,18 @@ namespace cvid
 		x = vec2.x;
 		y = vec2.y;
 		z = _z;
+	}
+	Vector3::Vector3(Vector2Int vec2, double _z)
+	{
+		x = vec2.x;
+		y = vec2.y;
+		z = _z;
+	}
+	Vector3::Vector3(Vector3Int v)
+	{
+		x = v.x;
+		y = v.y;
+		z = v.z;
 	}
 	Vector3::Vector3(Vector4 vec4)
 	{

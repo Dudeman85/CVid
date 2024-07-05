@@ -5,19 +5,16 @@
 #include <cvid/Window.h>
 #include <cvid/Matrix.h>
 #include <cvid/Camera.h>
+#include <cvid/Model.h>
 
 namespace cvid
 {
-	struct Vertice
-	{
-		Vector3 position;
-		Vector2 texCoord;
-		Vector3 color;
-	};
-
-	//Render an amount of vertices to the window's framebuffer
-	void DrawVertices(Window* window, std::vector<Vertice> vertices, std::vector<Vector3Int> indices, Matrix4 model);
-	//Render an amount of vertices as wireframes to the window's framebuffer
-	void DrawVerticesWireframe(Window* window, Camera* cam, std::vector<Vertice> vertices, std::vector<Vector3Int> indices, Matrix4 model);
-	void DrawVerticesWireframe(Window* window, std::vector<Vertice> vertices, std::vector<Vector3Int> indices, glm::mat4 model);
+	//Render indexed filled triangles from vertices to the window's framebuffer
+	void DrawVertices(std::vector<Vertice> vertices, std::vector<Vector3Int> indices, Matrix4 transform, Camera* cam, Window* window);
+	//Render indexed wireframe triangles from vertices to the window's framebuffer
+	void DrawVerticesWireframe(std::vector<Vertice> vertices, std::vector<Vector3Int> indices, Matrix4 transform, Camera* cam, Window* window);
+	//Render a model to the window's frambuffer
+	inline void DrawModel(Model* model, Matrix4 transform, Camera* cam, Window* window);
+	//Render a model as wireframe to the window's frambuffer
+	inline void DrawModelWireframe(Model* model, Matrix4 transform, Camera* cam, Window* window);
 }

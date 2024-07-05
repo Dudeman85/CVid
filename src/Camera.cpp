@@ -35,16 +35,17 @@ namespace cvid
 		this->height = height;
 		this->distance = distance;
 
+
+
 		return true;
 	}
 
 	//Get the projection matrix  of this camera
 	Matrix4 Camera::GetProjection()
 	{
-
-
 		return projection;
 	}
+
 	//Get the view  matrix of this camera
 	Matrix4 Camera::GetView()
 	{
@@ -53,8 +54,8 @@ namespace cvid
 			//Calculate the inverse model matrix
 			Matrix4 view = Matrix4::Identity();
 			view = view.Translate(position);
-			view = view.Rotate(rotation);
 			view = view.Inverse();
+			view = view.Rotate(Vector3() - rotation);
 			this->view = view;
 			updateView = false;
 		}
