@@ -42,7 +42,8 @@ int main()
 	std::vector<cvid::Vector3Int> indices{ {0, 1, 2} };
 	cvid::Color col = cvid::RandomColor();
 
-	cvid::Vector3 rotation = { 0, 0, 42 };
+	cvid::Vector3 rotation = { 0, 0, 0 };
+	double pyramidRotation = 0;
 
 	bool sd = false;
 
@@ -73,6 +74,8 @@ int main()
 		if (GetKeyState(VK_DOWN) & 0x8000)
 			rotation.x -= 1;
 
+		pyramidRotation++;
+
 		window.Fill(cvid::Color::Black);
 		window.ClearDepthBuffer();
 
@@ -86,7 +89,7 @@ int main()
 		cvid::Matrix4 model = cvid::Matrix4::Identity();
 		model = model.Scale({ 0.7 });
 		//model = model.RotateX(cvid::Radians(rotation.x));
-		//model = model.RotateY(cvid::Radians(rotation.y));
+		model = model.RotateY(cvid::Radians(pyramidRotation));
 		//model = model.RotateZ(cvid::Radians(rotation.z));
 		model = model.Translate({ -25, 20, 0 });
 
