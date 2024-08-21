@@ -39,7 +39,13 @@ namespace cvid
 		//Apply model view projection transforms
 		for (Vertice& vert : vertices)
 		{
-			vert.position = Vector3(transform * Vector4(vert.position, 1.0));
+			Vector4 v = Vector4(vert.position, 1.0);
+			//Apply the mvp
+			v = transform * v;
+			v = cam->GetView() * v;
+			//v = cam->GetProjection() * v;
+
+			vert.position = Vector3(v);
 		}
 
 		int i = 0;

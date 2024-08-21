@@ -1,6 +1,5 @@
 #pragma once
 #include <vector>
-#include <glm/matrix.hpp>
 #include <cvid/Vector.h>
 #include <cvid/Window.h>
 #include <cvid/Matrix.h>

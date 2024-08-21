@@ -1,4 +1,5 @@
 #include <cvid/Rasterizer.h>
+#include <cvid/Math.h>
 
 #define SWAP(a, b) {auto tmp = a; a = b; b = tmp;}
 
@@ -10,7 +11,16 @@ namespace cvid
 		//Convert to window coords
 		pt.y = -pt.y;
 		pt += Vector3(window->GetDimensions() / 2);
-		window->PutPixel(Vector2Int(pt), color, pt.z);
+
+		//Check the depth buffer bit
+		float* dbb = window->GetDepthBufferBit(pt.x, pt.y);
+		float invZ = 1 / pt.z;
+		//Only draw pixel if in front of current pixel
+		if (*dbb <= invZ)
+		{
+			*dbb = invZ;
+			window->PutPixel(pt.x, pt.y, color);
+		}
 	}
 
 	//Draw a line onto a window's framebuffer
@@ -33,7 +43,14 @@ namespace cvid
 		{
 			//Make sure starting point is before ending point
 			if (p1.x > p2.x)
+			{
 				SWAP(p1, p2);
+				SWAP(p1f, p2f);
+			}
+
+			//Interpolate for z positions
+			std::vector<float> zPositions = LerpRange(p1.x, p1f.z, p2.x, p2f.z);
+			zPositions.push_back(p2f.z);
 
 			dx = p2.x - p1.x;
 			dy = p2.y - p1.y;
@@ -51,16 +68,34 @@ namespace cvid
 			int error = 0;
 
 			//For each x position, plot the corresponding y
+			int i = 0;
 			for (int x = p1.x; x <= p2.x; x++)
 			{
-				window->PutPixel(x, y, color);
+				//Check the depth buffer bit
+				float* dbb = window->GetDepthBufferBit(x, y);
+				//Only draw pixel if in front of current pixel
+				if (dbb)
+				{
+					float invZ = zPositions[i];
+					if (*dbb < invZ)
+					{
+						*dbb = invZ;
+						window->PutPixel(x, y, color);
+					}
+					else
+					{
+						int a = 1;
+					}
+				}
 
+				//Increase y error
 				error += 2 * dy;
 				if (error > abs(dx))
 				{
 					y += yi;
 					error -= 2 * dx;
 				}
+				i++;
 			}
 		}
 		//Slope is > 1
@@ -68,7 +103,14 @@ namespace cvid
 		{
 			//Make sure starting point is before ending point
 			if (p1.y > p2.y)
+			{
 				SWAP(p1, p2);
+				SWAP(p1f, p2f);
+			}
+
+			//Interpolate for z positions
+			std::vector<float> zPositions = LerpRange(p1.y, p1f.z, p2.y, p2f.z);
+			zPositions.push_back(p2f.z);
 
 			dx = p2.x - p1.x;
 			dy = p2.y - p1.y;
@@ -86,10 +128,27 @@ namespace cvid
 			int error = 0;
 
 			//For each y position, plot the corresponding x
+			int i = 0;
 			for (int y = p1.y; y <= p2.y; y++)
 			{
-				window->PutPixel(x, y, color);
+				//Check the depth buffer bit
+				float* dbb = window->GetDepthBufferBit(x, y);
+				//Only draw pixel if in front of current pixel
+				if (dbb)
+				{
+					float invZ = zPositions[i];
+					if (*dbb < invZ)
+					{
+						*dbb = invZ;
+						window->PutPixel(x, y, color);
+					}
+					else
+					{
+						int a = 1;
+					}
+				}
 
+				//Increase error in x
 				error += 2 * dx;
 				if (error > abs(dy))
 				{
@@ -100,7 +159,8 @@ namespace cvid
 		}
 	}
 
-	//Get the x coordinates of a line at every y point
+	//Get the integer x coordinates of a line at every y point
+	//Based on Bresenham's algorithm
 	std::vector<int> InterpolateX(Vector2Int p1, Vector2Int p2)
 	{
 		int dx = p2.x - p1.x;
@@ -196,10 +256,10 @@ namespace cvid
 	}
 
 	//Draw a triangle onto a window's framebuffer
-		//TODO: this function needs to be updated to work with depth buffer
+	//TODO: this function needs to be updated to work with depth buffer
 	void RasterizeTriangle(Window* window, Vector3 p1f, Vector3 p2f, Vector3 p3f, Color color)
 	{
-		//TODO: optimize this out maybe, or not lol this is totally permanent
+		//TODO: optimize this out maybe, (or not lol this is totally permanent)
 		RasterizeTriangleWireframe(window, p1f, p2f, p3f, color);
 
 		//Convert to window coords

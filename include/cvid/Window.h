@@ -38,6 +38,7 @@ namespace cvid
 	//How many windows have ever been created
 	static int numWindowsCreated = 0;
 
+	//An object representing a console window process
 	class Window
 	{
 	public:
@@ -46,9 +47,9 @@ namespace cvid
 		~Window();
 
 		//Set a pixel on the framebuffer to some color, returns true on success
-		bool PutPixel(Vector2Int pos, Color color, double z = 0);
+		bool PutPixel(Vector2Int pos, Color color);
 		//Set a pixel on the framebuffer to some color
-		bool PutPixel(uint16_t x, uint16_t y, Color color, double z = 0);
+		bool PutPixel(uint16_t x, uint16_t y, Color color);
 		//Put a character on the framebuffer, in this case y is half
 		bool PutChar(Vector2Int pos, CharPixel charPixel);
 		//Put a character on the framebuffer, in this case y is half
@@ -57,6 +58,8 @@ namespace cvid
 		bool Fill(Color color);
 		//Clear the depthbuffer, setting everything to 0
 		bool ClearDepthBuffer();
+		//Get a modifiable reference to the depth buffer bit of a pixel
+		float* GetDepthBufferBit(uint16_t x, uint16_t y);
 		//Draw the current framebuffer
 		bool DrawFrame();
 		//Send some arbitrary data to the window
@@ -78,12 +81,12 @@ namespace cvid
 	private:
 		//Bitmap of each character pixel for the window
 		//Half the screen height, accessed [y * width + x] 
-		CharPixel* framebuffer;
+		CharPixel* frameBuffer;
 
 		//Depth buffer for current z of every pixel 
 		//Half the screen height, accessed [y * width + x]
 		//TODO implementation
-		double* depthBuffer;
+		float* depthBuffer;
 
 		//Window properties
 		std::string name;

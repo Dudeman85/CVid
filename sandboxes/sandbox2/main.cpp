@@ -15,9 +15,9 @@
 
 int main()
 {
-	cvid::Window window(60, 60, "MVP Test");
+	cvid::Window window(120, 80, "MVP Test");
 
-	window.SetProperties({ 100, 64 });
+	window.SetProperties({ 120, 90 });
 
 	cvid::Camera cam({ -30, 20, 0 }, 100, 64, 1);
 	cam.SetRotation({ 0, 0, 0 });
