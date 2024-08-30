@@ -11,11 +11,21 @@ namespace cvid
 		this->distance = distance;
 	}
 
+	void Camera::Translate(Vector3 translation)
+	{
+		updateView = true;
+		position += translation;
+	}
 	void Camera::SetPosition(Vector3 position)
 	{
 		if (position != this->position)
 			updateView = true;
 		this->position = position;
+	}
+	void Camera::Rotate(Vector3 rotation)
+	{
+		updateView = true;
+		this->rotation += rotation;
 	}
 	void Camera::SetRotation(Vector3 rotation)
 	{
@@ -23,6 +33,7 @@ namespace cvid
 			updateView = true;
 		this->rotation = rotation;
 	}
+
 	Vector3 Camera::GetPosition()
 	{
 		return position;
@@ -53,9 +64,8 @@ namespace cvid
 		{
 			//Calculate the inverse model matrix
 			Matrix4 view = Matrix4::Identity();
-			view = view.Translate(position);
-			view = view.Inverse();
-			view = view.Rotate(Vector3() - rotation);
+			view = view.Rotate(Vector3(0) - rotation);
+			view = view.Translate(Vector3(0) - position);
 			this->view = view;
 			updateView = false;
 		}

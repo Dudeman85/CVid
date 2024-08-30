@@ -19,7 +19,7 @@ int main()
 
 	window.SetProperties({ 120, 90 });
 
-	cvid::Camera cam({ -30, 20, 0 }, 100, 64, 1);
+	cvid::Camera cam({ 0, 0, 0 }, 100, 64, 1);
 	cam.SetRotation({ 0, 0, 0 });
 
 	std::vector<cvid::Vertice> pyramidVertices{
@@ -36,6 +36,16 @@ int main()
 		{0, 4, 2},
 		{3, 1, 2},
 		{3, 4, 2},
+	};
+
+
+	std::vector<cvid::Vertice> triVertices{
+		{{0, 10, 0}},
+		{{10, -10, 0}},
+		{{-10, -10, 0}},
+	};
+	std::vector<cvid::Vector3Int> triIndices{
+		{0, 1, 2}
 	};
 
 	std::vector<cvid::Vertice> vertices{ { cvid::Vector3(10, 40, 0)}, { cvid::Vector3(-10, 12, 0)}, {cvid::Vector3(5, -2, 0)} };
@@ -65,6 +75,7 @@ int main()
 		else
 			sd = false;
 
+		//Camera rotation
 		if (GetKeyState(VK_RIGHT) & 0x8000)
 			rotation.y += 1;
 		if (GetKeyState(VK_LEFT) & 0x8000)
@@ -74,7 +85,22 @@ int main()
 		if (GetKeyState(VK_DOWN) & 0x8000)
 			rotation.x -= 1;
 
-		pyramidRotation++;
+		//camera movement
+		float moveSpeed = 1;
+		if (GetKeyState(87) & 0x8000)
+			cam.Translate({ 0, 0, -moveSpeed });
+		if (GetKeyState(65) & 0x8000)
+			cam.Translate({ -moveSpeed, 0, 0 });
+		if (GetKeyState(83) & 0x8000)
+			cam.Translate({ 0, 0, moveSpeed });
+		if (GetKeyState(68) & 0x8000)
+			cam.Translate({ moveSpeed, 0, 0 });
+
+
+		if (GetKeyState(VK_DIVIDE) & 0x8000)
+			pyramidRotation++;
+		if (GetKeyState(VK_MULTIPLY) & 0x8000)
+			pyramidRotation--;
 
 		window.Fill(cvid::Color::Black);
 		window.ClearDepthBuffer();
@@ -93,7 +119,11 @@ int main()
 		//model = model.RotateZ(cvid::Radians(rotation.z));
 		model = model.Translate({ -25, 20, 0 });
 
-		cvid::DrawVerticesWireframe(pyramidVertices, pyramidIndices, model, &cam, &window);
+		cvid::DrawVertices(pyramidVertices, pyramidIndices, model, &cam, &window);
+		//cvid::DrawVertices(triVertices, triIndices, model, &cam, &window);
+
+		cvid::DrawPoint({ 20, 20, -20 }, cvid::Color::Magenta, cvid::Matrix4::Identity(), &cam, &window);
+		cvid::DrawPoint({ 20, 20, -10 }, cvid::Color::Cyan, cvid::Matrix4::Identity(), &cam, &window);
 
 		if (!window.DrawFrame())
 			return 0;

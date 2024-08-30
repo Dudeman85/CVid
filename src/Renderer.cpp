@@ -53,9 +53,9 @@ namespace cvid
 		for (Vector3Int& triangle : indices)
 		{
 			RasterizeTriangle(window,
-						 Vector2Int(vertices[triangle.x].position),
-						 Vector2Int(vertices[triangle.y].position),
-						 Vector2Int(vertices[triangle.z].position),
+						 vertices[triangle.x].position,
+						 vertices[triangle.y].position,
+						 vertices[triangle.z].position,
 						 colors[i]);
 			i++;
 		}

@@ -9,10 +9,16 @@ namespace cvid
 	{
 	public:
 		Camera(Vector3 position, float width, float height, float distance);
-
+		
+		//Transform setters
+		void Translate(Vector3 translation);
 		void SetPosition(Vector3 position);
+		void Rotate(Vector3 rotation);
 		void SetRotation(Vector3 rotation);
+
+		//Transform getters
 		Vector3 GetPosition();
+
 		//Set the properties of the viewport
 		bool SetViewport(float width, float height, float distance);
 

@@ -138,16 +138,21 @@ namespace cvid
 	}
 
 	//Set a pixel on the framebuffer to some color, returns true on success
-	bool Window::PutPixel(Vector2Int pos, Color color)
+	bool Window::PutPixel(Vector2Int pos, Color color, float z)
 	{
-		return PutPixel(pos.x, pos.y, color);
+		return PutPixel(pos.x, pos.y, color, z);
 	}
 	//Set a pixel on the framebuffer to some color, returns true on success
-	bool Window::PutPixel(uint16_t x, uint16_t y, Color color)
+	bool Window::PutPixel(uint16_t x, uint16_t y, Color color, float z)
 	{
 		//Make sure the pixel is in bounds
-		if (x >= width || y >= height)
+		if (x >= width || y >= height || z > 0)
 			return false;
+
+		//Make sure the is not already a closer pixel
+		if (1 / z >= depthBuffer[y * width + x])
+			return false;
+		depthBuffer[y * width + x] = 1 / z;
 
 		//Pixels are formatted two above each other in one character
 		//We will always print 223 where foreground is the top and background is the bottom.
@@ -205,13 +210,13 @@ namespace cvid
 		{
 			for (size_t x = 0; x < width; x++)
 			{
-				depthBuffer[y * width + x] = -INFINITY;
+				depthBuffer[y * width + x] = 0;
 			}
 		}
 		return true;
 	}
 
-	//Get a modifiable reference to the depth buffer bit of a pixel, returns nullptr on failure
+	//Get a pointer to the depth buffer bit of a pixel, returns nullptr on failure
 	float* Window::GetDepthBufferBit(uint16_t x, uint16_t y)
 	{
 		//Make sure the pixel is in bounds

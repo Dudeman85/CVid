@@ -1,6 +1,8 @@
 #include <cvid/Rasterizer.h>
 #include <cvid/Math.h>
 
+#include <iostream>
+
 #define SWAP(a, b) {auto tmp = a; a = b; b = tmp;}
 
 namespace cvid
@@ -12,15 +14,8 @@ namespace cvid
 		pt.y = -pt.y;
 		pt += Vector3(window->GetDimensions() / 2);
 
-		//Check the depth buffer bit
-		float* dbb = window->GetDepthBufferBit(pt.x, pt.y);
-		float invZ = 1 / pt.z;
-		//Only draw pixel if in front of current pixel
-		if (*dbb <= invZ)
-		{
-			*dbb = invZ;
-			window->PutPixel(pt.x, pt.y, color);
-		}
+		//Attempt to draw the pixel
+		window->PutPixel(pt.x, pt.y, color);
 	}
 
 	//Draw a line onto a window's framebuffer
@@ -49,8 +44,7 @@ namespace cvid
 			}
 
 			//Interpolate for z positions
-			std::vector<float> zPositions = LerpRange(p1.x, p1f.z, p2.x, p2f.z);
-			zPositions.push_back(p2f.z);
+			std::vector<float> zPositions = LerpRange(abs(p2.x - p1.x), p1f.z, p2f.z);
 
 			dx = p2.x - p1.x;
 			dy = p2.y - p1.y;
@@ -71,22 +65,8 @@ namespace cvid
 			int i = 0;
 			for (int x = p1.x; x <= p2.x; x++)
 			{
-				//Check the depth buffer bit
-				float* dbb = window->GetDepthBufferBit(x, y);
-				//Only draw pixel if in front of current pixel
-				if (dbb)
-				{
-					float invZ = zPositions[i];
-					if (*dbb < invZ)
-					{
-						*dbb = invZ;
-						window->PutPixel(x, y, color);
-					}
-					else
-					{
-						int a = 1;
-					}
-				}
+				//Attempt to draw the pixel
+				window->PutPixel(x, y, color, zPositions[i]);
 
 				//Increase y error
 				error += 2 * dy;
@@ -94,7 +74,7 @@ namespace cvid
 				{
 					y += yi;
 					error -= 2 * dx;
-				}
+				} 
 				i++;
 			}
 		}
@@ -109,8 +89,7 @@ namespace cvid
 			}
 
 			//Interpolate for z positions
-			std::vector<float> zPositions = LerpRange(p1.y, p1f.z, p2.y, p2f.z);
-			zPositions.push_back(p2f.z);
+			std::vector<float> zPositions = LerpRange(abs(p2.y - p1.y), p1f.z, p2f.z);
 
 			dx = p2.x - p1.x;
 			dy = p2.y - p1.y;
@@ -131,22 +110,8 @@ namespace cvid
 			int i = 0;
 			for (int y = p1.y; y <= p2.y; y++)
 			{
-				//Check the depth buffer bit
-				float* dbb = window->GetDepthBufferBit(x, y);
-				//Only draw pixel if in front of current pixel
-				if (dbb)
-				{
-					float invZ = zPositions[i];
-					if (*dbb < invZ)
-					{
-						*dbb = invZ;
-						window->PutPixel(x, y, color);
-					}
-					else
-					{
-						int a = 1;
-					}
-				}
+				//Attempt to draw the pixel
+				window->PutPixel(x, y, color, zPositions[i]);
 
 				//Increase error in x
 				error += 2 * dx;
@@ -155,6 +120,7 @@ namespace cvid
 					x += xi;
 					error -= 2 * dy;
 				}
+				i++;
 			}
 		}
 	}
@@ -276,11 +242,20 @@ namespace cvid
 
 		//Sort the vertices in descending order
 		if (p1.y < p2.y)
+		{
+			SWAP(p1f, p2f);
 			SWAP(p1, p2);
+		}
 		if (p1.y < p3.y)
+		{
+			SWAP(p1f, p3f);
 			SWAP(p1, p3);
+		}
 		if (p2.y < p3.y)
+		{
+			SWAP(p2f, p3f);
 			SWAP(p2, p3);
+		}
 
 		//Get every x point of each segment
 		std::vector<int> combinedSegment = InterpolateX(p2, p3);
@@ -289,23 +264,39 @@ namespace cvid
 		combinedSegment.insert(combinedSegment.end(), shortSegment.begin(), shortSegment.end());
 		std::vector<int> fullSegment = InterpolateX(p1, p3);
 
+		//Interpolate for z positions along the left and right segments
+		std::vector<float> combinedZPositions = LerpRange(abs(p3.y - p2.y), p2f.z, p3f.z);
+		std::vector<float> shortZPositions = LerpRange(abs(p2.y - p1.y), p1f.z, p2f.z);
+		combinedZPositions.insert(combinedZPositions.end(), shortZPositions.begin(), shortZPositions.end());
+		std::vector<float> fullZPositions = LerpRange(abs(p3.y - p1.y), p1f.z, p3f.z);
+
 		//Figure out which segment is on which side
 		std::vector<int> rightSegment = combinedSegment;
 		std::vector<int> leftSegment = fullSegment;
+		std::vector<float> rightZPositions = combinedZPositions;
+		std::vector<float> leftZPositions = fullZPositions;
 		if (leftSegment[std::floor(leftSegment.size() / 2)] > rightSegment[std::floor(rightSegment.size() / 2)])
 		{
 			leftSegment = combinedSegment;
 			rightSegment = fullSegment;
+			leftZPositions = combinedZPositions;
+			rightZPositions = fullZPositions;
 		}
 
 		int startY = (int)std::round(p3.y);
 		//For each y coordinate in the triangle
 		for (int yi = 0; yi < fullSegment.size(); yi++)
 		{
+			//Interpolate for z positions for each horizontal scanline
+			std::vector<float> zPositions = LerpRange(abs(leftSegment[yi] - rightSegment[yi]), leftZPositions[yi], rightZPositions[yi]);
+
 			//Draw a line from the full segment to the split segment
+			int i = 0;
 			for (int x = leftSegment[yi]; x <= rightSegment[yi]; x++)
 			{
-				window->PutPixel(x, startY + yi, color);
+				//Attempt to draw the pixel
+				window->PutPixel(x, startY + yi, color, zPositions[i]);
+				i++;
 			}
 		}
 	}
