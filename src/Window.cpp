@@ -150,9 +150,12 @@ namespace cvid
 			return false;
 
 		//Make sure the is not already a closer pixel
-		if (1 / z >= depthBuffer[y * width + x])
-			return false;
-		depthBuffer[y * width + x] = 1 / z;
+		if (enableDepthTest)
+		{
+			if (1 / z >= depthBuffer[y * width + x])
+				return false;
+			depthBuffer[y * width + x] = 1 / z;
+		}
 
 		//Pixels are formatted two above each other in one character
 		//We will always print 223 where foreground is the top and background is the bottom.
@@ -202,7 +205,7 @@ namespace cvid
 		}
 		return true;
 	}
-	
+
 	//Clear the depthbuffer, setting everything to 0
 	bool Window::ClearDepthBuffer()
 	{

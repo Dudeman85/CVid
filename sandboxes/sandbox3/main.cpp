@@ -1,34 +1,199 @@
 #include <iostream>
+#include <vector>
+#include <fstream>
+#include <chrono>
 #include <cvid/Window.h>
-#include <cvid/Matrix.h>
-#include <glm/gtc/matrix_transform.hpp>
 
-using namespace cvid;
+#define byte uint8_t
+
+constexpr uint8_t width = 96;
+constexpr uint8_t height = 64;
+
+using namespace std;
+
+uint16_t frameCount = 0;
+uint16_t frame = 0;
+
+//Load an image or video from a binary file
+vector<byte> LoadData(const string& path)
+{
+	//Open the file in binary mode and seek to end
+	ifstream ifs(path, ios::binary | ios::ate);
+
+	//Make sure the file can be opened
+	if (!ifs)
+	{
+		cout << "Could not load data from " + path;
+		throw runtime_error("Error loading data from " + path);
+	}
+
+	//Save end point and go back to start
+	streampos end = ifs.tellg();
+	ifs.seekg(0, ios::beg);
+
+	//Create a byte vector for the entire file data
+	size_t size = size_t(end - ifs.tellg());
+	vector<byte> data(size);
+
+	//Copy the data from filestream to vector
+	ifs.read((char*)data.data(), data.size());
+
+	//Get the 2-byte frame count
+	frameCount = (data[1] << 8) | data[0];
+
+	return data;
+}
+
+//Helper for painting the next pixel
+int xPos = 0;
+int yPos = 0;
+int squareX = 0;
+int squareY = 0;
+void ShiftHead(int amount)
+{
+	squareX += amount;
+	if (squareX < 8)
+	{
+		xPos += amount;
+	}
+
+	//Next scanline
+	xPos += amount;
+	while (xPos >= width)
+	{
+		xPos -= width;
+		yPos++;
+	}
+	if (yPos >= height)
+	{
+		yPos -= height;
+	}
+}
+void PutNextPixel(cvid::Color col, cvid::Window& window)
+{
+	window.PutPixel({ xPos, yPos }, col);
+	ShiftHead(1);
+}
 
 int main()
 {
-	glm::mat4 mvp = glm::mat4(1);
+	cvid::Window window(width, height, "Decompression test");
+	window.enableDepthTest = false;
 
-	//mvp = glm::scale(mvp, glm::vec3(4, 5, 6));
+	vector<byte> data = LoadData("C:\\Users\\Aleksi\\Desktop\\TIASM\\programs\\video\\BadApple.cvid");
+	//Start after frame count
+	size_t readHead = 2;
 
-	//mvp = glm::rotate(mvp, glm::radians(7.f), glm::vec3(1.0f, 0.0f, 0.0f));
-	mvp = glm::rotate(mvp, glm::radians(8.f), glm::vec3(0.0f, 1.0f, 0.0f));
-	//mvp = glm::rotate(mvp, glm::radians(9.f), glm::vec3(0.0f, 0.0f, 1.0f));
+	//Fill the screen with white
+	window.Fill(cvid::Color::White);
 
-	mvp = glm::translate(mvp, glm::vec3(1, 2, 3));
+	//FPS
+	auto waitTime = chrono::microseconds((int)((1.f / 15) * 1000000));
 
+	//For each frame in the video
+	for (frame = 0; frame < frameCount; frame++)
+	{
+		cout << "Start frame " << frame << endl;
+		auto frameStart = chrono::high_resolution_clock::now();
 
-	Matrix4 model = Matrix4::Identity();
+		//For each set 1 bit (2)
+		for (int set1bit = 0; set1bit < 2; set1bit++)
+		{
+			//Read the 2 bytes for set 1
+			byte set1 = data[readHead++];
 
-	//model = model.Scale({ 4, 5, 6 });
-	std::cout << model.ToString() << std::endl;
+			//Shift the bitmask 8 times, stop after 8th bit
+			for (int set1bitmask = 0b10000000; set1bitmask > 0; set1bitmask >>= 1)
+			{
+				//If the bit is set in set1
+				if (set1 & set1bitmask)
+				{
+					//Read the set2 byte
+					byte set2 = data[readHead++];
 
-	model = model.Rotate({ cvid::Radians(0.0), cvid::Radians(8.0), cvid::Radians(0.0) });
-	std::cout << model.ToString() << std::endl;
+					//Check each of the 8 bits with a bitmask
+					for (int set2bitmask = 0b10000000; set2bitmask > 0; set2bitmask >>= 1)
+					{
+						//If the bit is set in set2
+						if (set2 & set2bitmask)
+						{
+							//Read the set3 byte
+							byte set3 = data[readHead++];
 
-	model = model.Translate({ 1, 2, 3 });
-	std::cout << model.ToString() << std::endl;
+							//Special case for all black
+							if (set3 & 0b10000000)
+							{
+								//Paint the next 8*6 pixels black
+								for (size_t i = 0; i < 8 * 6; i++)
+									PutNextPixel(cvid::Color::Black, window);
+								continue;
+							}
+							//Special case for all white
+							if (set3 & 0b01000000)
+							{
+								//Paint the next 8*6 pixels white
+								for (size_t i = 0; i < 8 * 6; i++)
+									PutNextPixel(cvid::Color::White, window);
+								continue;
+							}
 
+							//Check each of the 8 bits with a bitmask
+							for (int set3bitmask = 0b00100000; set3bitmask > 0; set3bitmask >>= 1)
+							{
+								//If the bit is set in set3
+								if (set3 & set3bitmask)
+								{
+									//Read the set4 byte
+									byte set4 = data[readHead++];
+
+									//Check each of the 8 bits with a bitmask
+									for (int set4bitmask = 0b10000000; set4bitmask > 0; set4bitmask >>= 1)
+									{
+										//If the bit is set in set3
+										if (set4 & set4bitmask)
+											PutNextPixel(cvid::Color::Black, window);
+										else
+											PutNextPixel(cvid::Color::White, window);
+									}
+								}
+								else
+								{
+									//Shift head by 8 to compensate lack of set4
+									ShiftHead(8);
+								}
+							}
+						}
+						else
+						{
+							//Shift head by 8 * 6 to compensate lack of set3
+							ShiftHead(8 * 6);
+						}
+					}
+				}
+				else
+				{
+					//Shift head by 8 * 6 * 8 to compensate lack of set2
+					ShiftHead(8 * 6 * 8);
+				}
+			}
+		}
+
+		//Display the frame
+		window.DrawFrame();
+		window.SendData("\x1b[0;0H", 7, cvid::DataType::String);
+
+		cout << "Drew frame " << frame << " of " << frameCount << endl;
+		cout << xPos << ", " << yPos << endl;
+		xPos = 0;
+		yPos = 0;
+
+		//Keep a steady FPS regardless of processing time
+		while (true)
+		{
+			if (waitTime < chrono::high_resolution_clock::now() - frameStart)
+				break;
+		}
+	}
 
 	return 0;
 }

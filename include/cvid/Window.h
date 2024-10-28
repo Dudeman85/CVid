@@ -77,6 +77,8 @@ namespace cvid
 		std::function<void(Window*)> onClose;
 		//Should adaptive palette swapping be used
 		bool useAdaptivePalette = false;
+		//Enable depth buffering
+		bool enableDepthTest = true;
 
 	private:
 		//Bitmap of each character pixel for the window
