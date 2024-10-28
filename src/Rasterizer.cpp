@@ -222,7 +222,6 @@ namespace cvid
 	}
 
 	//Draw a triangle onto a window's framebuffer
-	//TODO: this function needs to be updated to work with depth buffer
 	void RasterizeTriangle(Window* window, Vector3 p1f, Vector3 p2f, Vector3 p3f, Color color)
 	{
 		//TODO: optimize this out maybe, (or not lol this is totally permanent)

@@ -1,16 +1,16 @@
 REQUIRED:
 Rasterizer:
-4. - texturing
-5. - sprite rendering
+- texturing
+- sprite rendering
 Window:
 - Fix pipe buffer issues
 - buffer issue causes pipe disconnect when sending too much data
-1. - depth buffer
 - handle window events
 Renderer:
-3. - Load models through tinyobjloader
+- Load models through tinyobjloader
 - Fix matrix weirdness if its an issue
-2. - Fix camera projection
+- Fix camera projection
+- Backface culling
 
 WOULD BE NICE:
 Rasterizer:
