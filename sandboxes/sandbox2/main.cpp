@@ -111,16 +111,28 @@ int main()
 		cvid::DrawLine({ -100, 0, 0 }, { 100, 0, 0 }, cvid::Color::Red, cvid::Matrix4::Identity(), &cam, &window);
 		cvid::DrawLine({ 0, -100, 0 }, { 0, 100, 0 }, cvid::Color::Green, cvid::Matrix4::Identity(), &cam, &window);
 		cvid::DrawLine({ 0, 0, -100 }, { 0, 0, 100 }, cvid::Color::Blue, cvid::Matrix4::Identity(), &cam, &window);
-
-		cvid::Matrix4 model = cvid::Matrix4::Identity();
-		model = model.Scale({ 0.7 });
+		
+		//Draw right side Triangle
+		cvid::Matrix4 triangleModel = cvid::Matrix4::Identity();
+		triangleModel = triangleModel.Scale({ 1.2 });
 		//model = model.RotateX(cvid::Radians(rotation.x));
-		model = model.RotateY(cvid::Radians(pyramidRotation));
+		triangleModel = triangleModel.RotateX(cvid::Radians(45));
 		//model = model.RotateZ(cvid::Radians(rotation.z));
-		model = model.Translate({ -25, 20, 0 });
+		triangleModel = triangleModel.Translate({ 25, 20, 0 });
 
-		cvid::DrawVertices(pyramidVertices, pyramidIndices, model, &cam, &window);
-		//cvid::DrawVertices(triVertices, triIndices, model, &cam, &window);
+		cvid::DrawVertices(triVertices, triIndices, triangleModel, &cam, &window);
+		
+
+		//Draw left side pyramid
+		cvid::Matrix4 pyramidModel = cvid::Matrix4::Identity();
+		pyramidModel = pyramidModel.Scale({ 0.7 });
+		//model = model.RotateX(cvid::Radians(rotation.x));
+		pyramidModel = pyramidModel.RotateY(cvid::Radians(pyramidRotation));
+		//model = model.RotateZ(cvid::Radians(rotation.z));
+		pyramidModel = pyramidModel.Translate({ -25, 20, 0 });
+
+		cvid::DrawVertices(pyramidVertices, pyramidIndices, pyramidModel, &cam, &window);
+
 
 		cvid::DrawPoint({ 20, 20, -20 }, cvid::Color::Magenta, cvid::Matrix4::Identity(), &cam, &window);
 		cvid::DrawPoint({ 20, 20, -10 }, cvid::Color::Cyan, cvid::Matrix4::Identity(), &cam, &window);

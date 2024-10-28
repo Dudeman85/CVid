@@ -265,10 +265,10 @@ namespace cvid
 		std::vector<int> fullSegment = InterpolateX(p1, p3);
 
 		//Interpolate for z positions along the left and right segments
-		std::vector<float> combinedZPositions = LerpRange(abs(p3.y - p2.y), p2f.z, p3f.z);
-		std::vector<float> shortZPositions = LerpRange(abs(p2.y - p1.y), p1f.z, p2f.z);
+		std::vector<float> combinedZPositions = LerpRange(abs(p3.y - p2.y), p3f.z, p2f.z);
+		std::vector<float> shortZPositions = LerpRange(abs(p2.y - p1.y), p2f.z, p1f.z);
 		combinedZPositions.insert(combinedZPositions.end(), shortZPositions.begin(), shortZPositions.end());
-		std::vector<float> fullZPositions = LerpRange(abs(p3.y - p1.y), p1f.z, p3f.z);
+		std::vector<float> fullZPositions = LerpRange(abs(p3.y - p1.y), p3f.z, p1f.z);
 
 		//Figure out which segment is on which side
 		std::vector<int> rightSegment = combinedSegment;
