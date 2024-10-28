@@ -13,9 +13,9 @@ namespace cvid
 	//Render a line to the window's framebuffer
 	void DrawLine(Vector3 p1, Vector3 p2, Color color, Matrix4 transform, Camera* cam, Window* window);
 	//Render indexed filled triangles from vertices to the window's framebuffer
-	void DrawVertices(std::vector<Vertice> vertices, std::vector<Vector3Int> indices, Matrix4 transform, Camera* cam, Window* window);
+	void DrawVertices(std::vector<Vertex> vertices, std::vector<Vector3Int> indices, Matrix4 transform, Camera* cam, Window* window);
 	//Render indexed wireframe triangles from vertices to the window's framebuffer
-	void DrawVerticesWireframe(std::vector<Vertice> vertices, std::vector<Vector3Int> indices, Matrix4 transform, Camera* cam, Window* window);
+	void DrawVerticesWireframe(std::vector<Vertex> vertices, std::vector<Vector3Int> indices, Matrix4 transform, Camera* cam, Window* window);
 	//Render a model to the window's framebuffer
 	inline void DrawModel(Model* model, Matrix4 transform, Camera* cam, Window* window);
 	//Render a model as wireframe to the window's framebuffer

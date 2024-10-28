@@ -34,10 +34,10 @@ namespace cvid
 	}
 
 	//Render an amount of vertices to the window's framebuffer
-	void DrawVertices(std::vector<Vertice> vertices, std::vector<Vector3Int> indices, Matrix4 transform, Camera* cam, Window* window)
+	void DrawVertices(std::vector<Vertex> vertices, std::vector<Vector3Int> indices, Matrix4 transform, Camera* cam, Window* window)
 	{
 		//Apply model view projection transforms
-		for (Vertice& vert : vertices)
+		for (Vertex& vert : vertices)
 		{
 			Vector4 v = Vector4(vert.position, 1.0);
 			//Apply the mvp
@@ -62,10 +62,10 @@ namespace cvid
 	}
 
 	//Render an amount of vertices as wireframes to the window's framebuffer
-	void DrawVerticesWireframe(std::vector<Vertice> vertices, std::vector<Vector3Int> indices, Matrix4 transform, Camera* cam, Window* window)
+	void DrawVerticesWireframe(std::vector<Vertex> vertices, std::vector<Vector3Int> indices, Matrix4 transform, Camera* cam, Window* window)
 	{
 		//Apply model view projection transforms
-		for (Vertice& vert : vertices)
+		for (Vertex& vert : vertices)
 		{
 			Vector4 v = Vector4(vert.position, 1.0);
 			//Apply the mvp

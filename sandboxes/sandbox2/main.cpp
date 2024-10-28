@@ -22,7 +22,7 @@ int main()
 	cvid::Camera cam({ 0, 0, 0 }, 100, 64, 1);
 	cam.SetRotation({ 0, 0, 0 });
 
-	std::vector<cvid::Vertice> pyramidVertices{
+	std::vector<cvid::Vertex> pyramidVertices{
 		{ cvid::Vector3(0, 20, 0)},
 		{ cvid::Vector3(-20, -20, 20)},
 		{ cvid::Vector3(20, -20, 20)},
@@ -39,7 +39,7 @@ int main()
 	};
 
 
-	std::vector<cvid::Vertice> triVertices{
+	std::vector<cvid::Vertex> triVertices{
 		{{0, 10, 0}},
 		{{10, -10, 0}},
 		{{-10, -10, 0}},
@@ -48,7 +48,7 @@ int main()
 		{0, 1, 2}
 	};
 
-	std::vector<cvid::Vertice> vertices{ { cvid::Vector3(10, 40, 0)}, { cvid::Vector3(-10, 12, 0)}, {cvid::Vector3(5, -2, 0)} };
+	std::vector<cvid::Vertex> vertices{ { cvid::Vector3(10, 40, 0)}, { cvid::Vector3(-10, 12, 0)}, {cvid::Vector3(5, -2, 0)} };
 	std::vector<cvid::Vector3Int> indices{ {0, 1, 2} };
 	cvid::Color col = cvid::RandomColor();
 

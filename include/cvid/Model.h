@@ -1,15 +1,23 @@
 #pragma once
 #include <string>
 #include <vector>
+#include <array>
 #include <cvid/Vector.h>
 
 namespace cvid
 {
-	struct Vertice
+	struct Vertex
 	{
 		Vector3 position;
-		Vector2 texCoord;
 		Vector3 color;
+	};
+
+	//A face always has 3 vertices (triangle)
+	struct Face 
+	{
+		std::array<uint32_t, 3> verticeIndices;
+		std::array<uint32_t, 3> texCoordIndices;
+		Vector3 normal;
 	};
 
 	class Model
@@ -17,7 +25,11 @@ namespace cvid
 	public:
 		Model(std::string path);
 
-		std::vector<cvid::Vertice> vertices;
-		std::vector<cvid::Vector3Int> indices;
+		//Every face in the model, contains indices to vertices and texCoords vectors
+		std::vector<Face> faces;
+		//Vertices are shared for the whole model
+		std::vector<Vertex> vertices;
+		//Texture coordinates are shared for the whole model
+		std::vector<Vector2> texCoords;
 	};
 }
