@@ -46,34 +46,39 @@ namespace cvid
 			//For each face in the shape
 			for (size_t face = 0; face < shape.mesh.num_face_vertices.size(); face++)
 			{
+				//Make the face
+				Face f;
+
+				std::vector<Vector3> vertices;
 				//For each of the 3 vertices in a face (forced triangulation)
 				for (size_t v = 0; v < 3; v++)
 				{
 					//Indexes of this vertice to the attributes array
 					tinyobj::index_t idx = shape.mesh.indices[face * 3 + v];
 
-					//Make the face
-					Face f;
-
 					//Add vertex indices
 					f.verticeIndices[v] = idx.vertex_index;
 
 					//Add texture coords if applicable
-					if (idx.texcoord_index >= 0) 
+					if (idx.texcoord_index >= 0)
 						f.texCoordIndices[v] = idx.texcoord_index;
 
-					//Add normal if applicable
-					if (idx.normal_index >= 0)
-						f.normal = idx.normal_index;
+					//Store the vertice for nomal calculation
+					Vector3 vertice
+					{
+						attrib.vertices[3 * size_t(idx.vertex_index) + 0],
+						attrib.vertices[3 * size_t(idx.vertex_index) + 1],
+						attrib.vertices[3 * size_t(idx.vertex_index) + 2]
+					};
+					vertices.push_back(vertice);
 				}
-			}
 
-			//For every face in the shape
-			size_t indexOffset = 0;
-			for (size_t f = 0; f < shape.mesh.num_face_vertices.size(); f++)
-			{
-				size_t fv = size_t(shape.mesh.num_face_vertices[f]);
+				//Calculate the surface normal
+				vertices[1] -= vertices[0];
+				vertices[2] -= vertices[0];
+				f.normal = vertices[1].Cross(vertices[2]);
 
+				faces.push_back(f);
 			}
 		}
 

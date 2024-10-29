@@ -3,7 +3,8 @@
 
 namespace cvid
 {
-	std::vector<Color> colors{ Color::Red, Color::Blue, Color::Green, Color::Magenta, Color::BrightBlue, Color::BrightCyan };
+	std::vector<Color> colors{ Color::Red, Color::Blue, Color::Green, Color::Magenta, Color::BrightBlue, Color::BrightCyan, 
+		Color::Red, Color::Blue, Color::Green, Color::Magenta, Color::BrightBlue, Color::BrightCyan };
 
 	//Render a point to the window's framebuffer
 	void DrawPoint(Vector3 point, Color color, Matrix4 transform, Camera* cam, Window* window)
@@ -88,14 +89,35 @@ namespace cvid
 	}
 
 	//Render a model to the window's framebuffer
-	inline void DrawModel(Model* model, Matrix4 transform, Camera* cam, Window* window)
+	void DrawModel(Model* model, Matrix4 transform, Camera* cam, Window* window)
 	{
-		DrawVertices(model->vertices, model->indices, transform, cam, window);
-	}
+		//Apply transform to al vertices
+		std::vector<Vertex> vertices = model->vertices;
+		for (Vertex& vert : vertices)
+		{
+			Vector4 v = Vector4(vert.position, 1.0);
+			//Apply the mvp
+			v = transform * v;
+			v = cam->GetView() * v;
+			//v = cam->GetProjection() * v;
 
-	//Render a model as wireframe to the window's framebuffer
-	inline void DrawModelWireframe(Model* model, Matrix4 transform, Camera* cam, Window* window)
-	{
-		DrawVerticesWireframe(model->vertices, model->indices, transform, cam, window);
+			vert.position = Vector3(v);
+		}
+
+		int i = 0;
+		//Draw each face (triangle)
+		for (const Face& face : model->faces)
+		{
+			//Backface culling
+			//if (face.normal.Dot(cam->GetFacing()) > 0) 
+			{
+				RasterizeTriangle(window,
+					vertices[face.verticeIndices[0]].position,
+					vertices[face.verticeIndices[1]].position,
+					vertices[face.verticeIndices[2]].position,
+					colors[i]);
+				i++;
+			}
+		}
 	}
 }

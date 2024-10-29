@@ -39,6 +39,24 @@ namespace cvid
 		return position;
 	}
 
+	Vector3 Camera::GetFacing()
+	{
+		if (updateView)
+		{
+			//Create a rotation matrix
+			Matrix4 rot = cvid::Matrix4::Identity();
+			rot = rot.RotateX(cvid::Radians(rotation.x));
+			rot = rot.RotateY(cvid::Radians(rotation.y));
+			rot = rot.RotateZ(cvid::Radians(rotation.z));
+
+			//Camera is facing towards -Z by default
+			facing = Vector4(0, 0, -1, 1);
+
+			facing = rot * facing;
+		}
+		return facing;
+	}
+
 	//Set the properties of the viewport
 	bool Camera::SetViewport(float width, float height, float distance)
 	{

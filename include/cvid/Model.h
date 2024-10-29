@@ -15,8 +15,9 @@ namespace cvid
 	//A face always has 3 vertices (triangle)
 	struct Face 
 	{
-		std::array<uint32_t, 3> verticeIndices;
-		std::array<uint32_t, 3> texCoordIndices;
+		std::array<uint32_t, 3> verticeIndices = {};
+		std::array<uint32_t, 3> texCoordIndices = {};
+		//Surface normal (calculated)
 		Vector3 normal;
 	};
 

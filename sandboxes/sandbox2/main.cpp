@@ -5,9 +5,10 @@
 #include <cvid/Rasterizer.h>
 #include <cvid/Helpers.h>
 #include <cvid/Renderer.h>
+#include <cvid/Model.h>
+#include <cvid/Matrix.h>
 #include <glm/gtc/matrix_transform.hpp>
 #include <tiny_obj_loader.h>
-#include <cvid/Matrix.h>
 
 //https://gabrielgambetta.com/computer-graphics-from-scratch/
 //https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-defwindowproca
@@ -51,6 +52,10 @@ int main()
 	std::vector<cvid::Vertex> vertices{ { cvid::Vector3(10, 40, 0)}, { cvid::Vector3(-10, 12, 0)}, {cvid::Vector3(5, -2, 0)} };
 	std::vector<cvid::Vector3Int> indices{ {0, 1, 2} };
 	cvid::Color col = cvid::RandomColor();
+
+
+	cvid::Model cube("C:\\Users\\aleksiand\\repos\\Thesis\\resources\\Cube.obj");
+
 
 	cvid::Vector3 rotation = { 0, 0, 0 };
 	double pyramidRotation = 0;
@@ -125,14 +130,14 @@ int main()
 
 		//Draw left side pyramid
 		cvid::Matrix4 pyramidModel = cvid::Matrix4::Identity();
-		pyramidModel = pyramidModel.Scale({ 0.7 });
+		pyramidModel = pyramidModel.Scale({ 10 });
 		//model = model.RotateX(cvid::Radians(rotation.x));
 		pyramidModel = pyramidModel.RotateY(cvid::Radians(pyramidRotation));
 		//model = model.RotateZ(cvid::Radians(rotation.z));
 		pyramidModel = pyramidModel.Translate({ -25, 20, 0 });
 
-		cvid::DrawVertices(pyramidVertices, pyramidIndices, pyramidModel, &cam, &window);
-
+		//cvid::DrawVertices(pyramidVertices, pyramidIndices, pyramidModel, &cam, &window);
+		cvid::DrawModel(&cube, pyramidModel, &cam, &window);
 
 		cvid::DrawPoint({ 20, 20, -20 }, cvid::Color::Magenta, cvid::Matrix4::Identity(), &cam, &window);
 		cvid::DrawPoint({ 20, 20, -10 }, cvid::Color::Cyan, cvid::Matrix4::Identity(), &cam, &window);

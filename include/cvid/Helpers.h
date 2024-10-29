@@ -33,8 +33,9 @@ namespace cvid
 		std::chrono::duration<double> duration = std::chrono::high_resolution_clock::now() - timePointStart;
 		return duration.count();
 	}
-	/*
+	
 	//Get a random color
+	enum class Color : uint8_t;
 	static inline cvid::Color RandomColor()
 	{
 		int color = rand() % 16;
@@ -44,5 +45,4 @@ namespace cvid
 			color += 30;
 		return (cvid::Color)color;
 	}
-	*/
 }

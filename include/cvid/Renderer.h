@@ -17,7 +17,5 @@ namespace cvid
 	//Render indexed wireframe triangles from vertices to the window's framebuffer
 	void DrawVerticesWireframe(std::vector<Vertex> vertices, std::vector<Vector3Int> indices, Matrix4 transform, Camera* cam, Window* window);
 	//Render a model to the window's framebuffer
-	inline void DrawModel(Model* model, Matrix4 transform, Camera* cam, Window* window);
-	//Render a model as wireframe to the window's framebuffer
-	inline void DrawModelWireframe(Model* model, Matrix4 transform, Camera* cam, Window* window);
+	void DrawModel(Model* model, Matrix4 transform, Camera* cam, Window* window);
 }

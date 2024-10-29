@@ -18,6 +18,7 @@ namespace cvid
 
 		//Transform getters
 		Vector3 GetPosition();
+		Vector3 GetFacing();
 
 		//Set the properties of the viewport
 		bool SetViewport(float width, float height, float distance);
@@ -41,5 +42,6 @@ namespace cvid
 
 		Matrix4 view;
 		Matrix4 projection;
+		Vector4 facing;
 	};
 }
