@@ -42,18 +42,7 @@ namespace cvid
 	Vector3 Camera::GetFacing()
 	{
 		if (updateView)
-		{
-			//Create a rotation matrix
-			Matrix4 rot = cvid::Matrix4::Identity();
-			rot = rot.RotateX(cvid::Radians(rotation.x));
-			rot = rot.RotateY(cvid::Radians(rotation.y));
-			rot = rot.RotateZ(cvid::Radians(rotation.z));
-
-			//Camera is facing towards -Z by default
-			facing = Vector4(0, 0, -1, 1);
-
-			facing = rot * facing;
-		}
+			UpdateView();
 		return facing;
 	}
 
@@ -64,8 +53,6 @@ namespace cvid
 		this->height = height;
 		this->distance = distance;
 
-
-
 		return true;
 	}
 
@@ -75,18 +62,35 @@ namespace cvid
 		return projection;
 	}
 
-	//Get the view  matrix of this camera
+	//Get the view matrix of this camera
 	Matrix4 Camera::GetView()
 	{
 		if (updateView)
-		{
-			//Calculate the inverse model matrix
-			Matrix4 view = Matrix4::Identity();
-			view = view.Rotate(Vector3(0) - rotation);
-			view = view.Translate(Vector3(0) - position);
-			this->view = view;
-			updateView = false;
-		}
+			UpdateView();
+
 		return view;
+	}
+
+	//Update view matrix and facing vector whenever transforms are changed
+	void Camera::UpdateView()
+	{
+		//Calculate the inverse model matrix
+		Matrix4 view = Matrix4::Identity();
+		view = view.Rotate(Vector3(0) - rotation);
+		view = view.Translate(Vector3(0) - position);
+		this->view = view;
+		updateView = false;
+
+		//Calculate the facing vector
+		//Create a rotation matrix
+		Matrix4 rot = cvid::Matrix4::Identity();
+		rot = rot.RotateX((rotation.x));
+		rot = rot.RotateY((rotation.y));
+		rot = rot.RotateZ((rotation.z));
+
+		//Camera is facing towards -Z by default
+		facing = Vector4(0, 0, -1, 1);
+
+		facing = rot * facing;
 	}
 }

@@ -139,8 +139,9 @@ int main()
 		//cvid::DrawVertices(pyramidVertices, pyramidIndices, pyramidModel, &cam, &window);
 		cvid::DrawModel(&cube, pyramidModel, &cam, &window);
 
-		cvid::DrawPoint({ 20, 20, -20 }, cvid::Color::Magenta, cvid::Matrix4::Identity(), &cam, &window);
-		cvid::DrawPoint({ 20, 20, -10 }, cvid::Color::Cyan, cvid::Matrix4::Identity(), &cam, &window);
+		//Draw the camera's facing vector from origin
+		cvid::DrawLine(cvid::Vector3(0, 0, 0), cam.GetFacing() * 100, cvid::Color::Magenta, cvid::Matrix4::Identity(), &cam, &window);
+
 
 		if (!window.DrawFrame())
 			return 0;

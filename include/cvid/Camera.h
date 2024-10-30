@@ -40,6 +40,8 @@ namespace cvid
 		//Should the view matrix be updated on next fetch
 		bool updateView = true;
 
+		void UpdateView();
+
 		Matrix4 view;
 		Matrix4 projection;
 		Vector4 facing;

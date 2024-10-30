@@ -109,7 +109,9 @@ namespace cvid
 		for (const Face& face : model->faces)
 		{
 			//Backface culling
-			//if (face.normal.Dot(cam->GetFacing()) > 0) 
+			auto a = cam->GetFacing();
+			auto b = face.normal.Dot(cam->GetFacing());
+			if (face.normal.Dot(cam->GetFacing()) < 0) 
 			{
 				RasterizeTriangle(window,
 					vertices[face.verticeIndices[0]].position,
