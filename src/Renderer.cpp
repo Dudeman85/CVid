@@ -91,35 +91,47 @@ namespace cvid
 	//Render a model to the window's framebuffer
 	void DrawModel(Model* model, Matrix4 transform, Camera* cam, Window* window)
 	{
-		//Apply transform to al vertices
+		//Apply transform to all vertices
 		std::vector<Vertex> vertices = model->vertices;
 		for (Vertex& vert : vertices)
 		{
 			Vector4 v = Vector4(vert.position, 1.0);
-			//Apply the mvp
+			//Apply the model
 			v = transform * v;
+
+			vert.position = Vector3(v);
+		}
+		//TODO optimize hopefully
+		//Recalculate normals
+		for (Face& face : model->faces)
+		{
+			//Calculate the surface normal
+			Vector3 v1 = vertices[face.verticeIndices[1]].position - vertices[face.verticeIndices[0]].position;
+			Vector3 v2 = vertices[face.verticeIndices[2]].position - vertices[face.verticeIndices[0]].position;
+			face.normal = v1.Cross(v2);
+		}
+		//Apply view and projection to all vertices
+		for (Vertex& vert : vertices)
+		{
+			Vector4 v = Vector4(vert.position, 1.0);
+			//Apply the view
 			v = cam->GetView() * v;
 			//v = cam->GetProjection() * v;
 
 			vert.position = Vector3(v);
 		}
 
-		int i = 0;
 		//Draw each face (triangle)
 		for (const Face& face : model->faces)
 		{
 			//Backface culling
-			auto a = cam->GetFacing();
-			auto b = face.normal.Dot(cam->GetFacing());
-			Vector3 transformedNormal = transform * Vector4(face.normal, 1);
-			if (transformedNormal.Dot(cam->GetFacing()) < 0)
+			if (face.normal.Dot(cam->GetFacing()) < 0)
 			{
 				RasterizeTriangle(window,
 					vertices[face.verticeIndices[0]].position,
 					vertices[face.verticeIndices[1]].position,
 					vertices[face.verticeIndices[2]].position,
 					face.color);
-				i++;
 			}
 		}
 	}

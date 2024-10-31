@@ -142,7 +142,6 @@ int main()
 		//Draw the camera's facing vector from origin
 		cvid::DrawLine(cvid::Vector3(0, 0, 0), cam.GetFacing() * 100, cvid::Color::Magenta, cvid::Matrix4::Identity(), &cam, &window);
 
-		std::cout << cam.GetRotation().ToString() << std::endl;
 		std::cout << cam.GetFacing().ToString() << std::endl;
 
 		if (!window.DrawFrame())
