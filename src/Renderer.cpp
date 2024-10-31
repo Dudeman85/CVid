@@ -3,7 +3,7 @@
 
 namespace cvid
 {
-	std::vector<Color> colors{ Color::Red, Color::Blue, Color::Green, Color::Magenta, Color::BrightBlue, Color::BrightCyan, 
+	std::vector<Color> colors{ Color::Red, Color::Blue, Color::Green, Color::Magenta, Color::BrightBlue, Color::BrightCyan,
 		Color::Red, Color::Blue, Color::Green, Color::Magenta, Color::BrightBlue, Color::BrightCyan };
 
 	//Render a point to the window's framebuffer
@@ -54,10 +54,10 @@ namespace cvid
 		for (Vector3Int& triangle : indices)
 		{
 			RasterizeTriangle(window,
-						 vertices[triangle.x].position,
-						 vertices[triangle.y].position,
-						 vertices[triangle.z].position,
-						 colors[i]);
+				vertices[triangle.x].position,
+				vertices[triangle.y].position,
+				vertices[triangle.z].position,
+				colors[i]);
 			i++;
 		}
 	}
@@ -81,18 +81,18 @@ namespace cvid
 		for (Vector3Int& triangle : indices)
 		{
 			RasterizeTriangleWireframe(window,
-								  vertices[triangle.x].position,
-								  vertices[triangle.y].position,
-								  vertices[triangle.z].position,
-								  Color::BrightGreen);
+				vertices[triangle.x].position,
+				vertices[triangle.y].position,
+				vertices[triangle.z].position,
+				Color::BrightGreen);
 		}
 	}
 
 	//Render a model to the window's framebuffer
 	void DrawModel(Model* model, Matrix4 transform, Camera* cam, Window* window)
 	{
-		//Apply transform to all vertices
 		std::vector<Vertex> vertices = model->vertices;
+		//Apply transform to all vertices
 		for (Vertex& vert : vertices)
 		{
 			Vector4 v = Vector4(vert.position, 1.0);
@@ -101,6 +101,7 @@ namespace cvid
 
 			vert.position = Vector3(v);
 		}
+
 		//TODO optimize hopefully
 		//Recalculate normals
 		for (Face& face : model->faces)
@@ -110,13 +111,20 @@ namespace cvid
 			Vector3 v2 = vertices[face.verticeIndices[2]].position - vertices[face.verticeIndices[0]].position;
 			face.normal = v1.Cross(v2);
 		}
+
 		//Apply view and projection to all vertices
 		for (Vertex& vert : vertices)
 		{
 			Vector4 v = Vector4(vert.position, 1.0);
 			//Apply the view
 			v = cam->GetView() * v;
-			//v = cam->GetProjection() * v;
+
+			//Apply perspective projection
+			if (cam->IsPerspective())
+			{
+				v.x = v.x * -cam->distance / v.z;
+				v.y = v.y * -cam->distance / v.z;
+			}
 
 			vert.position = Vector3(v);
 		}

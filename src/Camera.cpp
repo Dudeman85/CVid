@@ -50,20 +50,30 @@ namespace cvid
 		return facing;
 	}
 
-	//Set the properties of the viewport
-	bool Camera::SetViewport(float width, float height, float distance)
+	//Set the camera to use perspective projection
+	void Camera::SetPerspective(float distance)
+	{
+		this->distance = distance;
+		projection = Matrix4::Identity();
+		projection[0][0] = distance;
+		projection[1][1] = distance;
+		projection[2][2] = 1;
+
+		perspective = true;
+	}
+
+	//Set the camera to use orthographic projection
+	void Camera::SetOrtho(float width, float height)
 	{
 		this->width = width;
 		this->height = height;
-		this->distance = distance;
-
-		return true;
+		perspective = false;
 	}
 
-	//Get the projection matrix  of this camera
-	Matrix4 Camera::GetProjection()
+	//Check if the camera is using perspective projection
+	bool Camera::IsPerspective()
 	{
-		return projection;
+		return perspective;
 	}
 
 	//Get the view matrix of this camera

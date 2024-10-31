@@ -20,65 +20,20 @@ int main()
 
 	window.SetProperties({ 120, 90 });
 
-	cvid::Camera cam({ 0, 0, 0 }, 100, 64, 1);
-	cam.SetRotation({ 0, cvid::Radians(45), 0});
-
-	std::vector<cvid::Vertex> pyramidVertices{
-		{ cvid::Vector3(0, 20, 0)},
-		{ cvid::Vector3(-20, -20, 20)},
-		{ cvid::Vector3(20, -20, 20)},
-		{ cvid::Vector3(-20, -20, -20)},
-		{ cvid::Vector3(20, -20, -20)},
-	};
-	std::vector<cvid::Vector3Int> pyramidIndices{
-		{0, 1, 2},
-		{0, 3, 1},
-		{0, 3, 4},
-		{0, 4, 2},
-		{3, 1, 2},
-		{3, 4, 2},
-	};
+	cvid::Camera cam({ 0, 0, 100 }, 100, 64, 1);
+	cam.SetPerspective(90);
 
 
-	std::vector<cvid::Vertex> triVertices{
-		{{0, 10, 0}},
-		{{10, -10, 0}},
-		{{-10, -10, 0}},
-	};
-	std::vector<cvid::Vector3Int> triIndices{
-		{0, 1, 2}
-	};
-
-	std::vector<cvid::Vertex> vertices{ { cvid::Vector3(10, 40, 0)}, { cvid::Vector3(-10, 12, 0)}, {cvid::Vector3(5, -2, 0)} };
-	std::vector<cvid::Vector3Int> indices{ {0, 1, 2} };
-	cvid::Color col = cvid::RandomColor();
-
-
-	cvid::Model cube("C:\\Users\\aleksiand\\repos\\Thesis\\resources\\Cube.obj");
+	cvid::Model cube("C:\\Users\\aleksiand\\repos\\Thesis\\resources\\suzanne.obj");
 
 
 	cvid::Vector3 rotation = { 0, 0, 0 };
 	double pyramidRotation = 0;
 
-	bool sd = false;
-
 	while (true)
 	{
 		if (GetKeyState(VK_ESCAPE) & 0x8000)
 			return 0;
-
-		if (GetKeyState(VK_SPACE) & 0x8000)
-		{
-			if (!sd)
-			{
-				vertices[0].position = cvid::Vector3(rand() % 60 - 30, rand() % 60 - 30, 0);
-				vertices[1].position = cvid::Vector3(rand() % 60 - 30, rand() % 60 - 30, 0);
-				vertices[2].position = cvid::Vector3(rand() % 60 - 30, rand() % 60 - 30, 0);
-				sd = true;
-			}
-		}
-		else
-			sd = false;
 
 		//Camera rotation
 		if (GetKeyState(VK_RIGHT) & 0x8000)
@@ -125,12 +80,10 @@ int main()
 		//model = model.RotateZ(cvid::Radians(rotation.z));
 		triangleModel = triangleModel.Translate({ 25, 20, 0 });
 
-		cvid::DrawVertices(triVertices, triIndices, triangleModel, &cam, &window);
-		
 
 		//Draw left side pyramid
 		cvid::Matrix4 pyramidModel = cvid::Matrix4::Identity();
-		pyramidModel = pyramidModel.Scale({ 10 });
+		pyramidModel = pyramidModel.Scale({ 15 });
 		//model = model.RotateX(cvid::Radians(rotation.x));
 		pyramidModel = pyramidModel.RotateY(cvid::Radians(pyramidRotation));
 		//model = model.RotateZ(cvid::Radians(rotation.z));
@@ -142,10 +95,11 @@ int main()
 		//Draw the camera's facing vector from origin
 		cvid::DrawLine(cvid::Vector3(0, 0, 0), cam.GetFacing() * 100, cvid::Color::Magenta, cvid::Matrix4::Identity(), &cam, &window);
 
-		std::cout << cam.GetFacing().ToString() << std::endl;
-
 		if (!window.DrawFrame())
 			return 0;
+
+		//For some reason this stops the window from freezing
+		window.SendData("\x1b[0;0H", 7, cvid::DataType::String);
 	}
 
 	return 0;

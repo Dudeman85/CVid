@@ -2,15 +2,11 @@ REQUIRED:
 Rasterizer:
 - texturing
 - sprite rendering
+- camera near clip plane doesn't work with perspective projection
 Window:
 - Fix pipe buffer issues
 - buffer issue causes pipe disconnect when sending too much data
 - handle window events
-Renderer:
-- Load models through tinyobjloader
-- Fix matrix weirdness if its an issue
-- Fix camera projection
-- Backface culling
 
 WOULD BE NICE:
 Rasterizer:

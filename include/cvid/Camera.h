@@ -19,24 +19,29 @@ namespace cvid
 		//Transform getters
 		Vector3 GetPosition();
 		Vector3 GetRotation();
+		//Get the camera's forward vector in world space
 		Vector3 GetFacing();
+		//Check if the camera is using perspective projection
+		bool IsPerspective();
 
-		//Set the properties of the viewport
-		bool SetViewport(float width, float height, float distance);
+		//Set the camera to use perspective projection
+		void SetPerspective(float distance);
+		//Set the camera to use orthographic projection
+		void SetOrtho(float width, float height);
 
-		//Get the projection matrix  of this camera
-		Matrix4 GetProjection();
 		//Get the view  matrix of this camera
 		Matrix4 GetView();
-
-	private:
-		Vector3 position;
-		Vector3 rotation;
 
 		//Viewport properties
 		float width;
 		float height;
 		float distance;
+
+	private:
+		Vector3 position;
+		Vector3 rotation;
+
+		bool perspective = false;
 
 		//Should the view matrix be updated on next fetch
 		bool updateView = true;

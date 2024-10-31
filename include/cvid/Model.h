@@ -36,5 +36,10 @@ namespace cvid
 		std::vector<Vertex> vertices;
 		//Texture coordinates are shared for the whole model
 		std::vector<Vector2> texCoords;
+
+	private:
+
+		//Load a model from disk
+		void LoadModel(std::string path);
 	};
 }
