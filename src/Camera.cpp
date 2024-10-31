@@ -38,6 +38,10 @@ namespace cvid
 	{
 		return position;
 	}
+	Vector3 Camera::GetRotation()
+	{
+		return rotation;
+	}
 
 	Vector3 Camera::GetFacing()
 	{
@@ -84,9 +88,9 @@ namespace cvid
 		//Calculate the facing vector
 		//Create a rotation matrix
 		Matrix4 rot = cvid::Matrix4::Identity();
-		rot = rot.RotateX((rotation.x));
-		rot = rot.RotateY((rotation.y));
-		rot = rot.RotateZ((rotation.z));
+		rot = rot.RotateZ(rotation.z);
+		rot = rot.RotateY(rotation.y);
+		rot = rot.RotateX(rotation.x);
 
 		//Camera is facing towards -Z by default
 		facing = Vector4(0, 0, -1, 1);

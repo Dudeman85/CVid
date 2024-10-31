@@ -3,6 +3,7 @@
 #include <vector>
 #include <array>
 #include <cvid/Vector.h>
+#include <cvid/Helpers.h>
 
 namespace cvid
 {
@@ -19,6 +20,9 @@ namespace cvid
 		std::array<uint32_t, 3> texCoordIndices = {};
 		//Surface normal (calculated)
 		Vector3 normal;
+
+		//Temporary for testing
+		cvid::Color color;
 	};
 
 	class Model

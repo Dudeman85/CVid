@@ -21,7 +21,7 @@ int main()
 	window.SetProperties({ 120, 90 });
 
 	cvid::Camera cam({ 0, 0, 0 }, 100, 64, 1);
-	cam.SetRotation({ 0, 0, 0 });
+	cam.SetRotation({ 0, cvid::Radians(45), 0});
 
 	std::vector<cvid::Vertex> pyramidVertices{
 		{ cvid::Vector3(0, 20, 0)},
@@ -113,9 +113,9 @@ int main()
 		cam.SetRotation(rotation * (cvid::PI / 180));
 
 		//Draw axis lines
-		cvid::DrawLine({ -100, 0, 0 }, { 100, 0, 0 }, cvid::Color::Red, cvid::Matrix4::Identity(), &cam, &window);
-		cvid::DrawLine({ 0, -100, 0 }, { 0, 100, 0 }, cvid::Color::Green, cvid::Matrix4::Identity(), &cam, &window);
-		cvid::DrawLine({ 0, 0, -100 }, { 0, 0, 100 }, cvid::Color::Blue, cvid::Matrix4::Identity(), &cam, &window);
+		cvid::DrawLine({ -100, 0, 0 }, { 100, 0, 0 }, cvid::Color::Red, cvid::Matrix4::Identity(), &cam, &window); //X is red
+		cvid::DrawLine({ 0, -100, 0 }, { 0, 100, 0 }, cvid::Color::Green, cvid::Matrix4::Identity(), &cam, &window); //Y is green
+		cvid::DrawLine({ 0, 0, -100 }, { 0, 0, 100 }, cvid::Color::Blue, cvid::Matrix4::Identity(), &cam, &window); //Z is blue
 		
 		//Draw right side Triangle
 		cvid::Matrix4 triangleModel = cvid::Matrix4::Identity();
@@ -142,6 +142,8 @@ int main()
 		//Draw the camera's facing vector from origin
 		cvid::DrawLine(cvid::Vector3(0, 0, 0), cam.GetFacing() * 100, cvid::Color::Magenta, cvid::Matrix4::Identity(), &cam, &window);
 
+		std::cout << cam.GetRotation().ToString() << std::endl;
+		std::cout << cam.GetFacing().ToString() << std::endl;
 
 		if (!window.DrawFrame())
 			return 0;

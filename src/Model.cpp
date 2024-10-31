@@ -78,6 +78,9 @@ namespace cvid
 				vertices[2] -= vertices[0];
 				f.normal = vertices[1].Cross(vertices[2]);
 
+				//TODO: TEMPORARY FOR TESTING
+				f.color = cvid::RandomColor();
+
 				faces.push_back(f);
 			}
 		}

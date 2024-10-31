@@ -18,6 +18,7 @@ namespace cvid
 
 		//Transform getters
 		Vector3 GetPosition();
+		Vector3 GetRotation();
 		Vector3 GetFacing();
 
 		//Set the properties of the viewport

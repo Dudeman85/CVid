@@ -111,13 +111,14 @@ namespace cvid
 			//Backface culling
 			auto a = cam->GetFacing();
 			auto b = face.normal.Dot(cam->GetFacing());
-			if (face.normal.Dot(cam->GetFacing()) < 0) 
+			Vector3 transformedNormal = transform * Vector4(face.normal, 1);
+			if (transformedNormal.Dot(cam->GetFacing()) < 0)
 			{
 				RasterizeTriangle(window,
 					vertices[face.verticeIndices[0]].position,
 					vertices[face.verticeIndices[1]].position,
 					vertices[face.verticeIndices[2]].position,
-					colors[i]);
+					face.color);
 				i++;
 			}
 		}
