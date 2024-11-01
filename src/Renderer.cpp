@@ -124,6 +124,10 @@ namespace cvid
 			Vector3 v1 = vertices[face.verticeIndices[1]].position - vertices[face.verticeIndices[0]].position;
 			Vector3 v2 = vertices[face.verticeIndices[2]].position - vertices[face.verticeIndices[0]].position;
 			face.normal = v1.Cross(v2);
+
+			//Cull backwards facing faces
+			Vector3 vc = vertices[face.verticeIndices[0]].position - cam->GetPosition();
+			face.culled = vc.Dot(face.normal) >= 0;
 		}
 
 		//Apply view and projection to all vertices
@@ -147,17 +151,13 @@ namespace cvid
 		for (const Face& face : model->faces)
 		{
 			//Backface culling
-			Vector3 vc = vertices[face.verticeIndices[0]].position - cam->GetPosition();
-			if (vc.Dot(face.normal) < 0)
+			if (!face.culled)
 			{
 				RasterizeTriangle(window,
 					vertices[face.verticeIndices[0]].position,
 					vertices[face.verticeIndices[1]].position,
 					vertices[face.verticeIndices[2]].position,
 					face.color);
-			}
-			else {
-				int a = 0;
 			}
 		}
 	}

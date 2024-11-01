@@ -120,7 +120,9 @@ namespace cvid
 		//Calculate the inverse model matrix
 		Matrix4 view = Matrix4::Identity();
 		view = view.Translate(Vector3(0) - position);
-		view = view.Rotate(Vector3(0) - rotation);
+		view = view.RotateZ(-rotation.z);
+		view = view.RotateY(-rotation.y);
+		view = view.RotateX(-rotation.x);
 		this->view = view;
 		updateView = false;
 	}
@@ -130,9 +132,9 @@ namespace cvid
 	{
 		//Create a rotation matrix
 		Matrix4 rot = cvid::Matrix4::Identity();
-		rot = rot.RotateZ(rotation.z);
-		rot = rot.RotateY(rotation.y);
 		rot = rot.RotateX(rotation.x);
+		rot = rot.RotateY(rotation.y);
+		rot = rot.RotateZ(rotation.z);
 
 		//Forward is -Z
 		forward = rot * Vector4(0, 0, -1, 1);
