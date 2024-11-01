@@ -16,7 +16,7 @@
 
 int main()
 {
-	cvid::Window window(120, 80, "MVP Test");
+	cvid::Window window(120, 80, "Projection Test");
 
 	window.SetProperties({ 120, 90 });
 
@@ -102,6 +102,12 @@ int main()
 		//model = model.RotateZ(cvid::Radians(rotation.z));
 		triangleModel = triangleModel.Translate({ 25, 20, 0 });
 
+		cube.faces[0].color = cvid::Color::Magenta;
+		cube.faces[1].color = cvid::Color::Magenta;
+		cube.faces[2].color = cvid::Color::Cyan;
+		cube.faces[3].color = cvid::Color::Cyan;
+		cube.faces[4].color = cvid::Color::BrightYellow;
+		cube.faces[5].color = cvid::Color::BrightYellow;
 
 		//Draw left side pyramid
 		cvid::Matrix4 pyramidModel = cvid::Matrix4::Identity();

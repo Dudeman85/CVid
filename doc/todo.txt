@@ -3,10 +3,12 @@ Rasterizer:
 - texturing
 - sprite rendering
 - camera near clip plane doesn't work with perspective projection
+- DrawLine is broken with perspective projection and depth buffer
 Window:
 - Fix pipe buffer issues
 - buffer issue causes pipe disconnect when sending too much data
 - handle window events
+- weird bug with sending data to window at low speeds
 
 WOULD BE NICE:
 Rasterizer:
