@@ -14,23 +14,31 @@ namespace cvid
 	void Camera::Translate(Vector3 translation)
 	{
 		updateView = true;
+		updateTransform = true;
 		position += translation;
 	}
 	void Camera::SetPosition(Vector3 position)
 	{
-		if (position != this->position)
+		if (position != this->position) 
+		{
 			updateView = true;
+			updateTransform = true;
+		}
 		this->position = position;
 	}
 	void Camera::Rotate(Vector3 rotation)
 	{
 		updateView = true;
+		updateTransform = true;
 		this->rotation += rotation;
 	}
 	void Camera::SetRotation(Vector3 rotation)
 	{
-		if (rotation != this->rotation)
+		if (rotation != this->rotation) 
+		{
 			updateView = true;
+			updateTransform = true;
+		}
 		this->rotation = rotation;
 	}
 
@@ -43,11 +51,32 @@ namespace cvid
 		return rotation;
 	}
 
-	Vector3 Camera::GetFacing()
+	//Get the forward (-Z) axis as a world space vector
+	Vector3 Camera::GetForward()
 	{
-		if (updateView)
-			UpdateView();
-		return facing;
+		//Update the vector is needed
+		if (updateTransform)
+			UpdateTransform();
+
+		return forward;
+	}
+	//Get the right (+X) axis as a world space vector
+	Vector3 Camera::GetRight()
+	{
+		//Update the vector is needed
+		if (updateTransform)
+			UpdateTransform();
+
+		return right;
+	}
+	//Get the up (+Y) axis as a world space vector
+	Vector3 Camera::GetUp()
+	{
+		//Update the vector is needed
+		if (updateTransform)
+			UpdateTransform();
+
+		return up;
 	}
 
 	//Set the camera to use perspective projection
@@ -90,21 +119,28 @@ namespace cvid
 	{
 		//Calculate the inverse model matrix
 		Matrix4 view = Matrix4::Identity();
-		view = view.Rotate(Vector3(0) - rotation);
 		view = view.Translate(Vector3(0) - position);
+		view = view.Rotate(Vector3(0) - rotation);
 		this->view = view;
 		updateView = false;
+	}
 
-		//Calculate the facing vector
+	//Update the directional vectors
+	void Camera::UpdateTransform()
+	{
 		//Create a rotation matrix
 		Matrix4 rot = cvid::Matrix4::Identity();
 		rot = rot.RotateZ(rotation.z);
 		rot = rot.RotateY(rotation.y);
 		rot = rot.RotateX(rotation.x);
 
-		//Camera is facing towards -Z by default
-		facing = Vector4(0, 0, -1, 1);
+		//Forward is -Z
+		forward = rot * Vector4(0, 0, -1, 1);
+		//Right is +X
+		right = rot * Vector4(1, 0, 0, 1);
+		//Up is +Y
+		up = rot * Vector4(0, 1, 0, 1);
 
-		facing = rot * facing;
+		updateTransform = false;
 	}
 }

@@ -24,7 +24,7 @@ int main()
 	cam.SetPerspective(90);
 
 
-	cvid::Model cube("C:\\Users\\aleksiand\\repos\\Thesis\\resources\\suzanne.obj");
+	cvid::Model cube("C:\\Users\\aleksiand\\repos\\Thesis\\resources\\cube.obj");
 
 
 	cvid::Vector3 rotation = { 0, 0, 0 };
@@ -35,26 +35,50 @@ int main()
 		if (GetKeyState(VK_ESCAPE) & 0x8000)
 			return 0;
 
-		//Camera rotation
-		if (GetKeyState(VK_RIGHT) & 0x8000)
-			rotation.y += 1;
-		if (GetKeyState(VK_LEFT) & 0x8000)
-			rotation.y -= 1;
-		if (GetKeyState(VK_UP) & 0x8000)
-			rotation.x += 1;
-		if (GetKeyState(VK_DOWN) & 0x8000)
-			rotation.x -= 1;
 
-		//camera movement
+		//Camera movement
 		float moveSpeed = 1;
+		//W forward
 		if (GetKeyState(87) & 0x8000)
-			cam.Translate({ 0, 0, -moveSpeed });
+			cam.Translate(cam.GetForward() * moveSpeed );
+		//A left
 		if (GetKeyState(65) & 0x8000)
-			cam.Translate({ -moveSpeed, 0, 0 });
+			cam.Translate(cam.GetRight() * -moveSpeed);
+		//S backward
 		if (GetKeyState(83) & 0x8000)
-			cam.Translate({ 0, 0, moveSpeed });
+			cam.Translate(cam.GetForward() * -moveSpeed);
+		//D right
 		if (GetKeyState(68) & 0x8000)
-			cam.Translate({ moveSpeed, 0, 0 });
+			cam.Translate(cam.GetRight() * moveSpeed);
+		//Q up
+		if (GetKeyState(81) & 0x8000)
+			cam.Translate(cam.GetUp() * moveSpeed);
+		//E down
+		if (GetKeyState(69) & 0x8000)
+			cam.Translate(cam.GetUp() * -moveSpeed);
+
+		//Camera rotation
+		float rotationSpeed = 0.01;
+		//NP 8 pitch down
+		if (GetKeyState(VK_NUMPAD8) & 0x8000)
+			cam.Rotate(cvid::Vector3(-1, 0, 0) * rotationSpeed);
+		//NP 5 pitch down
+		if (GetKeyState(VK_NUMPAD5) & 0x8000)
+			cam.Rotate(cvid::Vector3(1, 0, 0) * rotationSpeed);
+		//NP 4 yaw left
+		if (GetKeyState(VK_NUMPAD4) & 0x8000)
+			cam.Rotate(cvid::Vector3(0, 1, 0) * rotationSpeed);
+		//NP 6 yaw right
+		if (GetKeyState(VK_NUMPAD6) & 0x8000)
+			cam.Rotate(cvid::Vector3(0, -1, 0) * rotationSpeed);
+		//NP 9 roll right
+		if (GetKeyState(VK_NUMPAD9) & 0x8000)
+			cam.Rotate(cvid::Vector3(0, 0, -1) * rotationSpeed);
+		//NP 7 roll right
+		if (GetKeyState(VK_NUMPAD7) & 0x8000)
+			cam.Rotate(cvid::Vector3(0, 0, 1) * rotationSpeed);
+
+		std::cout << cam.GetPosition().ToString() << std::endl;
 
 
 		if (GetKeyState(VK_DIVIDE) & 0x8000)
@@ -64,8 +88,6 @@ int main()
 
 		window.Fill(cvid::Color::Black);
 		window.ClearDepthBuffer();
-
-		cam.SetRotation(rotation * (cvid::PI / 180));
 
 		//Draw axis lines
 		cvid::DrawLine({ -100, 0, 0 }, { 100, 0, 0 }, cvid::Color::Red, cvid::Matrix4::Identity(), &cam, &window); //X is red
@@ -91,9 +113,6 @@ int main()
 
 		//cvid::DrawVertices(pyramidVertices, pyramidIndices, pyramidModel, &cam, &window);
 		cvid::DrawModel(&cube, pyramidModel, &cam, &window);
-
-		//Draw the camera's facing vector from origin
-		cvid::DrawLine(cvid::Vector3(0, 0, 0), cam.GetFacing() * 100, cvid::Color::Magenta, cvid::Matrix4::Identity(), &cam, &window);
 
 		if (!window.DrawFrame())
 			return 0;

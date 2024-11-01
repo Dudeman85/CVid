@@ -19,8 +19,14 @@ namespace cvid
 		//Transform getters
 		Vector3 GetPosition();
 		Vector3 GetRotation();
-		//Get the camera's forward vector in world space
-		Vector3 GetFacing();
+
+		//Get the forward (-Z) axis as a world space vector
+		Vector3 GetForward();
+		//Get the right (+X) axis as a world space vector
+		Vector3 GetRight();
+		//Get the up (+Y) axis as a world space vector
+		Vector3 GetUp();
+
 		//Check if the camera is using perspective projection
 		bool IsPerspective();
 
@@ -41,15 +47,25 @@ namespace cvid
 		Vector3 position;
 		Vector3 rotation;
 
+		//Directional vectors in world space, updated when transform is changed
+		Vector3 forward; // -Z
+		Vector3 right; // +X
+		Vector3 up; // +Y
+
+		//Is the camera using perspective projection
 		bool perspective = false;
 
 		//Should the view matrix be updated on next fetch
 		bool updateView = true;
+		//Should the directional vectors be updated
+		bool updateTransform = true;
 
+		//Update the view matrix
 		void UpdateView();
+		//Update the directional vectors
+		void UpdateTransform();
 
 		Matrix4 view;
 		Matrix4 projection;
-		Vector4 facing;
 	};
 }

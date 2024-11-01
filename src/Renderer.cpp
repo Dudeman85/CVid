@@ -23,13 +23,27 @@ namespace cvid
 	{
 		//Apply the mvp
 		Vector4 v1 = Vector4(p1, 1.0);
+		Vector4 v2 = Vector4(p2, 1.0);
 		v1 = transform * v1;
 		v1 = cam->GetView() * v1;
-		//v1 = cam->GetProjection() * v1;
-		Vector4 v2 = Vector4(p2, 1.0);
 		v2 = transform * v2;
 		v2 = cam->GetView() * v2;
-		//v2 = cam->GetProjection() * v2;
+
+		//Apply perspective projection
+		if (cam->IsPerspective())
+		{
+			//Prevent divide by 0
+			if (v1.z == 0)
+				v1.z = 0.1;
+			if (v2.z == 0)
+				v2.z = 0.1;
+
+			//Apply perspective
+			v1.x = v1.x * -cam->distance / v1.z;
+			v1.y = v1.y * -cam->distance / v1.z;
+			v2.x = v2.x * -cam->distance / v2.z;
+			v2.y = v2.y * -cam->distance / v2.z;
+		}
 
 		RasterizeLine(window, v1, v2, color);
 	}
@@ -133,13 +147,17 @@ namespace cvid
 		for (const Face& face : model->faces)
 		{
 			//Backface culling
-			if (face.normal.Dot(cam->GetFacing()) < 0)
+			Vector3 vc = vertices[face.verticeIndices[0]].position - cam->GetPosition();
+			if (vc.Dot(face.normal) < 0)
 			{
 				RasterizeTriangle(window,
 					vertices[face.verticeIndices[0]].position,
 					vertices[face.verticeIndices[1]].position,
 					vertices[face.verticeIndices[2]].position,
 					face.color);
+			}
+			else {
+				int a = 0;
 			}
 		}
 	}

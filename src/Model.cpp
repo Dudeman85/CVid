@@ -81,6 +81,7 @@ namespace cvid
 
 				//TODO: TEMPORARY FOR TESTING
 				f.color = cvid::RandomColor();
+				//f.color = cvid::Color::BrightBlue;
 
 				faces.push_back(f);
 			}
