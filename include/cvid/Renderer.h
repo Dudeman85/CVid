@@ -18,4 +18,10 @@ namespace cvid
 	void DrawVerticesWireframe(std::vector<Vertex> vertices, std::vector<Vector3Int> indices, Matrix4 transform, Camera* cam, Window* window);
 	//Render a model to the window's framebuffer
 	void DrawModel(Model* model, Matrix4 transform, Camera* cam, Window* window);
+
+	//Utility Functions
+	//Returns true if a model falls entirely inside a camera's clip space
+	bool ClipModel(const std::vector<Vertex>& modelVerts, Camera* cam);
+	//Returns true if a tri falls entirely inside a camera's clip space
+	bool ClipTri(const Vector3& v1, const Vector3& v2, const Vector3& v3, Camera* cam);
 }

@@ -78,13 +78,12 @@ int main()
 		if (GetKeyState(VK_NUMPAD7) & 0x8000)
 			cam.Rotate(cvid::Vector3(0, 0, 1) * rotationSpeed);
 
-		std::cout << cam.GetPosition().ToString() << std::endl;
-
 
 		if (GetKeyState(VK_DIVIDE) & 0x8000)
 			pyramidRotation++;
 		if (GetKeyState(VK_MULTIPLY) & 0x8000)
 			pyramidRotation--;
+
 
 		window.Fill(cvid::Color::Black);
 		window.ClearDepthBuffer();

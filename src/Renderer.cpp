@@ -161,4 +161,30 @@ namespace cvid
 			}
 		}
 	}
+
+	//Returns true if a model falls entirely inside a camera's clip space
+	//This function expects vertices with model and view transforms applied
+	bool ClipModel(const std::vector<Vertex>& modelVerts, Camera* cam)
+	{
+		//Calculate the center point of the vertices
+		Vector3 center;
+		for (const Vertex& vert : modelVerts)
+		{
+			center += vert.position;
+		}
+		center /= modelVerts.size();
+
+		//The radius of the sphere is defined as the distance from the center to the furthest polygon
+		float radius = 0;
+		for (const Vertex& vert : modelVerts)
+		{
+			if(vert.position)
+		}
+	}
+
+	//Returns true if a tri falls entirely inside a camera's clip space
+	bool ClipTri(const Vector3& v1, const Vector3& v2, const Vector3& v3, Camera* cam) 
+	{
+
+	}
 }
