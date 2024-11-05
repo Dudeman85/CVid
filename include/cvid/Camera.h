@@ -1,4 +1,5 @@
 #pragma once
+#include <array>
 #include <cvid/Vector.h>
 #include <cvid/Matrix.h>
 
@@ -8,7 +9,7 @@ namespace cvid
 	class Camera
 	{
 	public:
-		Camera(Vector3 position, float width, float height, float distance);
+		Camera(Vector3 position, float width, float height);
 		
 		//Transform setters
 		void Translate(Vector3 translation);
@@ -31,17 +32,19 @@ namespace cvid
 		bool IsPerspective();
 
 		//Set the camera to use perspective projection
-		void SetPerspective(float distance);
+		void SetPerspective(float fov);
 		//Set the camera to use orthographic projection
 		void SetOrtho(float width, float height);
 
 		//Get the view  matrix of this camera
 		Matrix4 GetView();
 
-		//Viewport properties
-		float width;
-		float height;
-		float distance;
+		//Get the near, left, right, bottom, and top clip planes in that order
+		std::array<Vector3, 5> GetClipPlanes();
+
+		//Vertical fov, for horizontal, multiply by aspect ratio
+		float fov;
+		float aspectRatio;
 
 	private:
 		Vector3 position;
@@ -51,6 +54,14 @@ namespace cvid
 		Vector3 forward; // -Z
 		Vector3 right; // +X
 		Vector3 up; // +Y
+
+		//Clip planes in camera space, updated when fov is changed
+		//TODO add far clip plane
+		Vector3 nearClip;
+		Vector3 leftClip;
+		Vector3 rightClip;
+		Vector3 bottomClip;
+		Vector3 topClip;
 
 		//Is the camera using perspective projection
 		bool perspective = false;
@@ -64,8 +75,13 @@ namespace cvid
 		void UpdateView();
 		//Update the directional vectors
 		void UpdateTransform();
+		//Update the clip planes
+		void UpdateClipPlanes();
 
 		Matrix4 view;
+		
+		//TODO Fix
+	public:
 		Matrix4 projection;
 	};
 }

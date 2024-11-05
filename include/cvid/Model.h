@@ -96,7 +96,7 @@ namespace cvid
 		//Get the rough bounding sphere of this model in world space
 		Sphere GetBoundingSphere();
 		//Get the transform matrix
-		Matrix4 GetTransform();
+		const Matrix4& GetTransform();
 
 	private:
 		Model* model;
@@ -111,6 +111,6 @@ namespace cvid
 		//Does the transform matrix need to be recalculated
 		bool staleTransform = true;
 		//Does the bounding sphere need to be recalculated, 1 = only center point, 2 = everything
-		bool staleBounds = 2;
+		int staleBounds = 2;
 	};
 }

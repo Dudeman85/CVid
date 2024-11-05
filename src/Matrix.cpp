@@ -374,9 +374,9 @@ namespace cvid
 
 		return inverse;
 	}
-	Vector4 Matrix4::operator*(const Vector4& rhs)
+	Vector4 Matrix4::operator*(const Vector4& rhs) const
 	{
-		Matrix4& lhs = *this;
+		const Matrix4& lhs = *this;
 		Vector4 mult;
 		mult[0] = (lhs[0][0] * rhs[0] + lhs[1][0] * rhs[1] + lhs[2][0] * rhs[2] + lhs[3][0] * rhs[3]);
 		mult[1] = (lhs[0][1] * rhs[0] + lhs[1][1] * rhs[1] + lhs[2][1] * rhs[2] + lhs[3][1] * rhs[3]);
@@ -391,9 +391,9 @@ namespace cvid
 
 		return mult;
 	}
-	Matrix4 Matrix4::operator*(const Matrix4& rhs)
+	Matrix4 Matrix4::operator*(const Matrix4& rhs) const
 	{
-		Matrix4& lhs = *this;
+		const Matrix4& lhs = *this;
 		Matrix4 mult;
 		mult[0][0] = (lhs[0][0] * rhs[0][0] + lhs[1][0] * rhs[0][1] + lhs[2][0] * rhs[0][2] + lhs[3][0] * rhs[0][3]);
 		mult[1][0] = (lhs[0][0] * rhs[1][0] + lhs[1][0] * rhs[1][1] + lhs[2][0] * rhs[1][2] + lhs[3][0] * rhs[1][3]);

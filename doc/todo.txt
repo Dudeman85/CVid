@@ -9,6 +9,7 @@ Window:
 - buffer issue causes pipe disconnect when sending too much data
 - handle window events
 - weird bug with sending data to window at low speeds
+- window size change doesnt always work
 
 WOULD BE NICE:
 Rasterizer:

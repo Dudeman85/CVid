@@ -101,13 +101,15 @@ namespace cvid
 	{
 		SetBaseModel(model);
 		staleTransform = true;
+		RecalculateTransform();
 	}
 
 	//Set the model this intance will use
 	void ModelInstance::SetBaseModel(Model* model)
 	{
 		this->model = model;
-		staleBounds = true;
+		staleBounds = 2;
+		RecalculateBounds();
 	}
 	//Get a pointer to the base model of this instance
 	Model* ModelInstance::GetBaseModel() const
@@ -180,18 +182,21 @@ namespace cvid
 	//Recalculate the bounding sphere, this should be called after scale has been changed
 	void ModelInstance::RecalculateBounds() 
 	{
-		//Calculate the center point of the vertices
+		//Calculate the center point of the vertices after applying transform
+		Matrix4 transform = GetTransform();
 		boundingSphere.center = Vector3();
 		for (const Vertex& vert : model->vertices)
 		{
-			boundingSphere.center += vert.position;
+			//Apply transform to each vertice
+			Vector3 transformedVert = transform * Vector4(vert.position, 1);
+			boundingSphere.center += transformedVert;
 		}
 		boundingSphere.center /= model->vertices.size();
 
 		//Recalculate the radius if scale has been changed
 		if (staleBounds == 2) 
 		{
-			//The radius of the sphere is defined as the distance from the center to the furthest polygon
+			//The radius of the sphere is defined as the distance from the center to the furthest vertex
 			boundingSphere.radius = 0;
 			for (const Vertex& vert : model->vertices)
 			{
@@ -223,7 +228,7 @@ namespace cvid
 		return boundingSphere;
 	}
 	//Get the transform matrix
-	Matrix4 ModelInstance::GetTransform()
+	const Matrix4& ModelInstance::GetTransform()
 	{
 		if (staleTransform)
 			RecalculateTransform();

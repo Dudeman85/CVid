@@ -2,25 +2,23 @@
 #include <thread>
 #include <chrono>
 #include <cvid/Window.h>
-#include <cvid/Rasterizer.h>
 #include <cvid/Helpers.h>
 #include <cvid/Renderer.h>
 #include <cvid/Model.h>
 #include <cvid/Matrix.h>
-#include <glm/gtc/matrix_transform.hpp>
-#include <tiny_obj_loader.h>
 
 //https://gabrielgambetta.com/computer-graphics-from-scratch/
 //https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-defwindowproca
 //https://learn.microsoft.com/en-us/windows/win32/winmsg/using-messages-and-message-queues#examining-a-message-queue
+//https://www.scratchapixel.com/lessons/3d-basic-rendering/perspective-and-orthographic-projection-matrix/building-basic-perspective-projection-matrix.html
 
 int main()
 {
-	cvid::Window window(120, 80, "Projection Test");
+	cvid::Window window(100, 100, "Projection Test");
 
-	window.SetProperties({ 120, 90 });
+	window.SetProperties({ 100, 100 });
 
-	cvid::Camera cam({ 0, 0, 100 }, 100, 64, 1);
+	cvid::Camera cam(cvid::Vector3(0, 0, 100), 100, 100);
 	cam.SetPerspective(90);
 
 
@@ -37,6 +35,7 @@ int main()
 	cubeInstance.SetScale(7);
 	cubeInstance.SetPosition({ -15, 10, 0 });
 
+	float fov = 90; 
 
 	while (true)
 	{
@@ -57,12 +56,12 @@ int main()
 		//D right
 		if (GetKeyState(68) & 0x8000)
 			cam.Translate(cam.GetRight() * moveSpeed);
-		//Q up
+		//Q down
 		if (GetKeyState(81) & 0x8000)
-			cam.Translate(cam.GetUp() * moveSpeed);
-		//E down
-		if (GetKeyState(69) & 0x8000)
 			cam.Translate(cam.GetUp() * -moveSpeed);
+		//E up
+		if (GetKeyState(69) & 0x8000)
+			cam.Translate(cam.GetUp() * moveSpeed);
 
 		//Camera rotation
 		float rotationSpeed = 0.01;
@@ -85,6 +84,14 @@ int main()
 		if (GetKeyState(VK_NUMPAD7) & 0x8000)
 			cam.Rotate(cvid::Vector3(0, 0, 1) * rotationSpeed);
 
+		//NP 1 fov+
+		if (GetKeyState(VK_NUMPAD1) & 0x8000)
+			cam.SetPerspective(++fov);
+		//NP 2 fov-
+		if (GetKeyState(VK_NUMPAD2) & 0x8000)
+			cam.SetPerspective(--fov);
+
+		std::cout << fov << std::endl;
 
 		if (GetKeyState(VK_DIVIDE) & 0x8000)
 			cubeInstance.Rotate({ 0, cvid::Radians(1), 0 });

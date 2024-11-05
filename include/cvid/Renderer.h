@@ -20,8 +20,8 @@ namespace cvid
 	void DrawModel(ModelInstance* model, Camera* cam, Window* window);
 
 	//Utility Functions
-	//Returns true if a model falls entirely inside a camera's clip space
-	bool ClipModel(const ModelInstance* model, Camera* cam);
+	//Returns 0 if a model falls entirely outside a camera's clip space, 1 if it's entirely inside, and 2 if it falls in between
+	int ClipModel(ModelInstance* model, Camera* cam);
 	//Returns true if a tri falls entirely inside a camera's clip space
 	bool ClipTri(const Vector3& v1, const Vector3& v2, const Vector3& v3, Camera* cam);
 }

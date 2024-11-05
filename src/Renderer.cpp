@@ -39,10 +39,10 @@ namespace cvid
 				v2.z = 0.1;
 
 			//Apply perspective
-			v1.x = v1.x * -cam->distance / v1.z;
-			v1.y = v1.y * -cam->distance / v1.z;
-			v2.x = v2.x * -cam->distance / v2.z;
-			v2.y = v2.y * -cam->distance / v2.z;
+			v1.x = v1.x * -cam->fov / v1.z;
+			v1.y = v1.y * -cam->fov / v1.z;
+			v2.x = v2.x * -cam->fov / v2.z;
+			v2.y = v2.y * -cam->fov / v2.z;
 		}
 
 		RasterizeLine(window, v1, v2, color);
@@ -105,6 +105,13 @@ namespace cvid
 	//Render a model to the window's framebuffer
 	void DrawModel(ModelInstance* model, Camera* cam, Window* window)
 	{
+		//Check if the model is inside, outside, or partially inside the clip space
+		int clip = ClipModel(model, cam);
+		if (clip == 0) {
+			std::cout << "Clipped" << std::endl;
+			return;
+		}
+
 		std::vector<Vertex> vertices = model->GetBaseModel()->vertices;
 		//Apply transform to all vertices
 		for (Vertex& vert : vertices)
@@ -140,8 +147,12 @@ namespace cvid
 			//Apply perspective projection
 			if (cam->IsPerspective())
 			{
-				v.x = v.x * -cam->distance / v.z;
-				v.y = v.y * -cam->distance / v.z;
+				
+				v.x = v.x * -cam->fov / v.z;
+				v.y = v.y * -cam->fov / v.z;
+				
+
+				//v = cam->projection * v;
 			}
 
 			vert.position = Vector3(v);
@@ -162,14 +173,36 @@ namespace cvid
 		}
 	}
 
-	//Returns true if a model falls entirely inside a camera's clip space
-	bool ClipModel(const ModelInstance* model, Camera* cam)
+	//Returns 0 if a model falls entirely outside a camera's clip space, 1 if it's entirely inside, and 2 if it falls in between
+	int ClipModel(ModelInstance* model, Camera* cam)
 	{
-		return false;
+		Sphere boundingSphere = model->GetBoundingSphere();
+		Sphere boundingSphere2 = model->GetBoundingSphere();
+		//Apply view space to bounding sphere
+		boundingSphere.center = cam->GetView() * Vector4(boundingSphere.center, 1);
+
+		//Camera's near, left, right, bottom, and top clip planes in that order as normal vectors pointing inward
+		std::array<Vector3, 5> clipPlanes = cam->GetClipPlanes();
+
+		//For each plane
+		for (const Vector3& plane : clipPlanes)
+		{
+			//Calculate the distance from the bounding sphere's centerpoint to the plane
+			float dist = plane.Dot(boundingSphere.center);
+
+			//Fully behind
+			if (dist < -boundingSphere.radius)
+				return 0;
+			//Intersecting
+			if (abs(dist) < boundingSphere.radius)
+				return 2;
+		}
+
+		return 1;
 	}
 
 	//Returns true if a tri falls entirely inside a camera's clip space
-	bool ClipTri(const Vector3& v1, const Vector3& v2, const Vector3& v3, Camera* cam) 
+	bool ClipTri(const Vector3& v1, const Vector3& v2, const Vector3& v3, Camera* cam)
 	{
 		return false;
 	}

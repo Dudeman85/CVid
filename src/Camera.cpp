@@ -3,12 +3,10 @@
 namespace cvid
 {
 
-	Camera::Camera(Vector3 position, float width, float height, float distance)
+	Camera::Camera(Vector3 position, float width, float height)
 	{
 		this->position = position;
-		this->width = width;
-		this->height = height;
-		this->distance = distance;
+		this->aspectRatio = width / height;
 	}
 
 	void Camera::Translate(Vector3 translation)
@@ -19,7 +17,7 @@ namespace cvid
 	}
 	void Camera::SetPosition(Vector3 position)
 	{
-		if (position != this->position) 
+		if (position != this->position)
 		{
 			updateView = true;
 			updateTransform = true;
@@ -34,7 +32,7 @@ namespace cvid
 	}
 	void Camera::SetRotation(Vector3 rotation)
 	{
-		if (rotation != this->rotation) 
+		if (rotation != this->rotation)
 		{
 			updateView = true;
 			updateTransform = true;
@@ -80,22 +78,25 @@ namespace cvid
 	}
 
 	//Set the camera to use perspective projection
-	void Camera::SetPerspective(float distance)
+	void Camera::SetPerspective(float fov)
 	{
-		this->distance = distance;
+		this->fov = fov;
 		projection = Matrix4::Identity();
-		projection[0][0] = distance;
-		projection[1][1] = distance;
+		float s = 1 / tan(Radians(fov / 2));
+		projection[0][0] = fov;
+		projection[1][1] = fov;
 		projection[2][2] = 1;
+		projection[2][3] = 1;
+		projection[2][2] = -1;
 
 		perspective = true;
+
+		UpdateClipPlanes();
 	}
 
 	//Set the camera to use orthographic projection
 	void Camera::SetOrtho(float width, float height)
 	{
-		this->width = width;
-		this->height = height;
 		perspective = false;
 	}
 
@@ -112,6 +113,12 @@ namespace cvid
 			UpdateView();
 
 		return view;
+	}
+
+	//Get the near, left, right, bottom, and top clip planes in that order
+	std::array<Vector3, 5> Camera::GetClipPlanes()
+	{
+		return { nearClip, leftClip, rightClip, bottomClip, topClip };
 	}
 
 	//Update view matrix and facing vector whenever transforms are changed
@@ -144,5 +151,22 @@ namespace cvid
 		up = rot * Vector4(0, 1, 0, 1);
 
 		updateTransform = false;
+	}
+
+	//Update the clip planes
+	void Camera::UpdateClipPlanes()
+	{
+		//Near is always the same for now atleast
+		nearClip = Vector3(0, 0, -1);
+
+		//Precalculate the angles of the 4 planes
+		float angle = Radians(90 - fov / 2);
+		float horizontalAngle = angle * aspectRatio;
+
+		//These are calculated as normal vectors facing into the clip space
+		leftClip = Vector3(cos(horizontalAngle), 0, -sin(horizontalAngle));
+		rightClip = Vector3(-cos(horizontalAngle), 0, -sin(horizontalAngle));
+		topClip = Vector3(0, -cos(angle), -sin(angle));
+		bottomClip = Vector3(0, cos(angle), -sin(angle));
 	}
 }
