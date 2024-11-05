@@ -161,6 +161,8 @@ namespace cvid
 		double Dot(Vector3 b) const;
 		//Cross product of this vector and vector b
 		Vector3 Cross(Vector3 b) const;
+		//Distance from this point to another
+		double Distance(Vector3 b) const;
 
 		//Return a string of this vector in format "(x, y, z)"
 		std::string ToString() const;

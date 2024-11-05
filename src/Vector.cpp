@@ -470,6 +470,11 @@ namespace cvid
 	{
 		return Vector3((y * b.z) - (z * b.y), (z * b.x) - (x * b.z), (x * b.y) - (y * b.x));
 	}
+	//Distance from this point to another
+	double Vector3::Distance(Vector3 b) const
+	{
+		return sqrt((b.x - x) * (b.x - x) + (b.y - y) * (b.y - y) + (b.z - z) * (b.z - z));
+	}
 
 	std::string Vector3::ToString() const
 	{

@@ -6,6 +6,8 @@
 
 namespace cvid
 {
+	//Model
+
 	Model::Model(std::string path)
 	{
 		LoadModel(path);
@@ -23,12 +25,15 @@ namespace cvid
 		tinyobj::ObjReader reader;
 		bool ret = reader.ParseFromFile(path, reader_config);
 
-		if(!ret)
+		if (!ret)
+		{
 			//Check for any errors
 			if (!reader.Error().empty())
 				cvid::LogError("Cvid Error in Load Model: " + reader.Error());
+			return;
+		}
 		//Check for any warnings
-		if(!reader.Warning().empty())
+		if (!reader.Warning().empty())
 			cvid::LogWarning("Cvid Warning in Load Model: " + reader.Warning());
 
 		const tinyobj::attrib_t& attrib = reader.GetAttrib();
@@ -86,5 +91,142 @@ namespace cvid
 				faces.push_back(f);
 			}
 		}
+	}
+
+
+	//ModelInstance
+
+	//Make a renderable instance from a model
+	ModelInstance::ModelInstance(Model* model) 
+	{
+		SetBaseModel(model);
+		staleTransform = true;
+	}
+
+	//Set the model this intance will use
+	void ModelInstance::SetBaseModel(Model* model)
+	{
+		this->model = model;
+		staleBounds = true;
+	}
+	//Get a pointer to the base model of this instance
+	Model* ModelInstance::GetBaseModel() const
+	{
+		return model;
+	}
+
+	//Transform setters
+	//Move this model in world space by translation
+	void ModelInstance::Translate(Vector3 translation) 
+	{
+		this->position += translation;
+		staleTransform = true;
+		staleBounds = 1;
+	}
+	//Set this model's position in world space
+	void ModelInstance::SetPosition(Vector3 position) 
+	{
+		this->position = position;
+		staleTransform = true;
+		staleBounds = 1;
+	}
+	//Rotate this model by euler angles in world space in radians
+	void ModelInstance::Rotate(Vector3 rotation) 
+	{
+		this->rotation += rotation;
+		staleTransform = true;
+		staleBounds = 1;
+	}
+	//Set this model's euler rotation in world space by rotation in radians
+	void ModelInstance::SetRotation(Vector3 rotation) 
+	{
+		this->rotation = rotation;
+		staleTransform = true;
+		staleBounds = 1;
+	}
+	//Scale this model in world space
+	void ModelInstance::Scale(Vector3 scale) 
+	{
+		this->scale += scale;
+		staleTransform = true;
+		staleBounds = 2;
+
+	}
+	//Set this model's scale in world space
+	void ModelInstance::SetScale(Vector3 scale) 
+	{
+		this->scale = scale;
+		staleTransform = true;
+		staleBounds = 2;
+	}
+
+	//Transform getters
+	//Get the world space position of this model
+	Vector3 ModelInstance::GetPosition() const
+	{
+		return position;
+	}
+	//Get the euler rotation of this model in radians
+	Vector3 ModelInstance::GetRotation() const
+	{
+		return rotation;
+	}
+	//Get the scale of this model
+	Vector3 ModelInstance::GetScale() const
+	{
+		return scale;
+	}
+
+	//Recalculate the bounding sphere, this should be called after scale has been changed
+	void ModelInstance::RecalculateBounds() 
+	{
+		//Calculate the center point of the vertices
+		boundingSphere.center = Vector3();
+		for (const Vertex& vert : model->vertices)
+		{
+			boundingSphere.center += vert.position;
+		}
+		boundingSphere.center /= model->vertices.size();
+
+		//Recalculate the radius if scale has been changed
+		if (staleBounds == 2) 
+		{
+			//The radius of the sphere is defined as the distance from the center to the furthest polygon
+			boundingSphere.radius = 0;
+			for (const Vertex& vert : model->vertices)
+			{
+				double dist = vert.position.Distance(boundingSphere.center);
+				if (dist > boundingSphere.radius)
+					boundingSphere.radius = dist;
+			}
+		}
+
+		staleBounds = 0;
+	}
+
+	//Recalculate the transform matrix, this should be called after any transform has been changed
+	void ModelInstance::RecalculateTransform()
+	{
+		transform = cvid::Matrix4::Identity();
+		transform = transform.Scale(scale);
+		transform = transform.Rotate(rotation);
+		transform = transform.Translate(position);
+
+		staleTransform = false;
+	}
+
+	//Get the rough bounding sphere of this model in world coords
+	Sphere ModelInstance::GetBoundingSphere() 
+	{
+		if (staleBounds > 0)
+			RecalculateBounds();
+		return boundingSphere;
+	}
+	//Get the transform matrix
+	Matrix4 ModelInstance::GetTransform()
+	{
+		if (staleTransform)
+			RecalculateTransform();
+		return transform;
 	}
 }

@@ -103,22 +103,22 @@ namespace cvid
 	}
 
 	//Render a model to the window's framebuffer
-	void DrawModel(Model* model, Matrix4 transform, Camera* cam, Window* window)
+	void DrawModel(ModelInstance* model, Camera* cam, Window* window)
 	{
-		std::vector<Vertex> vertices = model->vertices;
+		std::vector<Vertex> vertices = model->GetBaseModel()->vertices;
 		//Apply transform to all vertices
 		for (Vertex& vert : vertices)
 		{
 			Vector4 v = Vector4(vert.position, 1.0);
 			//Apply the model
-			v = transform * v;
+			v = model->GetTransform() * v;
 
 			vert.position = Vector3(v);
 		}
 
 		//TODO optimize hopefully
 		//Recalculate normals
-		for (Face& face : model->faces)
+		for (Face& face : model->GetBaseModel()->faces)
 		{
 			//Calculate the surface normal
 			Vector3 v1 = vertices[face.verticeIndices[1]].position - vertices[face.verticeIndices[0]].position;
@@ -148,7 +148,7 @@ namespace cvid
 		}
 
 		//Draw each face (triangle)
-		for (const Face& face : model->faces)
+		for (const Face& face : model->GetBaseModel()->faces)
 		{
 			//Backface culling
 			if (!face.culled)
@@ -163,28 +163,14 @@ namespace cvid
 	}
 
 	//Returns true if a model falls entirely inside a camera's clip space
-	//This function expects vertices with model and view transforms applied
-	bool ClipModel(const std::vector<Vertex>& modelVerts, Camera* cam)
+	bool ClipModel(const ModelInstance* model, Camera* cam)
 	{
-		//Calculate the center point of the vertices
-		Vector3 center;
-		for (const Vertex& vert : modelVerts)
-		{
-			center += vert.position;
-		}
-		center /= modelVerts.size();
-
-		//The radius of the sphere is defined as the distance from the center to the furthest polygon
-		float radius = 0;
-		for (const Vertex& vert : modelVerts)
-		{
-			if(vert.position)
-		}
+		return false;
 	}
 
 	//Returns true if a tri falls entirely inside a camera's clip space
 	bool ClipTri(const Vector3& v1, const Vector3& v2, const Vector3& v3, Camera* cam) 
 	{
-
+		return false;
 	}
 }
