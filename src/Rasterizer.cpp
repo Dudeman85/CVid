@@ -222,8 +222,14 @@ namespace cvid
 	}
 
 	//Draw a triangle onto a window's framebuffer
+	//Expects vertices in normalized device coordinates
 	void RasterizeTriangle(Window* window, Vector3 p1f, Vector3 p2f, Vector3 p3f, Color color)
 	{
+		//Convert to window coords
+		p1f = p1f * Vector3(window->GetDimensions(), 1);
+		p2f = p2f * Vector3(window->GetDimensions(), 1);
+		p3f = p3f * Vector3(window->GetDimensions(), 1);
+
 		//TODO: optimize this out maybe, (or not lol this is totally permanent)
 		RasterizeTriangleWireframe(window, p1f, p2f, p3f, color);
 

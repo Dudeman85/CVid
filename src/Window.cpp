@@ -19,7 +19,7 @@ namespace cvid
 
 		//Create the frame and depth buffers
 		frameBuffer = new CharPixel[(size_t)width * height / 2];
-		depthBuffer = new float[(size_t)width * height];
+		depthBuffer = new double[(size_t)width * height];
 		ClearDepthBuffer();
 
 		//Create the outbound pipe to the new console process
@@ -220,7 +220,7 @@ namespace cvid
 	}
 
 	//Get a pointer to the depth buffer bit of a pixel, returns nullptr on failure
-	float* Window::GetDepthBufferBit(uint16_t x, uint16_t y)
+	double* Window::GetDepthBufferBit(uint16_t x, uint16_t y)
 	{
 		//Make sure the pixel is in bounds
 		if (x >= width || y >= height)
@@ -253,7 +253,7 @@ namespace cvid
 		delete[] frameBuffer;
 		delete[] depthBuffer;
 		frameBuffer = new CharPixel[width * height / 2];
-		depthBuffer = new float[width * height];
+		depthBuffer = new double[width * height];
 
 		return true;
 	}

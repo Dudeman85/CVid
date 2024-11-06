@@ -45,6 +45,8 @@ namespace cvid
 		//Vertical fov, for horizontal, multiply by aspect ratio
 		float fov;
 		float aspectRatio;
+		float farPlane = 100;
+		float nearPlane = 1;
 
 	private:
 		Vector3 position;

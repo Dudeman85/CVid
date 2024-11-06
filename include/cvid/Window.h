@@ -59,7 +59,7 @@ namespace cvid
 		//Clear the depthbuffer, setting everything to 0
 		bool ClearDepthBuffer();
 		//Get a modifiable reference to the depth buffer bit of a pixel
-		float* GetDepthBufferBit(uint16_t x, uint16_t y);
+		double* GetDepthBufferBit(uint16_t x, uint16_t y);
 		//Draw the current framebuffer
 		bool DrawFrame();
 		//Send some arbitrary data to the window
@@ -87,8 +87,7 @@ namespace cvid
 
 		//Depth buffer for current z of every pixel 
 		//Half the screen height, accessed [y * width + x]
-		//TODO implementation
-		float* depthBuffer;
+		double* depthBuffer;
 
 		//Window properties
 		std::string name;

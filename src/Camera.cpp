@@ -83,11 +83,11 @@ namespace cvid
 		this->fov = fov;
 		projection = Matrix4::Identity();
 		float s = 1 / tan(Radians(fov / 2));
-		projection[0][0] = fov;
-		projection[1][1] = fov;
+		projection[0][0] = s;
+		projection[1][1] = s;
+		projection[2][2] = -farPlane / (farPlane - nearPlane);
+		projection[2][3] = -farPlane * nearPlane / (farPlane - nearPlane);
 		projection[2][2] = 1;
-		projection[2][3] = 1;
-		projection[2][2] = -1;
 
 		perspective = true;
 

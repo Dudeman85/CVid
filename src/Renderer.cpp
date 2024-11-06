@@ -38,11 +38,13 @@ namespace cvid
 			if (v2.z == 0)
 				v2.z = 0.1;
 
+			float s = -cam->fov / 2;
+
 			//Apply perspective
-			v1.x = v1.x * -cam->fov / v1.z;
-			v1.y = v1.y * -cam->fov / v1.z;
-			v2.x = v2.x * -cam->fov / v2.z;
-			v2.y = v2.y * -cam->fov / v2.z;
+			v1.x = v1.x * s / v1.z;
+			v1.y = v1.y * s / v1.z;
+			v2.x = v2.x * s / v2.z;
+			v2.y = v2.y * s / v2.z;
 		}
 
 		RasterizeLine(window, v1, v2, color);
@@ -148,11 +150,16 @@ namespace cvid
 			if (cam->IsPerspective())
 			{
 				
-				v.x = v.x * -cam->fov / v.z;
-				v.y = v.y * -cam->fov / v.z;
+				//float s = -cam->fov / 2;
+
+				//v.x = v.x * s / v.z;
+				//v.y = v.y * s / v.z;
 				
 
-				//v = cam->projection * v;
+				v = cam->projection * v;
+				v.x /= v.w;
+				v.y /= v.w;
+				v.z /= v.w;
 			}
 
 			vert.position = Vector3(v);

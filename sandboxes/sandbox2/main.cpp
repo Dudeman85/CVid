@@ -104,9 +104,17 @@ int main()
 
 
 		//Draw axis lines
-		cvid::DrawLine({ -100, 0, 0 }, { 100, 0, 0 }, cvid::Color::Red, cvid::Matrix4::Identity(), &cam, &window); //X is red
-		cvid::DrawLine({ 0, -100, 0 }, { 0, 100, 0 }, cvid::Color::Green, cvid::Matrix4::Identity(), &cam, &window); //Y is green
-		cvid::DrawLine({ 0, 0, -100 }, { 0, 0, 100 }, cvid::Color::Blue, cvid::Matrix4::Identity(), &cam, &window); //Z is blue
+		//cvid::DrawLine({ -100, 0, 0 }, { 100, 0, 0 }, cvid::Color::Red, cvid::Matrix4::Identity(), &cam, &window); //X is red
+		//cvid::DrawLine({ 0, -100, 0 }, { 0, 100, 0 }, cvid::Color::Green, cvid::Matrix4::Identity(), &cam, &window); //Y is green
+		//cvid::DrawLine({ 0, 0, -100 }, { 0, 0, 100 }, cvid::Color::Blue, cvid::Matrix4::Identity(), &cam, &window); //Z is blue
+
+
+		//Draw clip plane
+		auto planes = cam.GetClipPlanes();
+		for (cvid::Vector3& plane : planes)
+		{
+			cvid::DrawLine({ 0, 0, 0 }, plane * 50, cvid::Color::Red, cvid::Matrix4::Identity(), &cam, &window);
+		}
 
 
 		cvid::DrawModel(&cubeInstance, &cam, &window);
