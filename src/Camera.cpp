@@ -24,12 +24,14 @@ namespace cvid
 		}
 		this->position = position;
 	}
+	//Rotate this camera in radians
 	void Camera::Rotate(Vector3 rotation)
 	{
 		updateView = true;
 		updateTransform = true;
 		this->rotation += rotation;
 	}
+	//Set this camera's rotation in radians
 	void Camera::SetRotation(Vector3 rotation)
 	{
 		if (rotation != this->rotation)
@@ -86,8 +88,9 @@ namespace cvid
 		projection[0][0] = s;
 		projection[1][1] = s;
 		projection[2][2] = -farPlane / (farPlane - nearPlane);
-		projection[2][3] = -farPlane * nearPlane / (farPlane - nearPlane);
-		projection[2][2] = 1;
+		projection[3][2] = -farPlane * nearPlane / (farPlane - nearPlane);
+		projection[2][3] = 1;
+		projection[3][3] = 0;
 
 		perspective = true;
 
@@ -130,6 +133,7 @@ namespace cvid
 		view = view.RotateZ(-rotation.z);
 		view = view.RotateY(-rotation.y);
 		view = view.RotateX(-rotation.x);
+
 		this->view = view;
 		updateView = false;
 	}
@@ -160,7 +164,7 @@ namespace cvid
 		nearClip = Vector3(0, 0, -1);
 
 		//Precalculate the angles of the 4 planes
-		float angle = Radians(90 - fov / 2);
+		float angle = Radians(fov / 2);
 		float horizontalAngle = angle * aspectRatio;
 
 		//These are calculated as normal vectors facing into the clip space

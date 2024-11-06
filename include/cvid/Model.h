@@ -12,6 +12,7 @@ namespace cvid
 	{
 		//Center point in world space
 		Vector3 center;
+		Vector3 farthestPoint;
 		float radius = 0;
 	};
 
@@ -110,7 +111,7 @@ namespace cvid
 
 		//Does the transform matrix need to be recalculated
 		bool staleTransform = true;
-		//Does the bounding sphere need to be recalculated, 1 = only center point, 2 = everything
-		int staleBounds = 2;
+		//Does the bounding sphere need to be recalculated, 0b01 = center point, 0b10 = everything, 0b00 = nothing
+		int staleBounds = 0b10;
 	};
 }

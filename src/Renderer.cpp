@@ -32,19 +32,14 @@ namespace cvid
 		//Apply perspective projection
 		if (cam->IsPerspective())
 		{
-			//Prevent divide by 0
-			if (v1.z == 0)
-				v1.z = 0.1;
-			if (v2.z == 0)
-				v2.z = 0.1;
-
-			float s = -cam->fov / 2;
-
-			//Apply perspective
-			v1.x = v1.x * s / v1.z;
-			v1.y = v1.y * s / v1.z;
-			v2.x = v2.x * s / v2.z;
-			v2.y = v2.y * s / v2.z;
+			v1 = cam->projection * v1;
+			v1.x /= v1.w;
+			v1.y /= v1.w;
+			v1.z /= v1.w;
+			v2 = cam->projection * v2;
+			v2.x /= v2.w;
+			v2.y /= v2.w;
+			v2.z /= v2.w;
 		}
 
 		RasterizeLine(window, v1, v2, color);
@@ -113,6 +108,9 @@ namespace cvid
 			std::cout << "Clipped" << std::endl;
 			return;
 		}
+		if (clip == 2) {
+			std::cout << "Partially Clipped" << std::endl;
+		}
 
 		std::vector<Vertex> vertices = model->GetBaseModel()->vertices;
 		//Apply transform to all vertices
@@ -149,17 +147,16 @@ namespace cvid
 			//Apply perspective projection
 			if (cam->IsPerspective())
 			{
-				
-				//float s = -cam->fov / 2;
-
-				//v.x = v.x * s / v.z;
-				//v.y = v.y * s / v.z;
-				
-
 				v = cam->projection * v;
+				//Normalize
 				v.x /= v.w;
 				v.y /= v.w;
 				v.z /= v.w;
+			}
+			else 
+			{
+				v.x /= window->GetDimensions().x;
+				v.y /= window->GetDimensions().y;
 			}
 
 			vert.position = Vector3(v);
@@ -184,9 +181,11 @@ namespace cvid
 	int ClipModel(ModelInstance* model, Camera* cam)
 	{
 		Sphere boundingSphere = model->GetBoundingSphere();
-		Sphere boundingSphere2 = model->GetBoundingSphere();
 		//Apply view space to bounding sphere
 		boundingSphere.center = cam->GetView() * Vector4(boundingSphere.center, 1);
+		boundingSphere.farthestPoint = cam->GetView() * Vector4(boundingSphere.farthestPoint, 1);
+		
+		float dist2 = boundingSphere.center.Distance(boundingSphere.farthestPoint);
 
 		//Camera's near, left, right, bottom, and top clip planes in that order as normal vectors pointing inward
 		std::array<Vector3, 5> clipPlanes = cam->GetClipPlanes();
@@ -195,7 +194,7 @@ namespace cvid
 		for (const Vector3& plane : clipPlanes)
 		{
 			//Calculate the distance from the bounding sphere's centerpoint to the plane
-			float dist = plane.Dot(boundingSphere.center);
+			float dist = plane.Dot(boundingSphere.center) / sqrt(plane.Dot(plane));
 
 			//Fully behind
 			if (dist < -boundingSphere.radius)

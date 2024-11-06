@@ -108,7 +108,7 @@ namespace cvid
 	void ModelInstance::SetBaseModel(Model* model)
 	{
 		this->model = model;
-		staleBounds = 2;
+		staleBounds |= 2;
 		RecalculateBounds();
 	}
 	//Get a pointer to the base model of this instance
@@ -123,35 +123,35 @@ namespace cvid
 	{
 		this->position += translation;
 		staleTransform = true;
-		staleBounds = 1;
+		staleBounds |= 1;
 	}
 	//Set this model's position in world space
 	void ModelInstance::SetPosition(Vector3 position) 
 	{
 		this->position = position;
 		staleTransform = true;
-		staleBounds = 1;
+		staleBounds |= 1;
 	}
 	//Rotate this model by euler angles in world space in radians
 	void ModelInstance::Rotate(Vector3 rotation) 
 	{
 		this->rotation += rotation;
 		staleTransform = true;
-		staleBounds = 1;
+		staleBounds |= 1;
 	}
 	//Set this model's euler rotation in world space by rotation in radians
 	void ModelInstance::SetRotation(Vector3 rotation) 
 	{
 		this->rotation = rotation;
 		staleTransform = true;
-		staleBounds = 1;
+		staleBounds |= 1;
 	}
 	//Scale this model in world space
 	void ModelInstance::Scale(Vector3 scale) 
 	{
 		this->scale += scale;
 		staleTransform = true;
-		staleBounds = 2;
+		staleBounds |= 2;
 
 	}
 	//Set this model's scale in world space
@@ -159,7 +159,7 @@ namespace cvid
 	{
 		this->scale = scale;
 		staleTransform = true;
-		staleBounds = 2;
+		staleBounds |= 2;
 	}
 
 	//Transform getters
@@ -183,26 +183,30 @@ namespace cvid
 	void ModelInstance::RecalculateBounds() 
 	{
 		//Calculate the center point of the vertices after applying transform
-		Matrix4 transform = GetTransform();
+		std::vector<Vector3> transformedVerts;
+		transformedVerts.reserve(model->vertices.size());
 		boundingSphere.center = Vector3();
 		for (const Vertex& vert : model->vertices)
 		{
 			//Apply transform to each vertice
-			Vector3 transformedVert = transform * Vector4(vert.position, 1);
-			boundingSphere.center += transformedVert;
+			transformedVerts.push_back(Vector3(GetTransform() * Vector4(vert.position, 1)));
+			boundingSphere.center += transformedVerts.back();
 		}
-		boundingSphere.center /= model->vertices.size();
+		boundingSphere.center /= transformedVerts.size();
 
 		//Recalculate the radius if scale has been changed
-		if (staleBounds == 2) 
+		if (staleBounds >= 2) 
 		{
 			//The radius of the sphere is defined as the distance from the center to the furthest vertex
 			boundingSphere.radius = 0;
-			for (const Vertex& vert : model->vertices)
+			for (const Vector3& vert : transformedVerts)
 			{
-				double dist = vert.position.Distance(boundingSphere.center);
-				if (dist > boundingSphere.radius)
+				double dist = vert.Distance(boundingSphere.center);
+				if (dist > boundingSphere.radius) 
+				{
 					boundingSphere.radius = dist;
+					boundingSphere.farthestPoint = vert;
+				}
 			}
 		}
 

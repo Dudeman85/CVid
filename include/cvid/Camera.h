@@ -14,7 +14,9 @@ namespace cvid
 		//Transform setters
 		void Translate(Vector3 translation);
 		void SetPosition(Vector3 position);
+		//Rotate this camera in radians
 		void Rotate(Vector3 rotation);
+		//Set this camera's rotation in radians
 		void SetRotation(Vector3 rotation);
 
 		//Transform getters

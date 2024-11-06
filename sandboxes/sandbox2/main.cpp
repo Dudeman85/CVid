@@ -20,7 +20,7 @@ int main()
 
 	cvid::Camera cam(cvid::Vector3(0, 0, 100), 100, 100);
 	cam.SetPerspective(90);
-
+	cam.Rotate(cvid::Vector3(0, cvid::Radians(0), 0));
 
 	cvid::Model cube("C:\\Users\\aleksiand\\repos\\Thesis\\resources\\cube.obj");
 
@@ -32,8 +32,8 @@ int main()
 	cube.faces[5].color = cvid::Color::BrightYellow;
 
 	cvid::ModelInstance cubeInstance(&cube);
-	cubeInstance.SetScale(7);
-	cubeInstance.SetPosition({ -15, 10, 0 });
+	cubeInstance.SetScale(10);
+	cubeInstance.SetPosition({ 0, 0, 0 });
 
 	float fov = 90; 
 
@@ -108,14 +108,7 @@ int main()
 		//cvid::DrawLine({ 0, -100, 0 }, { 0, 100, 0 }, cvid::Color::Green, cvid::Matrix4::Identity(), &cam, &window); //Y is green
 		//cvid::DrawLine({ 0, 0, -100 }, { 0, 0, 100 }, cvid::Color::Blue, cvid::Matrix4::Identity(), &cam, &window); //Z is blue
 
-
-		//Draw clip plane
-		auto planes = cam.GetClipPlanes();
-		for (cvid::Vector3& plane : planes)
-		{
-			cvid::DrawLine({ 0, 0, 0 }, plane * 50, cvid::Color::Red, cvid::Matrix4::Identity(), &cam, &window);
-		}
-
+		std::cout << cam.GetRotation().ToString() << std::endl;
 
 		cvid::DrawModel(&cubeInstance, &cam, &window);
 
