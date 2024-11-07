@@ -185,8 +185,6 @@ namespace cvid
 		boundingSphere.center = cam->GetView() * Vector4(boundingSphere.center, 1);
 		boundingSphere.farthestPoint = cam->GetView() * Vector4(boundingSphere.farthestPoint, 1);
 		
-		float dist2 = boundingSphere.center.Distance(boundingSphere.farthestPoint);
-
 		//Camera's near, left, right, bottom, and top clip planes in that order as normal vectors pointing inward
 		std::array<Vector3, 5> clipPlanes = cam->GetClipPlanes();
 

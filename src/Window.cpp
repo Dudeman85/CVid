@@ -146,10 +146,10 @@ namespace cvid
 	bool Window::PutPixel(uint16_t x, uint16_t y, Color color, float z)
 	{
 		//Make sure the pixel is in bounds
-		if (x >= width || y >= height || z > 0)
+		if (x >= width || y >= height || z < 0)
 			return false;
 
-		//Make sure the is not already a closer pixel
+		//Make sure there is not already a closer pixel
 		if (enableDepthTest)
 		{
 			if (1 / z >= depthBuffer[y * width + x])
@@ -213,7 +213,7 @@ namespace cvid
 		{
 			for (size_t x = 0; x < width; x++)
 			{
-				depthBuffer[y * width + x] = 0;
+				depthBuffer[y * width + x] = INFINITY;
 			}
 		}
 		return true;

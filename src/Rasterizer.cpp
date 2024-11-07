@@ -226,13 +226,10 @@ namespace cvid
 	void RasterizeTriangle(Window* window, Vector3 p1f, Vector3 p2f, Vector3 p3f, Color color)
 	{
 		//Convert to window coords
-		p1f = p1f * Vector3(window->GetDimensions(), 1);
-		p2f = p2f * Vector3(window->GetDimensions(), 1);
-		p3f = p3f * Vector3(window->GetDimensions(), 1);
-
-		//TODO: optimize this out maybe, (or not lol this is totally permanent)
-		RasterizeTriangleWireframe(window, p1f, p2f, p3f, color);
-
+		Vector3 halfWindow(window->GetDimensions() / 2, 1);
+		p1f = p1f * halfWindow;
+		p2f = p2f * halfWindow;
+		p3f = p3f * halfWindow;
 		//Convert to window coords
 		Vector2Int windowHalfSize = window->GetDimensions() / 2;
 		Vector2Int p1 = p1f;
@@ -244,6 +241,9 @@ namespace cvid
 		p2 += windowHalfSize;
 		p3.y = -p3.y;
 		p3 += windowHalfSize;
+
+		//TODO: optimize this out maybe, (or not lol this is totally permanent)
+		RasterizeTriangleWireframe(window, p1f, p2f, p3f, color);
 
 		//Sort the vertices in descending order
 		if (p1.y < p2.y)

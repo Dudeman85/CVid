@@ -20,7 +20,7 @@ int main()
 
 	cvid::Camera cam(cvid::Vector3(0, 0, 100), 100, 100);
 	cam.SetPerspective(90);
-	cam.Rotate(cvid::Vector3(0, cvid::Radians(0), 0));
+	cam.Rotate(cvid::Vector3(0, cvid::Radians(45), 0));
 
 	cvid::Model cube("C:\\Users\\aleksiand\\repos\\Thesis\\resources\\cube.obj");
 

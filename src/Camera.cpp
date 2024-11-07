@@ -88,8 +88,8 @@ namespace cvid
 		projection[0][0] = s;
 		projection[1][1] = s;
 		projection[2][2] = -farPlane / (farPlane - nearPlane);
-		projection[3][2] = -farPlane * nearPlane / (farPlane - nearPlane);
-		projection[2][3] = 1;
+		projection[2][3] = -farPlane * nearPlane / (farPlane - nearPlane);
+		projection[3][2] = -1;
 		projection[3][3] = 0;
 
 		perspective = true;
