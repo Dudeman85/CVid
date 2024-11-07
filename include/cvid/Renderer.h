@@ -1,5 +1,6 @@
 #pragma once
 #include <vector>
+#include <bitset>
 #include <cvid/Vector.h>
 #include <cvid/Window.h>
 #include <cvid/Matrix.h>
@@ -18,10 +19,14 @@ namespace cvid
 	void DrawVerticesWireframe(std::vector<Vertex> vertices, std::vector<Vector3Int> indices, Matrix4 transform, Camera* cam, Window* window);
 	//Render a model to the window's framebuffer
 	void DrawModel(ModelInstance* model, Camera* cam, Window* window);
-
+	
 	//Utility Functions
-	//Returns 0 if a model falls entirely outside a camera's clip space, 1 if it's entirely inside, and 2 if it falls in between
-	int ClipModel(ModelInstance* model, Camera* cam);
-	//Returns true if a tri falls entirely inside a camera's clip space
-	bool ClipTri(const Vector3& v1, const Vector3& v2, const Vector3& v3, Camera* cam);
+	//Returns 0 if a model falls entirely outside a camera's clip space, 1 if it's entirely inside, and >1 if it falls in between
+	//If >1 the intersected planes can be acquired by checking each bit corresponding to a plane: 1 = near, 2 = left, 3 = right, 4 = bottom, and 5 = top
+	std::bitset<8> ClipModel(ModelInstance* model, Camera* cam);
+	//Returns a vector with 0, 1, or more triangles clipped against every specified plane
+	//Planes are determined by checking the corresponding bit: 1 = near, 2 = left, 3 = right, 4 = bottom, and 5 = top
+	std::vector<Tri> ClipTriangle(const Tri& triangle, Camera* cam, std::bitset<8> planes = 0b11111111);
+	//Calculate the intersection of a segment and a plane
+	inline Vector3 SPIntersect(Vector3 a, Vector3 b, Vector3 planeNormal, float d = 0);
 }

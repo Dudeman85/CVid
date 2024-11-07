@@ -14,11 +14,11 @@
 
 int main()
 {
-	cvid::Window window(200, 100, "Projection Test");
+	cvid::Window window(80, 80, "Projection Test");
 
-	window.SetProperties({ 200, 84 });
+	window.SetProperties({ 80, 80 });
 
-	cvid::Camera cam(cvid::Vector3(0, 0, 100), 200, 84);
+	cvid::Camera cam(cvid::Vector3(0, 0, 100), 80, 80);
 	cam.SetPerspective(90);
 	cam.Rotate(cvid::Vector3(0, cvid::Radians(45), 0));
 
@@ -64,7 +64,7 @@ int main()
 			cam.Translate(cam.GetUp() * moveSpeed);
 
 		//Camera rotation
-		float rotationSpeed = 0.01;
+		float rotationSpeed = 0.02;
 		//NP 8 pitch down
 		if (GetKeyState(VK_NUMPAD8) & 0x8000)
 			cam.Rotate(cvid::Vector3(-1, 0, 0) * rotationSpeed);

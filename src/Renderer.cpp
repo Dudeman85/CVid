@@ -1,5 +1,7 @@
+#include <bitset>
 #include <cvid/Renderer.h>
 #include <cvid/Rasterizer.h>
+#include <cvid/Math.h>
 
 namespace cvid
 {
@@ -103,17 +105,18 @@ namespace cvid
 	void DrawModel(ModelInstance* model, Camera* cam, Window* window)
 	{
 		//Check if the model is inside, outside, or partially inside the clip space
-		int clip = ClipModel(model, cam);
-		if (clip == 0) {
+		std::bitset<8> clip = ClipModel(model, cam);
+		if (clip.none())
+		{
 			std::cout << "Clipped" << std::endl;
 			return;
 		}
-		if (clip == 2) {
-			std::cout << "Partially Clipped" << std::endl;
-		}
 
+		//Copy the vertices from the base model
 		std::vector<Vertex> vertices = model->GetBaseModel()->vertices;
+
 		//Apply transform to all vertices
+		//TODO: could optimize by caching transformed verts per instance
 		for (Vertex& vert : vertices)
 		{
 			Vector4 v = Vector4(vert.position, 1.0);
@@ -143,6 +146,36 @@ namespace cvid
 			Vector4 v = Vector4(vert.position, 1.0);
 			//Apply the view
 			v = cam->GetView() * v;
+		}
+
+		//If model is partially intersecting at least one plane
+		if (clip.count() > 1)
+		{
+			std::cout << "Partially Clipped " << clip << std::endl;
+
+			std::vector<Tri> clippedTris;
+			//For each triangle in the model
+			for (Face& face : model->GetBaseModel()->faces)
+			{
+				Tri tri {
+					vertices[face.verticeIndices[0]].position,
+					vertices[face.verticeIndices[1]].position,
+					vertices[face.verticeIndices[2]].position 
+				};
+
+				//Clip the triangle against every intersecting plane
+				std::vector<Tri> decomposedTri = ClipTriangle(tri, cam, clip);
+
+				//Add the resulting triangles into the new list
+				clippedTris.insert(clippedTris.end(), decomposedTri.begin(), decomposedTri.end());
+			}
+
+			int a = 0;
+		}
+
+		for (Vertex& vert : vertices)
+		{
+			Vector4 v = Vector4(vert.position, 1.0);
 
 			//Apply perspective projection
 			if (cam->IsPerspective())
@@ -153,7 +186,7 @@ namespace cvid
 				v.y /= v.w;
 				v.z /= v.w;
 			}
-			else 
+			else
 			{
 				v.x /= window->GetDimensions().x;
 				v.y /= window->GetDimensions().y;
@@ -177,37 +210,144 @@ namespace cvid
 		}
 	}
 
-	//Returns 0 if a model falls entirely outside a camera's clip space, 1 if it's entirely inside, and 2 if it falls in between
-	int ClipModel(ModelInstance* model, Camera* cam)
+	//Returns 0 if a model falls entirely outside a camera's clip space, 1 if it's entirely inside, and >1 if it falls in between
+	//If >1 the intersected planes can be acquired by checking each bit corresponding to a plane: 1 = near, 2 = left, 3 = right, 4 = bottom, and 5 = top
+	std::bitset<8> ClipModel(ModelInstance* model, Camera* cam)
 	{
 		Sphere boundingSphere = model->GetBoundingSphere();
 		//Apply view space to bounding sphere
 		boundingSphere.center = cam->GetView() * Vector4(boundingSphere.center, 1);
 		boundingSphere.farthestPoint = cam->GetView() * Vector4(boundingSphere.farthestPoint, 1);
-		
+
 		//Camera's near, left, right, bottom, and top clip planes in that order as normal vectors pointing inward
-		std::array<Vector3, 5> clipPlanes = cam->GetClipPlanes();
+		const std::array<Vector3, 5>& clipPlanes = cam->GetClipPlanes();
 
 		//For each plane
-		for (const Vector3& plane : clipPlanes)
+		std::bitset<8> ret = 1;
+		for (size_t i = 0; i < clipPlanes.size(); i++)
 		{
 			//Calculate the distance from the bounding sphere's centerpoint to the plane
-			float dist = plane.Dot(boundingSphere.center) / sqrt(plane.Dot(plane));
+			float dist = clipPlanes[i].Dot(boundingSphere.center) / sqrt(clipPlanes[i].Dot(clipPlanes[i]));
 
 			//Fully behind
 			if (dist < -boundingSphere.radius)
 				return 0;
 			//Intersecting
 			if (abs(dist) < boundingSphere.radius)
-				return 2;
+			{
+				//Set the bit corresponding to the plane
+				ret.set(i + 1);
+			}
 		}
 
-		return 1;
+		return ret;
 	}
 
-	//Returns true if a tri falls entirely inside a camera's clip space
-	bool ClipTri(const Vector3& v1, const Vector3& v2, const Vector3& v3, Camera* cam)
+	//Returns a vector with 0, 1, or more triangles clipped against every specified plane
+	//Planes are determined by checking the corresponding bit: 1 = near, 2 = left, 3 = right, 4 = bottom, and 5 = top
+	std::vector<Tri> ClipTriangle(const Tri& triangle, Camera* cam, std::bitset<8> planes)
 	{
-		return false;
+		const std::array<Vector3, 5>& clipPlanes = cam->GetClipPlanes();
+		std::vector<Tri> tris;
+		std::vector<Tri> clippedTris = { triangle };
+		//For each clip plane
+		for (size_t i = 0; i < clipPlanes.size(); i++)
+		{
+			//If the bit is set, clip against the corresponding plane
+			if (planes.test(i + 1))
+			{
+				//Set the tris from last plane to be clipped against this plane
+				tris = clippedTris;
+				clippedTris.clear();
+
+				//For each triangle
+				for (const Tri& tri : tris)
+				{
+					//Calculate the distances from each vertex to the plane
+					float n = sqrt(clipPlanes[i].Dot(clipPlanes[i]));
+					float d1 = clipPlanes[i].Dot(tri.v1) / n;
+					float d2 = clipPlanes[i].Dot(tri.v2) / n;
+					float d3 = clipPlanes[i].Dot(tri.v3) / n;
+
+					//If all are positive, the triangle is entirely in front of the plane
+					if (d1 >= 0 && d2 >= 0 && d3 >= 0)
+					{
+						//No decomposition needed
+						clippedTris.push_back(tri);
+					}
+					//If all are negative triangle is entirely behind the plane
+					else if (d1 < 0 && d2 < 0 && d3 < 0)
+					{
+						continue;
+					}
+					//If one is positive, 2 vertices are behind
+					else if (d1 * d2 * d3 > 0)
+					{
+						//Sort the vertices so that A is the positive one
+						Vector3 a = tri.v1;
+						Vector3 b = tri.v2;
+						Vector3 c = tri.v3;
+						if (d2 > 0)
+						{
+							a = tri.v2;
+							b = tri.v1;
+							c = tri.v3;
+						}
+						if (d3 > 0)
+						{
+							a = tri.v3;
+							b = tri.v1;
+							c = tri.v2;
+						}
+
+						//Calculate the points where the triangle's sides intersect the plane
+						Vector3 bi = SPIntersect(a, b, clipPlanes[i]);
+						Vector3 ci = SPIntersect(a, c, clipPlanes[i]);
+
+						//Decompose into 1 triangle
+						clippedTris.push_back(Tri(a, bi, ci));
+					}
+					//If two are positive, 1 vertice is behind
+					else
+					{
+						//Sort the vertices so that C is the negative one
+						Vector3 a = tri.v1;
+						Vector3 b = tri.v2;
+						Vector3 c = tri.v3;
+						if (d1 < 0)
+						{
+							a = tri.v3;
+							b = tri.v2;
+							c = tri.v1;
+						}
+						if (d2 < 0)
+						{
+							a = tri.v1;
+							b = tri.v3;
+							c = tri.v2;
+						}
+
+						//Calculate the points where the triangle's sides intersect the plane
+						Vector3 ai = SPIntersect(a, c, clipPlanes[i]);
+						Vector3 bi = SPIntersect(b, c, clipPlanes[i]);
+
+						//Decompose into 2 triangles
+						clippedTris.push_back(Tri(a, b, ai));
+						clippedTris.push_back(Tri(ai, b, bi));
+					}
+				}
+			}
+		}
+
+		return clippedTris;
+	}
+
+	//Calculate the intersection of a segment and a plane
+	Vector3 SPIntersect(Vector3 a, Vector3 b, Vector3 n, float d)
+	{
+		if (n.Dot(b - a) == 0) {
+			return Vector3(0);
+		}
+		return Vector3((-d - n.Dot(a)) / n.Dot(b - a));
 	}
 }

@@ -1,5 +1,6 @@
 #pragma once
 #include <vector>
+#include <cvid/Vector.h>
 
 namespace cvid 
 {

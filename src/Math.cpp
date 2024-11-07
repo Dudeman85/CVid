@@ -7,7 +7,7 @@ namespace cvid
 	{
 		std::vector<float> values;
 		values.reserve(range);
-		
+
 		//Slope of the line
 		float m = (end - start) / range;
 
