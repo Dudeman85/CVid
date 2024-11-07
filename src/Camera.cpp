@@ -84,12 +84,21 @@ namespace cvid
 	{
 		this->fov = fov;
 		projection = Matrix4::Identity();
-		float s = 1 / tan(Radians(fov / 2));
-		projection[0][0] = s;
-		projection[1][1] = s;
-		projection[2][2] = -farPlane / (farPlane - nearPlane);
-		projection[2][3] = -farPlane * nearPlane / (farPlane - nearPlane);
-		projection[3][2] = -1;
+
+		//Calculate the camera's dimensions for projection matrix
+		float top = tan(Radians(fov / 2)) * nearPlane;
+		float bottom = -top;
+		float right = top * aspectRatio;
+		float left = -right;
+
+		//Make the OpenGL standard perspective matrix
+		projection[0][0] = 2 * nearPlane / (right - left);
+		projection[1][1] = 2 * nearPlane / (top - bottom);
+		projection[2][2] = -(farPlane + nearPlane) / (farPlane - nearPlane);
+		projection[3][2] = -(2 * farPlane * nearPlane) / (farPlane - nearPlane);
+		projection[2][0] = (right + left) / (right - left);
+		projection[2][1] = (top + bottom) / (top - bottom);
+		projection[2][3] = -1;
 		projection[3][3] = 0;
 
 		perspective = true;

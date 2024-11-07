@@ -14,11 +14,11 @@
 
 int main()
 {
-	cvid::Window window(100, 100, "Projection Test");
+	cvid::Window window(200, 100, "Projection Test");
 
-	window.SetProperties({ 100, 100 });
+	window.SetProperties({ 200, 84 });
 
-	cvid::Camera cam(cvid::Vector3(0, 0, 100), 100, 100);
+	cvid::Camera cam(cvid::Vector3(0, 0, 100), 200, 84);
 	cam.SetPerspective(90);
 	cam.Rotate(cvid::Vector3(0, cvid::Radians(45), 0));
 
