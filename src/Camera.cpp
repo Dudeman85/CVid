@@ -12,7 +12,7 @@ namespace cvid
 	void Camera::Translate(Vector3 translation)
 	{
 		updateView = true;
-		updateTransform = true;
+		updateDirection = true;
 		position += translation;
 	}
 	void Camera::SetPosition(Vector3 position)
@@ -20,7 +20,7 @@ namespace cvid
 		if (position != this->position)
 		{
 			updateView = true;
-			updateTransform = true;
+			updateDirection = true;
 		}
 		this->position = position;
 	}
@@ -28,7 +28,7 @@ namespace cvid
 	void Camera::Rotate(Vector3 rotation)
 	{
 		updateView = true;
-		updateTransform = true;
+		updateDirection = true;
 		this->rotation += rotation;
 	}
 	//Set this camera's rotation in radians
@@ -37,7 +37,7 @@ namespace cvid
 		if (rotation != this->rotation)
 		{
 			updateView = true;
-			updateTransform = true;
+			updateDirection = true;
 		}
 		this->rotation = rotation;
 	}
@@ -55,8 +55,8 @@ namespace cvid
 	Vector3 Camera::GetForward()
 	{
 		//Update the vector is needed
-		if (updateTransform)
-			UpdateTransform();
+		if (updateDirection)
+			UpdateDirection();
 
 		return forward;
 	}
@@ -64,8 +64,8 @@ namespace cvid
 	Vector3 Camera::GetRight()
 	{
 		//Update the vector is needed
-		if (updateTransform)
-			UpdateTransform();
+		if (updateDirection)
+			UpdateDirection();
 
 		return right;
 	}
@@ -73,41 +73,31 @@ namespace cvid
 	Vector3 Camera::GetUp()
 	{
 		//Update the vector is needed
-		if (updateTransform)
-			UpdateTransform();
+		if (updateDirection)
+			UpdateDirection();
 
 		return up;
 	}
 
-	//Set the camera to use perspective projection
-	void Camera::SetPerspective(float fov)
+	//Set the field of view
+	void Camera::SetFOV(float fov) 
 	{
 		this->fov = fov;
-		projection = Matrix4::Identity();
 
-		//Calculate the camera's dimensions for projection matrix
-		float top = tan(Radians(fov / 2)) * nearPlane;
-		float bottom = -top;
-		float right = top * aspectRatio;
-		float left = -right;
+		UpdateProjection();
+	}
 
-		//Make the OpenGL standard perspective matrix
-		projection[0][0] = 2 * nearPlane / (right - left);
-		projection[1][1] = 2 * nearPlane / (top - bottom);
-		projection[2][2] = -(farPlane + nearPlane) / (farPlane - nearPlane);
-		projection[3][2] = -(2 * farPlane * nearPlane) / (farPlane - nearPlane);
-		projection[2][0] = (right + left) / (right - left);
-		projection[2][1] = (top + bottom) / (top - bottom);
-		projection[2][3] = -1;
-		projection[3][3] = 0;
-
+	//Set the camera to use perspective projection
+	void Camera::MakePerspective()
+	{
 		perspective = true;
 
+		UpdateProjection();
 		UpdateClipPlanes();
 	}
 
 	//Set the camera to use orthographic projection
-	void Camera::SetOrtho(float width, float height)
+	void Camera::MakeOrtho(float width, float height)
 	{
 		perspective = false;
 	}
@@ -119,12 +109,18 @@ namespace cvid
 	}
 
 	//Get the view matrix of this camera
-	Matrix4 Camera::GetView()
+	const Matrix4& Camera::GetView()
 	{
 		if (updateView)
 			UpdateView();
 
 		return view;
+	}
+
+	//Get the peojection matrix of this camera
+	const Matrix4& Camera::GetProjection()
+	{
+		return projection;
 	}
 
 	//Get the near, left, right, bottom, and top clip planes in that order
@@ -147,8 +143,37 @@ namespace cvid
 		updateView = false;
 	}
 
+	//Update the projection matrix
+	void Camera::UpdateProjection()
+	{
+		projection = Matrix4::Identity();
+
+		if (perspective)
+		{
+			//Calculate the camera's dimensions for projection matrix
+			float top = tan(Radians(fov / 2)) * nearPlane;
+			float bottom = -top;
+			float right = top * aspectRatio;
+			float left = -right;
+
+			//Make the OpenGL standard perspective matrix
+			projection[0][0] = 2 * nearPlane / (right - left);
+			projection[1][1] = 2 * nearPlane / (top - bottom);
+			projection[2][2] = -(farPlane + nearPlane) / (farPlane - nearPlane);
+			projection[3][2] = -(2 * farPlane * nearPlane) / (farPlane - nearPlane);
+			projection[2][0] = (right + left) / (right - left);
+			projection[2][1] = (top + bottom) / (top - bottom);
+			projection[2][3] = -1;
+			projection[3][3] = 0;
+		}
+		else 
+		{
+			//TODO implement ortho projection
+		}
+	}
+
 	//Update the directional vectors
-	void Camera::UpdateTransform()
+	void Camera::UpdateDirection()
 	{
 		//Create a rotation matrix
 		Matrix4 rot = cvid::Matrix4::Identity();
@@ -163,7 +188,7 @@ namespace cvid
 		//Up is +Y
 		up = rot * Vector4(0, 1, 0, 1);
 
-		updateTransform = false;
+		updateDirection = false;
 	}
 
 	//Update the clip planes

@@ -116,6 +116,9 @@ namespace cvid
 		Vector3 rotation;
 		Vector3 scale = Vector3(1);
 
+		//Vertices of this instance in world space
+		std::vector<Vertex> worldVertices;
+
 		//Does the transform matrix need to be recalculated
 		bool staleTransform = true;
 		//Does the bounding sphere need to be recalculated, 0b01 = center point, 0b10 = everything, 0b00 = nothing

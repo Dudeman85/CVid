@@ -33,22 +33,21 @@ namespace cvid
 		//Check if the camera is using perspective projection
 		bool IsPerspective();
 
+		//Set the field of view
+		void SetFOV(float fov);
+
 		//Set the camera to use perspective projection
-		void SetPerspective(float fov);
+		void MakePerspective();
 		//Set the camera to use orthographic projection
-		void SetOrtho(float width, float height);
+		void MakeOrtho(float width, float height);
 
 		//Get the view  matrix of this camera
-		Matrix4 GetView();
+		const Matrix4& GetView();
+		//Get the peojection matrix of this camera
+		const Matrix4& GetProjection();
 
 		//Get the near, left, right, bottom, and top clip planes in that order
 		std::array<Vector3, 5> GetClipPlanes();
-
-		//Vertical fov, for horizontal, multiply by aspect ratio
-		float fov;
-		float aspectRatio;
-		float farPlane = 100;
-		float nearPlane = 1;
 
 	private:
 		Vector3 position;
@@ -60,12 +59,17 @@ namespace cvid
 		Vector3 up; // +Y
 
 		//Clip planes in camera space, updated when fov is changed
-		//TODO add far clip plane
 		Vector3 nearClip;
 		Vector3 leftClip;
 		Vector3 rightClip;
 		Vector3 bottomClip;
 		Vector3 topClip;
+
+		//Vertical fov, for horizontal, multiply by aspect ratio
+		float fov = 90;
+		float aspectRatio;
+		float farPlane = 100;
+		float nearPlane = 1;
 
 		//Is the camera using perspective projection
 		bool perspective = false;
@@ -73,19 +77,18 @@ namespace cvid
 		//Should the view matrix be updated on next fetch
 		bool updateView = true;
 		//Should the directional vectors be updated
-		bool updateTransform = true;
+		bool updateDirection = true;
 
 		//Update the view matrix
 		void UpdateView();
+		//Update the projection matrix
+		void UpdateProjection();
 		//Update the directional vectors
-		void UpdateTransform();
+		void UpdateDirection();
 		//Update the clip planes
 		void UpdateClipPlanes();
 
 		Matrix4 view;
-		
-		//TODO Fix
-	public:
 		Matrix4 projection;
 	};
 }

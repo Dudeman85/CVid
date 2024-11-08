@@ -13,85 +13,25 @@
 //https://www.scratchapixel.com/lessons/3d-basic-rendering/perspective-and-orthographic-projection-matrix/building-basic-perspective-projection-matrix.html
 
 
-void numero(int x)
-
-{
-	using namespace std;
-	for (int i = 0; i <= x; ++i)
-
-	{
-
-		if (i % 3 == 0 && i % 5 == 0 && i % 10 == 0)
-
-		{
-
-			cout << "FizbuzzBazz" << endl;
-
-		}
-		else if (i % 3 == 0 && i % 5 == 0)
-		{
-			cout << "FizzBuzz" << endl;
-		}
-		else if (i % 10 == 0 && i % 5 == 0)
-		{
-			cout << " BuzzBazz" << endl;
-		}
-		else if (i % 3 == 0 && i % 10 == 0)
-		{
-			cout << " FizzBazz" << endl;
-
-		}
-		else if (i % 3 == 0)
-
-		{
-
-			cout << "Fizz" << endl;
-
-		}
-
-		else if (i % 5 == 0)
-
-		{
-
-			cout << "Buzz" << endl;
-
-		}
-		else if (i % 10 == 0)
-		{
-			cout << "Bazz" << endl;
-		}
-
-		else {
-
-			cout << i << endl;
-
-		}
-
-	}
-
-};
-
 int main()
 {
-	//numero(100);return 1;
-
 	cvid::Window window(80, 80, "Projection Test");
 
 	window.SetProperties({ 80, 80 });
 
 	cvid::Camera cam(cvid::Vector3(0, 0, 100), 80, 80);
-	cam.SetPerspective(90);
+	cam.MakePerspective();
 	cam.Rotate(cvid::Vector3(0, cvid::Radians(0), 0));
 
 	cvid::Model cube("C:\\Users\\aleksiand\\repos\\Thesis\\resources\\cube.obj");
-	
+
 	cube.faces[0].color = cvid::Color::Magenta;
 	cube.faces[1].color = cvid::Color::Magenta;
 	cube.faces[2].color = cvid::Color::Cyan;
 	cube.faces[3].color = cvid::Color::Cyan;
 	cube.faces[4].color = cvid::Color::BrightYellow;
 	cube.faces[5].color = cvid::Color::BrightYellow;
-	
+
 	cvid::ModelInstance cubeInstance(&cube);
 	cubeInstance.SetScale(20);
 	cubeInstance.SetPosition({ 0, 0, 0 });
@@ -148,12 +88,11 @@ int main()
 
 		//NP 1 fov+
 		if (GetKeyState(VK_NUMPAD1) & 0x8000)
-			cam.SetPerspective(++fov);
+			cam.SetFOV(++fov);
 		//NP 2 fov-
 		if (GetKeyState(VK_NUMPAD2) & 0x8000)
-			cam.SetPerspective(--fov);
+			cam.SetFOV(--fov);
 
-		std::cout << fov << std::endl;
 
 		if (GetKeyState(VK_DIVIDE) & 0x8000)
 			cubeInstance.Rotate({ 0, cvid::Radians(1), 0 });
@@ -170,7 +109,6 @@ int main()
 		//cvid::DrawLine({ 0, -100, 0 }, { 0, 100, 0 }, cvid::Color::Green, cvid::Matrix4::Identity(), &cam, &window); //Y is green
 		//cvid::DrawLine({ 0, 0, -100 }, { 0, 0, 100 }, cvid::Color::Blue, cvid::Matrix4::Identity(), &cam, &window); //Z is blue
 
-		std::cout << cam.GetRotation().ToString() << std::endl;
 
 		cvid::DrawModel(&cubeInstance, &cam, &window);
 

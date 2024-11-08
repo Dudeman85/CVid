@@ -34,11 +34,11 @@ namespace cvid
 		//Apply perspective projection
 		if (cam->IsPerspective())
 		{
-			v1 = cam->projection * v1;
+			v1 = cam->GetProjection() * v1;
 			v1.x /= v1.w;
 			v1.y /= v1.w;
 			v1.z /= v1.w;
-			v2 = cam->projection * v2;
+			v2 = cam->GetProjection() * v2;
 			v2.x /= v2.w;
 			v2.y /= v2.w;
 			v2.z /= v2.w;
@@ -107,11 +107,10 @@ namespace cvid
 	{
 		//Check if the model is inside, outside, or partially inside the clip space
 		std::bitset<8> clip = ClipModel(model, cam);
+
+		//Fully outside clip space
 		if (clip.none())
-		{
-			std::cout << "Clipped" << std::endl;
 			return;
-		}
 
 		//Copy the vertices from the base model
 		std::vector<Vertex> vertices = model->GetBaseModel()->vertices;
@@ -141,7 +140,7 @@ namespace cvid
 			face.culled = vc.Dot(face.normal) >= 0;
 		}
 
-		//Apply view and projection to all vertices
+		//Apply view to all vertices
 		for (Vertex& vert : vertices)
 		{
 			Vector4 v = Vector4(vert.position, 1.0);
@@ -155,8 +154,6 @@ namespace cvid
 		//If model is partially intersecting at least one plane
 		if (clip.count() > 1)
 		{
-			std::cout << "Partially Clipped " << clip << std::endl;
-
 			std::vector<Tri> clippedTris;
 			//For each triangle in the model
 			for (Face& face : model->GetBaseModel()->faces)
@@ -184,11 +181,11 @@ namespace cvid
 				//Apply perspective projection
 				if (cam->IsPerspective())
 				{
-					v1 = cam->projection * v1;
+					v1 = cam->GetProjection() * v1;
 					v1 /= v1.w;
-					v2 = cam->projection * v2;
+					v2 = cam->GetProjection() * v2;
 					v2 /= v2.w;
-					v3 = cam->projection * v3;
+					v3 = cam->GetProjection() * v3;
 					v3 /= v3.w;
 				}
 
@@ -210,20 +207,12 @@ namespace cvid
 			{
 				Vector4 v = Vector4(vert.position, 1.0);
 
-				//Apply perspective projection
-				if (cam->IsPerspective())
-				{
-					v = cam->projection * v;
-					//Normalize
-					v.x /= v.w;
-					v.y /= v.w;
-					v.z /= v.w;
-				}
-				else
-				{
-					v.x /= window->GetDimensions().x;
-					v.y /= window->GetDimensions().y;
-				}
+				//Apply projection
+				v = cam->GetProjection() * v;
+				//Normalize
+				v.x /= v.w;
+				v.y /= v.w;
+				v.z /= v.w;
 
 				vert.position = Vector3(v);
 			}
