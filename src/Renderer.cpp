@@ -102,6 +102,7 @@ namespace cvid
 	}
 
 	//Render a model to the window's framebuffer
+	//TODO: fix this function it is extremely convoluted and unoptimized
 	void DrawModel(ModelInstance* model, Camera* cam, Window* window)
 	{
 		//Check if the model is inside, outside, or partially inside the clip space
@@ -146,7 +147,10 @@ namespace cvid
 			Vector4 v = Vector4(vert.position, 1.0);
 			//Apply the view
 			v = cam->GetView() * v;
+
+			vert.position = Vector3(v);
 		}
+
 
 		//If model is partially intersecting at least one plane
 		if (clip.count() > 1)
@@ -157,10 +161,10 @@ namespace cvid
 			//For each triangle in the model
 			for (Face& face : model->GetBaseModel()->faces)
 			{
-				Tri tri {
+				Tri tri{
 					vertices[face.verticeIndices[0]].position,
 					vertices[face.verticeIndices[1]].position,
-					vertices[face.verticeIndices[2]].position 
+					vertices[face.verticeIndices[2]].position
 				};
 
 				//Clip the triangle against every intersecting plane
@@ -170,42 +174,72 @@ namespace cvid
 				clippedTris.insert(clippedTris.end(), decomposedTri.begin(), decomposedTri.end());
 			}
 
-			int a = 0;
-		}
-
-		for (Vertex& vert : vertices)
-		{
-			Vector4 v = Vector4(vert.position, 1.0);
-
-			//Apply perspective projection
-			if (cam->IsPerspective())
+			//TODO FIX PLEASE
+			for (Tri& tri : clippedTris)
 			{
-				v = cam->projection * v;
-				//Normalize
-				v.x /= v.w;
-				v.y /= v.w;
-				v.z /= v.w;
-			}
-			else
-			{
-				v.x /= window->GetDimensions().x;
-				v.y /= window->GetDimensions().y;
-			}
+				Vector4 v1 = Vector4(tri.v1, 1.0);
+				Vector4 v2 = Vector4(tri.v2, 1.0);
+				Vector4 v3 = Vector4(tri.v3, 1.0);
 
-			vert.position = Vector3(v);
-		}
+				//Apply perspective projection
+				if (cam->IsPerspective())
+				{
+					v1 = cam->projection * v1;
+					v1 /= v1.w;
+					v2 = cam->projection * v2;
+					v2 /= v2.w;
+					v3 = cam->projection * v3;
+					v3 /= v3.w;
+				}
 
-		//Draw each face (triangle)
-		for (const Face& face : model->GetBaseModel()->faces)
-		{
-			//Backface culling
-			if (!face.culled)
-			{
+				tri.v1 = Vector3(v1);
+				tri.v2 = Vector3(v2);
+				tri.v3 = Vector3(v3);
+
+				//Draw the triangle
 				RasterizeTriangle(window,
-					vertices[face.verticeIndices[0]].position,
-					vertices[face.verticeIndices[1]].position,
-					vertices[face.verticeIndices[2]].position,
-					face.color);
+					tri.v1,
+					tri.v2,
+					tri.v3,
+					cvid::Color::Blue);
+			}
+		}
+		else
+		{
+			for (Vertex& vert : vertices)
+			{
+				Vector4 v = Vector4(vert.position, 1.0);
+
+				//Apply perspective projection
+				if (cam->IsPerspective())
+				{
+					v = cam->projection * v;
+					//Normalize
+					v.x /= v.w;
+					v.y /= v.w;
+					v.z /= v.w;
+				}
+				else
+				{
+					v.x /= window->GetDimensions().x;
+					v.y /= window->GetDimensions().y;
+				}
+
+				vert.position = Vector3(v);
+			}
+
+			//Draw each face (triangle)
+			for (const Face& face : model->GetBaseModel()->faces)
+			{
+				//Backface culling
+				if (!face.culled)
+				{
+					RasterizeTriangle(window,
+						vertices[face.verticeIndices[0]].position,
+						vertices[face.verticeIndices[1]].position,
+						vertices[face.verticeIndices[2]].position,
+						face.color);
+				}
 			}
 		}
 	}
@@ -342,12 +376,10 @@ namespace cvid
 		return clippedTris;
 	}
 
-	//Calculate the intersection of a segment and a plane
-	Vector3 SPIntersect(Vector3 a, Vector3 b, Vector3 n, float d)
+	//Calculate the intersection of a segment and a clip plane, not suitable for general use
+	Vector3 SPIntersect(Vector3 a, Vector3 b, Vector3 n)
 	{
-		if (n.Dot(b - a) == 0) {
-			return Vector3(0);
-		}
-		return Vector3((-d - n.Dot(a)) / n.Dot(b - a));
+		float t = -n.Dot(a) / n.Dot(b - a);
+		return a + (b - a) * t;
 	}
 }

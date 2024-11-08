@@ -27,6 +27,6 @@ namespace cvid
 	//Returns a vector with 0, 1, or more triangles clipped against every specified plane
 	//Planes are determined by checking the corresponding bit: 1 = near, 2 = left, 3 = right, 4 = bottom, and 5 = top
 	std::vector<Tri> ClipTriangle(const Tri& triangle, Camera* cam, std::bitset<8> planes = 0b11111111);
-	//Calculate the intersection of a segment and a plane
-	inline Vector3 SPIntersect(Vector3 a, Vector3 b, Vector3 planeNormal, float d = 0);
+	//Calculate the intersection of a segment and a clip plane, not suitable for general use
+	inline Vector3 SPIntersect(Vector3 a, Vector3 b, Vector3 planeNormal);
 }
