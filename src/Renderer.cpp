@@ -37,12 +37,20 @@ namespace cvid
 		v1 = Vector4(clippedLine.first, 1);
 		v2 = Vector4(clippedLine.second, 1);
 
+		Vector4 test = v1;
+		if (v1.x > 10000)
+			return;
+
 		//Apply projection
 		v1 = cam->GetProjection() * v1;
 		v2 = cam->GetProjection() * v2;
+		Vector4 test2 = v1;
 		//Normalize
 		v1 /= v1.w;
 		v2 /= v2.w;
+
+		if (v1.x > 10000)
+			return;
 
 		RasterizeLine(window, v1, v2, color);
 	}
@@ -441,10 +449,10 @@ namespace cvid
 				float d2 = clipPlanes[i].Dot(p2) / n;
 
 				//If both are positive, line is in front of the plane
-				if (d1 >= 0 && d2 >= 0)
+				if (d1 > 0 && d2 > 0)
 					continue;
 				//If both are negative , line is behind the plane
-				else if (d1 < 0 && d2 < 0)
+				else if (d1 <= 0 && d2 <= 0)
 					return { Vector3(0), Vector3(0) };
 				//If p1 is behind the plane clip the line against the plane and replace p1
 				else if (d1 < 0)
