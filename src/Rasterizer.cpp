@@ -11,6 +11,9 @@ namespace cvid
 	void RasterizePoint(Window* window, Vector3 pt, Color color)
 	{
 		//Convert to window coords
+		Vector3 halfWindow(window->GetDimensions() / 2, 1);
+		pt = pt * halfWindow;
+		//Convert to window coords
 		pt.y = -pt.y;
 		pt += Vector3(window->GetDimensions() / 2);
 
@@ -21,6 +24,10 @@ namespace cvid
 	//Draw a line onto a window's framebuffer
 	void RasterizeLine(Window* window, Vector3 p1f, Vector3 p2f, Color color)
 	{
+		//Convert to window coords
+		Vector3 halfWindow(window->GetDimensions() / 2, 1);
+		p1f = p1f * halfWindow;
+		p2f = p2f * halfWindow;
 		//Convert to window coords
 		Vector2Int windowHalfSize = window->GetDimensions() / 2;
 		Vector2Int p1 = p1f;
@@ -225,6 +232,10 @@ namespace cvid
 	//Expects vertices in normalized device coordinates
 	void RasterizeTriangle(Window* window, Vector3 p1f, Vector3 p2f, Vector3 p3f, Color color)
 	{
+		//TODO: optimize this out maybe, (or not lol this is totally permanent)
+		RasterizeTriangleWireframe(window, p1f, p2f, p3f, color);
+
+		//TODO: wtf is this, fix please
 		//Convert to window coords
 		Vector3 halfWindow(window->GetDimensions() / 2, 1);
 		p1f = p1f * halfWindow;
@@ -241,9 +252,6 @@ namespace cvid
 		p2 += windowHalfSize;
 		p3.y = -p3.y;
 		p3 += windowHalfSize;
-
-		//TODO: optimize this out maybe, (or not lol this is totally permanent)
-		RasterizeTriangleWireframe(window, p1f, p2f, p3f, color);
 
 		//Sort the vertices in descending order
 		if (p1.y < p2.y)

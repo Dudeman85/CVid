@@ -5,9 +5,6 @@
 
 namespace cvid
 {
-	std::vector<Color> colors{ Color::Red, Color::Blue, Color::Green, Color::Magenta, Color::BrightBlue, Color::BrightCyan,
-		Color::Red, Color::Blue, Color::Green, Color::Magenta, Color::BrightBlue, Color::BrightCyan };
-
 	//Render a point to the window's framebuffer
 	void DrawPoint(Vector3 point, Color color, Matrix4 transform, Camera* cam, Window* window)
 	{
@@ -15,7 +12,9 @@ namespace cvid
 		Vector4 v = Vector4(point, 1.0);
 		v = transform * v;
 		v = cam->GetView() * v;
-		//v = cam->GetProjection() * v;
+		v = cam->GetProjection() * v;
+		//Normalize
+		v /= v.w;
 
 		RasterizePoint(window, v, color);
 	}
@@ -23,82 +22,27 @@ namespace cvid
 	//Render a line to the window's framebuffer
 	void DrawLine(Vector3 p1, Vector3 p2, Color color, Matrix4 transform, Camera* cam, Window* window)
 	{
-		//Apply the mvp
-		Vector4 v1 = Vector4(p1, 1.0);
-		Vector4 v2 = Vector4(p2, 1.0);
+		//Apply the model and view transforms
+		Vector4 v1 = Vector4(p1, 1);
+		Vector4 v2 = Vector4(p2, 1);
 		v1 = transform * v1;
-		v1 = cam->GetView() * v1;
 		v2 = transform * v2;
+		v1 = cam->GetView() * v1;
 		v2 = cam->GetView() * v2;
 
-		//Apply perspective projection
-		if (cam->IsPerspective())
-		{
-			v1 = cam->GetProjection() * v1;
-			v1.x /= v1.w;
-			v1.y /= v1.w;
-			v1.z /= v1.w;
-			v2 = cam->GetProjection() * v2;
-			v2.x /= v2.w;
-			v2.y /= v2.w;
-			v2.z /= v2.w;
-		}
+		//Clip the Line against the clip space
+		std::pair<Vector3, Vector3> clippedLine = ClipSegment(v1, v2, cam);
+		v1 = Vector4(clippedLine.first, 1);
+		v2 = Vector4(clippedLine.second, 1);
+
+		//Apply projection
+		v1 = cam->GetProjection() * v1;
+		v2 = cam->GetProjection() * v2;
+		//Normalize
+		v1 /= v1.w;
+		v2 /= v2.w;
 
 		RasterizeLine(window, v1, v2, color);
-	}
-
-	//Render an amount of vertices to the window's framebuffer
-	void DrawVertices(std::vector<Vertex> vertices, std::vector<Vector3Int> indices, Matrix4 transform, Camera* cam, Window* window)
-	{
-		//Apply model view projection transforms
-		for (Vertex& vert : vertices)
-		{
-			Vector4 v = Vector4(vert.position, 1.0);
-			//Apply the mvp
-			v = transform * v;
-			v = cam->GetView() * v;
-			//v = cam->GetProjection() * v;
-
-			vert.position = Vector3(v);
-		}
-
-		int i = 0;
-		//Draw each triangle defined by the indices
-		for (Vector3Int& triangle : indices)
-		{
-			RasterizeTriangle(window,
-				vertices[triangle.x].position,
-				vertices[triangle.y].position,
-				vertices[triangle.z].position,
-				colors[i]);
-			i++;
-		}
-	}
-
-	//Render an amount of vertices as wireframes to the window's framebuffer
-	void DrawVerticesWireframe(std::vector<Vertex> vertices, std::vector<Vector3Int> indices, Matrix4 transform, Camera* cam, Window* window)
-	{
-		//Apply model view projection transforms
-		for (Vertex& vert : vertices)
-		{
-			Vector4 v = Vector4(vert.position, 1.0);
-			//Apply the mvp
-			v = transform * v;
-			v = cam->GetView() * v;
-			//v = cam->GetProjection() * v;
-
-			vert.position = Vector3(v);
-		}
-
-		//Draw each triangle defined by the indices
-		for (Vector3Int& triangle : indices)
-		{
-			RasterizeTriangleWireframe(window,
-				vertices[triangle.x].position,
-				vertices[triangle.y].position,
-				vertices[triangle.z].position,
-				Color::BrightGreen);
-		}
 	}
 
 	//Render a model to the window's framebuffer
@@ -173,7 +117,7 @@ namespace cvid
 				//Add the resulting triangles into the new list
 				clippedFaces.insert(clippedFaces.end(), decomposedFace.begin(), decomposedFace.end());
 			}
-			
+
 			//Render the partially clipped model
 			for (Face& face : clippedFaces)
 			{
@@ -190,8 +134,8 @@ namespace cvid
 				v3 /= v3.w;
 
 				//Backface culling
-				if(!face.culled)
-				//Draw the face (triangle)
+				if (!face.culled)
+					//Draw the face (triangle)
 					RasterizeTriangle(window, v1, v2, v3, face.color);
 			}
 		}
@@ -217,10 +161,10 @@ namespace cvid
 				if (!face.culled)
 				{
 					RasterizeTriangle(window,
-						vertices[face.verticeIndices[0]].position,
-						vertices[face.verticeIndices[1]].position,
-						vertices[face.verticeIndices[2]].position,
-						face.color);
+									  vertices[face.verticeIndices[0]].position,
+									  vertices[face.verticeIndices[1]].position,
+									  vertices[face.verticeIndices[2]].position,
+									  face.color);
 				}
 			}
 		}
@@ -356,6 +300,40 @@ namespace cvid
 		}
 
 		return clippedTris;
+	}
+
+	//Clips a line against every specified camera clip plane, if line is entirely outside, both points will be (0, 0, 0)
+	//Planes are determined by checking the corresponding bit: 1 = near, 2 = left, 3 = right, 4 = bottom, and 5 = top
+	std::pair<Vector3, Vector3> ClipSegment(Vector3 p1, Vector3 p2, Camera* cam, std::bitset<8> planes)
+	{
+		const std::array<Vector3, 5>& clipPlanes = cam->GetClipPlanes();
+
+		//For each clip plane
+		for (size_t i = 0; i < clipPlanes.size(); i++)
+		{
+			//If the bit is set, clip against the corresponding plane
+			if (planes.test(i + 1))
+			{
+				//Calculate the distances from both endpoints to the plane
+				float n = sqrt(clipPlanes[i].Dot(clipPlanes[i]));
+				float d1 = clipPlanes[i].Dot(p1) / n;
+				float d2 = clipPlanes[i].Dot(p2) / n;
+
+				//If both are positive, line is in front of the plane
+				if (d1 >= 0 && d2 >= 0)
+					continue;
+				//If both are negative , line is behind the plane
+				else if (1 < 0 && d2 < 0)
+					return { Vector3(0), Vector3(0) };
+				//If p1 is behind the plane clip the line against the plane and replace p1
+				else if (d1 < 0)
+					p1 = SPIntersect(p1, p2, clipPlanes[i]);
+				//If p2 is behind the plane clip the line against the plane and replace p2
+				else
+					p2 = SPIntersect(p1, p2, clipPlanes[i]);
+			}
+		}
+		return { p1, p2 };
 	}
 
 	//Calculate the intersection of a segment and a clip plane, not suitable for general use

@@ -23,7 +23,7 @@ int main()
 	cam.MakePerspective();
 	cam.Rotate(cvid::Vector3(0, cvid::Radians(0), 0));
 
-	cvid::Model cube("C:\\Users\\aleksiand\\repos\\Thesis\\resources\\cube.obj");
+	cvid::Model cube("../../../resources/cube.obj");
 
 	cube.faces[0].color = cvid::Color::Magenta;
 	cube.faces[1].color = cvid::Color::Magenta;
@@ -41,6 +41,8 @@ int main()
 
 	while (true)
 	{
+		cvid::StartTimePoint();
+
 		if (GetKeyState(VK_ESCAPE) & 0x8000)
 			return 0;
 
@@ -105,10 +107,10 @@ int main()
 
 
 		//Draw axis lines
-		//cvid::DrawLine({ -100, 0, 0 }, { 100, 0, 0 }, cvid::Color::Red, cvid::Matrix4::Identity(), &cam, &window); //X is red
-		//cvid::DrawLine({ 0, -100, 0 }, { 0, 100, 0 }, cvid::Color::Green, cvid::Matrix4::Identity(), &cam, &window); //Y is green
-		//cvid::DrawLine({ 0, 0, -100 }, { 0, 0, 100 }, cvid::Color::Blue, cvid::Matrix4::Identity(), &cam, &window); //Z is blue
-
+		cvid::DrawLine({ -10000, 0, 0 }, { 10000, 0, 0 }, cvid::Color::Red, cvid::Matrix4::Identity(), &cam, &window); //X is red
+		cvid::DrawLine({ 0, -10000, 0 }, { 0, 10000, 0 }, cvid::Color::Green, cvid::Matrix4::Identity(), &cam, &window); //Y is green
+		cvid::DrawLine({ 0, 0, -10000 }, { 0, 0, 10000 }, cvid::Color::Blue, cvid::Matrix4::Identity(), &cam, &window); //Z is blue
+		
 
 		cvid::DrawModel(&cubeInstance, &cam, &window);
 
@@ -117,6 +119,8 @@ int main()
 
 		//For some reason this stops the window from freezing
 		window.SendData("\x1b[0;0H", 7, cvid::DataType::String);
+
+		std::cout << fov << std::endl;
 	}
 
 	return 0;

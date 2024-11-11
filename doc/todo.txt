@@ -2,7 +2,6 @@ REQUIRED:
 Rasterizer:
 - texturing
 - sprite rendering
-- camera near clip plane doesn't work with perspective projection
 - DrawLine is broken with perspective projection and depth buffer
 Window:
 - Fix pipe buffer issues
@@ -10,6 +9,8 @@ Window:
 - handle window events
 - weird bug with sending data to window at low speeds
 - window size change doesnt always work
+- Fix massive lag caused by window
+- Make a standard window with win32
 
 WOULD BE NICE:
 Rasterizer:

@@ -13,10 +13,6 @@ namespace cvid
 	void DrawPoint(Vector3 point, Color color, Matrix4 transform, Camera* cam, Window* window);
 	//Render a line to the window's framebuffer
 	void DrawLine(Vector3 p1, Vector3 p2, Color color, Matrix4 transform, Camera* cam, Window* window);
-	//Render indexed filled triangles from vertices to the window's framebuffer
-	void DrawVertices(std::vector<Vertex> vertices, std::vector<Vector3Int> indices, Matrix4 transform, Camera* cam, Window* window);
-	//Render indexed wireframe triangles from vertices to the window's framebuffer
-	void DrawVerticesWireframe(std::vector<Vertex> vertices, std::vector<Vector3Int> indices, Matrix4 transform, Camera* cam, Window* window);
 	//Render a model to the window's framebuffer
 	void DrawModel(ModelInstance* model, Camera* cam, Window* window);
 	
@@ -27,6 +23,9 @@ namespace cvid
 	//Returns a vector with 0, 1, or more triangles clipped against every specified plane
 	//Planes are determined by checking the corresponding bit: 1 = near, 2 = left, 3 = right, 4 = bottom, and 5 = top
 	std::vector<Face> ClipFace(const Face& triangle, Camera* cam, std::bitset<8> planes = 0b11111111);
+	//Clips a line against every specified camera clip plane
+	//Planes are determined by checking the corresponding bit: 1 = near, 2 = left, 3 = right, 4 = bottom, and 5 = top
+	std::pair<Vector3, Vector3> ClipSegment(Vector3 p1, Vector3 p2, Camera* cam, std::bitset<8> planes = 0b11111111);
 	//Calculate the intersection of a segment and a clip plane, not suitable for general use
 	inline Vector3 SPIntersect(Vector3 a, Vector3 b, Vector3 planeNormal);
 }

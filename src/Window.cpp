@@ -152,7 +152,7 @@ namespace cvid
 		//Make sure there is not already a closer pixel
 		if (enableDepthTest)
 		{
-			if (1 / z >= depthBuffer[y * width + x])
+			if (1 / z < depthBuffer[y * width + x])
 				return false;
 			depthBuffer[y * width + x] = 1 / z;
 		}
@@ -213,7 +213,7 @@ namespace cvid
 		{
 			for (size_t x = 0; x < width; x++)
 			{
-				depthBuffer[y * width + x] = INFINITY;
+				depthBuffer[y * width + x] = 0;
 			}
 		}
 		return true;
