@@ -50,6 +50,16 @@ namespace cvid
 			v.position.z = attrib.vertices[i + 2];
 			vertices.push_back(v);
 		}
+		//Copy the attrib texCoords to Vector2
+		texCoords.reserve(attrib.texcoords.size());
+		for (size_t i = 0; i < attrib.texcoords.size(); i += 2)
+		{
+			Vector2 tc;
+			//Copy the texture coordinate
+			tc.x = attrib.texcoords[i + 0];
+			tc.y = attrib.texcoords[i + 1];
+			texCoords.push_back(tc);
+		}
 
 		//For every shape in the model
 		for (tinyobj::shape_t shape : reader.GetShapes())
@@ -58,7 +68,7 @@ namespace cvid
 			for (size_t face = 0; face < shape.mesh.num_face_vertices.size(); face++)
 			{
 				//Make the face
-				Face f;
+				IndexedFace f;
 
 				std::vector<Vector3> vertices;
 				//For each of the 3 vertices in a face (forced triangulation)
@@ -97,7 +107,7 @@ namespace cvid
 	//ModelInstance
 
 	//Make a renderable instance from a model
-	ModelInstance::ModelInstance(Model* model) 
+	ModelInstance::ModelInstance(Model* model)
 	{
 		SetBaseModel(model);
 		staleTransform = true;
@@ -119,35 +129,35 @@ namespace cvid
 
 	//Transform setters
 	//Move this model in world space by translation
-	void ModelInstance::Translate(Vector3 translation) 
+	void ModelInstance::Translate(Vector3 translation)
 	{
 		this->position += translation;
 		staleTransform = true;
 		staleBounds |= 1;
 	}
 	//Set this model's position in world space
-	void ModelInstance::SetPosition(Vector3 position) 
+	void ModelInstance::SetPosition(Vector3 position)
 	{
 		this->position = position;
 		staleTransform = true;
 		staleBounds |= 1;
 	}
 	//Rotate this model by euler angles in world space in radians
-	void ModelInstance::Rotate(Vector3 rotation) 
+	void ModelInstance::Rotate(Vector3 rotation)
 	{
 		this->rotation += rotation;
 		staleTransform = true;
 		staleBounds |= 1;
 	}
 	//Set this model's euler rotation in world space by rotation in radians
-	void ModelInstance::SetRotation(Vector3 rotation) 
+	void ModelInstance::SetRotation(Vector3 rotation)
 	{
 		this->rotation = rotation;
 		staleTransform = true;
 		staleBounds |= 1;
 	}
 	//Scale this model in world space
-	void ModelInstance::Scale(Vector3 scale) 
+	void ModelInstance::Scale(Vector3 scale)
 	{
 		this->scale += scale;
 		staleTransform = true;
@@ -155,7 +165,7 @@ namespace cvid
 
 	}
 	//Set this model's scale in world space
-	void ModelInstance::SetScale(Vector3 scale) 
+	void ModelInstance::SetScale(Vector3 scale)
 	{
 		this->scale = scale;
 		staleTransform = true;
@@ -180,7 +190,7 @@ namespace cvid
 	}
 
 	//Recalculate the bounding sphere, this should be called after scale has been changed
-	void ModelInstance::RecalculateBounds() 
+	void ModelInstance::RecalculateBounds()
 	{
 		//Calculate the center point of the vertices after applying transform
 		std::vector<Vector3> transformedVerts;
@@ -195,14 +205,14 @@ namespace cvid
 		boundingSphere.center /= transformedVerts.size();
 
 		//Recalculate the radius if scale has been changed
-		if (staleBounds >= 2) 
+		if (staleBounds >= 2)
 		{
 			//The radius of the sphere is defined as the distance from the center to the furthest vertex
 			boundingSphere.radius = 0;
 			for (const Vector3& vert : transformedVerts)
 			{
 				double dist = vert.Distance(boundingSphere.center);
-				if (dist > boundingSphere.radius) 
+				if (dist > boundingSphere.radius)
 				{
 					boundingSphere.radius = dist;
 					boundingSphere.farthestPoint = vert;
@@ -225,7 +235,7 @@ namespace cvid
 	}
 
 	//Get the rough bounding sphere of this model in world coords
-	Sphere ModelInstance::GetBoundingSphere() 
+	Sphere ModelInstance::GetBoundingSphere()
 	{
 		if (staleBounds > 0)
 			RecalculateBounds();

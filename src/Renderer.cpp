@@ -114,6 +114,7 @@ namespace cvid
 
 		//Copy the vertices from the base model
 		std::vector<Vertex> vertices = model->GetBaseModel()->vertices;
+		std::vector<Vector2> texCoords = model->GetBaseModel()->texCoords;
 
 		//Apply transform to all vertices
 		//TODO: could optimize by caching transformed verts per instance
@@ -128,7 +129,7 @@ namespace cvid
 
 		//TODO optimize hopefully
 		//Recalculate normals
-		for (Face& face : model->GetBaseModel()->faces)
+		for (IndexedFace& face : model->GetBaseModel()->faces)
 		{
 			//Calculate the surface normal
 			Vector3 v1 = vertices[face.verticeIndices[1]].position - vertices[face.verticeIndices[0]].position;
@@ -150,57 +151,51 @@ namespace cvid
 			vert.position = Vector3(v);
 		}
 
-
 		//If model is partially intersecting at least one plane
 		if (clip.count() > 1)
 		{
-			std::vector<Tri> clippedTris;
-			//For each triangle in the model
-			for (Face& face : model->GetBaseModel()->faces)
+			std::vector<Face> clippedFaces;
+			//For each face in the model
+			for (IndexedFace& face : model->GetBaseModel()->faces)
 			{
-				Tri tri{
-					vertices[face.verticeIndices[0]].position,
-					vertices[face.verticeIndices[1]].position,
-					vertices[face.verticeIndices[2]].position
+				Face f
+				{
+					{vertices[face.verticeIndices[0]].position,	vertices[face.verticeIndices[1]].position, vertices[face.verticeIndices[2]].position},
+					{texCoords[face.texCoordIndices[0]], texCoords[face.texCoordIndices[1]], texCoords[face.texCoordIndices[2]]},
+					face.normal,
+					face.culled,
+					face.color,
 				};
 
 				//Clip the triangle against every intersecting plane
-				std::vector<Tri> decomposedTri = ClipTriangle(tri, cam, clip);
+				std::vector<Face> decomposedFace = ClipFace(f, cam, clip);
 
 				//Add the resulting triangles into the new list
-				clippedTris.insert(clippedTris.end(), decomposedTri.begin(), decomposedTri.end());
+				clippedFaces.insert(clippedFaces.end(), decomposedFace.begin(), decomposedFace.end());
 			}
-
-			//TODO FIX PLEASE
-			for (Tri& tri : clippedTris)
+			
+			//Render the partially clipped model
+			for (Face& face : clippedFaces)
 			{
-				Vector4 v1 = Vector4(tri.v1, 1.0);
-				Vector4 v2 = Vector4(tri.v2, 1.0);
-				Vector4 v3 = Vector4(tri.v3, 1.0);
+				Vector4 v1 = Vector4(face.vertices.v1, 1.0);
+				Vector4 v2 = Vector4(face.vertices.v2, 1.0);
+				Vector4 v3 = Vector4(face.vertices.v3, 1.0);
+				//Apply projection
+				v1 = cam->GetProjection() * v1;
+				v2 = cam->GetProjection() * v2;
+				v3 = cam->GetProjection() * v3;
+				//Normalize
+				v1 /= v1.w;
+				v2 /= v2.w;
+				v3 /= v3.w;
 
-				//Apply perspective projection
-				if (cam->IsPerspective())
-				{
-					v1 = cam->GetProjection() * v1;
-					v1 /= v1.w;
-					v2 = cam->GetProjection() * v2;
-					v2 /= v2.w;
-					v3 = cam->GetProjection() * v3;
-					v3 /= v3.w;
-				}
-
-				tri.v1 = Vector3(v1);
-				tri.v2 = Vector3(v2);
-				tri.v3 = Vector3(v3);
-
-				//Draw the triangle
-				RasterizeTriangle(window,
-					tri.v1,
-					tri.v2,
-					tri.v3,
-					cvid::Color::Blue);
+				//Backface culling
+				if(!face.culled)
+				//Draw the face (triangle)
+					RasterizeTriangle(window, v1, v2, v3, face.color);
 			}
 		}
+		//If the model is not clipped
 		else
 		{
 			for (Vertex& vert : vertices)
@@ -210,15 +205,13 @@ namespace cvid
 				//Apply projection
 				v = cam->GetProjection() * v;
 				//Normalize
-				v.x /= v.w;
-				v.y /= v.w;
-				v.z /= v.w;
+				v /= v.w;
 
 				vert.position = Vector3(v);
 			}
 
 			//Draw each face (triangle)
-			for (const Face& face : model->GetBaseModel()->faces)
+			for (const IndexedFace& face : model->GetBaseModel()->faces)
 			{
 				//Backface culling
 				if (!face.culled)
@@ -268,11 +261,11 @@ namespace cvid
 
 	//Returns a vector with 0, 1, or more triangles clipped against every specified plane
 	//Planes are determined by checking the corresponding bit: 1 = near, 2 = left, 3 = right, 4 = bottom, and 5 = top
-	std::vector<Tri> ClipTriangle(const Tri& triangle, Camera* cam, std::bitset<8> planes)
+	std::vector<Face> ClipFace(const Face& face, Camera* cam, std::bitset<8> planes)
 	{
 		const std::array<Vector3, 5>& clipPlanes = cam->GetClipPlanes();
-		std::vector<Tri> tris;
-		std::vector<Tri> clippedTris = { triangle };
+		std::vector<Face> tris;
+		std::vector<Face> clippedTris = { face };
 		//For each clip plane
 		for (size_t i = 0; i < clipPlanes.size(); i++)
 		{
@@ -284,13 +277,13 @@ namespace cvid
 				clippedTris.clear();
 
 				//For each triangle
-				for (const Tri& tri : tris)
+				for (const Face& tri : tris)
 				{
 					//Calculate the distances from each vertex to the plane
 					float n = sqrt(clipPlanes[i].Dot(clipPlanes[i]));
-					float d1 = clipPlanes[i].Dot(tri.v1) / n;
-					float d2 = clipPlanes[i].Dot(tri.v2) / n;
-					float d3 = clipPlanes[i].Dot(tri.v3) / n;
+					float d1 = clipPlanes[i].Dot(tri.vertices.v1) / n;
+					float d2 = clipPlanes[i].Dot(tri.vertices.v2) / n;
+					float d3 = clipPlanes[i].Dot(tri.vertices.v3) / n;
 
 					//If all are positive, the triangle is entirely in front of the plane
 					if (d1 >= 0 && d2 >= 0 && d3 >= 0)
@@ -307,20 +300,20 @@ namespace cvid
 					else if (d1 * d2 * d3 > 0)
 					{
 						//Sort the vertices so that A is the positive one
-						Vector3 a = tri.v1;
-						Vector3 b = tri.v2;
-						Vector3 c = tri.v3;
+						Vector3 a = tri.vertices.v1;
+						Vector3 b = tri.vertices.v2;
+						Vector3 c = tri.vertices.v3;
 						if (d2 > 0)
 						{
-							a = tri.v2;
-							b = tri.v1;
-							c = tri.v3;
+							a = tri.vertices.v2;
+							b = tri.vertices.v1;
+							c = tri.vertices.v3;
 						}
 						if (d3 > 0)
 						{
-							a = tri.v3;
-							b = tri.v1;
-							c = tri.v2;
+							a = tri.vertices.v3;
+							b = tri.vertices.v1;
+							c = tri.vertices.v2;
 						}
 
 						//Calculate the points where the triangle's sides intersect the plane
@@ -328,26 +321,26 @@ namespace cvid
 						Vector3 ci = SPIntersect(a, c, clipPlanes[i]);
 
 						//Decompose into 1 triangle
-						clippedTris.push_back(Tri(a, bi, ci));
+						clippedTris.push_back(Face(Tri(a, bi, ci), tri.texCoords, tri.normal, tri.culled, tri.color));
 					}
 					//If two are positive, 1 vertice is behind
 					else
 					{
 						//Sort the vertices so that C is the negative one
-						Vector3 a = tri.v1;
-						Vector3 b = tri.v2;
-						Vector3 c = tri.v3;
+						Vector3 a = tri.vertices.v1;
+						Vector3 b = tri.vertices.v2;
+						Vector3 c = tri.vertices.v3;
 						if (d1 < 0)
 						{
-							a = tri.v3;
-							b = tri.v2;
-							c = tri.v1;
+							a = tri.vertices.v3;
+							b = tri.vertices.v2;
+							c = tri.vertices.v1;
 						}
 						if (d2 < 0)
 						{
-							a = tri.v1;
-							b = tri.v3;
-							c = tri.v2;
+							a = tri.vertices.v1;
+							b = tri.vertices.v3;
+							c = tri.vertices.v2;
 						}
 
 						//Calculate the points where the triangle's sides intersect the plane
@@ -355,8 +348,8 @@ namespace cvid
 						Vector3 bi = SPIntersect(b, c, clipPlanes[i]);
 
 						//Decompose into 2 triangles
-						clippedTris.push_back(Tri(a, b, ai));
-						clippedTris.push_back(Tri(ai, b, bi));
+						clippedTris.push_back(Face(Tri(a, b, ai), tri.texCoords, tri.normal, tri.culled, tri.color));
+						clippedTris.push_back(Face(Tri(ai, b, bi), tri.texCoords, tri.normal, tri.culled, tri.color));
 					}
 				}
 			}

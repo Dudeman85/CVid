@@ -22,6 +22,12 @@ namespace cvid
 		Vector3 v2;
 		Vector3 v3;
 	};
+	struct Tri2D
+	{
+		Vector2 v1;
+		Vector2 v2;
+		Vector2 v3;
+	};
 
 	struct Vertex
 	{
@@ -29,11 +35,25 @@ namespace cvid
 		Vector3 color;
 	};
 
-	//A face always has 3 vertices (triangle)
-	struct Face 
+	//A face (triangle) that used indexed texture coords and vertices
+	struct IndexedFace 
 	{
 		std::array<uint32_t, 3> verticeIndices = {};
 		std::array<uint32_t, 3> texCoordIndices = {};
+		//Surface normal (calculated)
+		Vector3 normal;
+		//Should this face be rendered
+		bool culled = false;
+
+		//Temporary for testing
+		cvid::Color color;
+	};
+
+	//A face (triangle) that uses it's own texture coords and vertices
+	struct Face 
+	{
+		Tri vertices;
+		Tri2D texCoords;
 		//Surface normal (calculated)
 		Vector3 normal;
 		//Should this face be rendered
@@ -50,7 +70,7 @@ namespace cvid
 		Model(std::string path);
 
 		//Every face in the model, contains indices to vertices and texCoords vectors
-		std::vector<Face> faces;
+		std::vector<IndexedFace> faces;
 		//Vertices are shared for the whole model
 		std::vector<Vertex> vertices;
 		//Texture coordinates are shared for the whole model
