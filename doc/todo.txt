@@ -2,15 +2,16 @@ REQUIRED:
 Rasterizer:
 - texturing
 - sprite rendering
-- DrawLine is broken with perspective projection and depth buffer
+Model:
+- Add option to not triangulate
 Window:
+- Make a standard window with win32
 - Fix pipe buffer issues
 - buffer issue causes pipe disconnect when sending too much data
 - handle window events
 - weird bug with sending data to window at low speeds
 - window size change doesnt always work
 - Fix massive lag caused by window
-- Make a standard window with win32
 
 WOULD BE NICE:
 Rasterizer:

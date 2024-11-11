@@ -32,6 +32,8 @@ namespace cvid
 
 		//Clip the Line against the clip space
 		std::pair<Vector3, Vector3> clippedLine = ClipSegment(v1, v2, cam);
+		if (clippedLine.first == 0 && clippedLine.second == 0)
+			return;
 		v1 = Vector4(clippedLine.first, 1);
 		v2 = Vector4(clippedLine.second, 1);
 
@@ -58,7 +60,7 @@ namespace cvid
 
 		//Copy the vertices from the base model
 		std::vector<Vertex> vertices = model->GetBaseModel()->vertices;
-		std::vector<Vector2> texCoords = model->GetBaseModel()->texCoords;
+		std::vector<Vector2>& texCoords = model->GetBaseModel()->texCoords;
 
 		//Apply transform to all vertices
 		//TODO: could optimize by caching transformed verts per instance
@@ -166,6 +168,125 @@ namespace cvid
 									  vertices[face.verticeIndices[2]].position,
 									  face.color);
 				}
+			}
+		}
+	}
+
+	//Render a model to the window's framebuffer
+	//TODO: fix this function it is extremely convoluted and unoptimized
+	void DrawModelWireframe(ModelInstance* model, Camera* cam, Window* window)
+	{
+		//Check if the model is inside, outside, or partially inside the clip space
+		std::bitset<8> clip = ClipModel(model, cam);
+
+		//Fully outside clip space
+		if (clip.none())
+			return;
+
+		//Copy the vertices from the base model
+		std::vector<Vertex> vertices = model->GetBaseModel()->vertices;
+		std::vector<Vector2>& texCoords = model->GetBaseModel()->texCoords;
+
+		//Apply transform to all vertices
+		//TODO: could optimize by caching transformed verts per instance
+		for (Vertex& vert : vertices)
+		{
+			Vector4 v = Vector4(vert.position, 1.0);
+			//Apply the model
+			v = model->GetTransform() * v;
+
+			vert.position = Vector3(v);
+		}
+
+		//TODO optimize hopefully
+		//Recalculate normals
+		for (IndexedFace& face : model->GetBaseModel()->faces)
+		{
+			//Calculate the surface normal
+			Vector3 v1 = vertices[face.verticeIndices[1]].position - vertices[face.verticeIndices[0]].position;
+			Vector3 v2 = vertices[face.verticeIndices[2]].position - vertices[face.verticeIndices[0]].position;
+			face.normal = v1.Cross(v2);
+
+			//Cull backwards facing faces
+			Vector3 vc = vertices[face.verticeIndices[0]].position - cam->GetPosition();
+			face.culled = vc.Dot(face.normal) >= 0;
+		}
+
+		//Apply view to all vertices
+		for (Vertex& vert : vertices)
+		{
+			Vector4 v = Vector4(vert.position, 1.0);
+			//Apply the view
+			v = cam->GetView() * v;
+
+			vert.position = Vector3(v);
+		}
+
+		//If model is partially intersecting at least one plane
+		if (clip.count() > 1)
+		{
+			std::vector<Face> clippedFaces;
+			//For each face in the model
+			for (IndexedFace& face : model->GetBaseModel()->faces)
+			{
+				Face f
+				{
+					{vertices[face.verticeIndices[0]].position,	vertices[face.verticeIndices[1]].position, vertices[face.verticeIndices[2]].position},
+					{texCoords[face.texCoordIndices[0]], texCoords[face.texCoordIndices[1]], texCoords[face.texCoordIndices[2]]},
+					face.normal,
+					face.culled,
+					face.color,
+				};
+
+				//Clip the triangle against every intersecting plane
+				std::vector<Face> decomposedFace = ClipFace(f, cam, clip);
+
+				//Add the resulting triangles into the new list
+				clippedFaces.insert(clippedFaces.end(), decomposedFace.begin(), decomposedFace.end());
+			}
+
+			//Render the partially clipped model
+			for (Face& face : clippedFaces)
+			{
+				Vector4 v1 = Vector4(face.vertices.v1, 1.0);
+				Vector4 v2 = Vector4(face.vertices.v2, 1.0);
+				Vector4 v3 = Vector4(face.vertices.v3, 1.0);
+				//Apply projection
+				v1 = cam->GetProjection() * v1;
+				v2 = cam->GetProjection() * v2;
+				v3 = cam->GetProjection() * v3;
+				//Normalize
+				v1 /= v1.w;
+				v2 /= v2.w;
+				v3 /= v3.w;
+
+				//Draw the face (triangle)
+				RasterizeTriangleWireframe(window, v1, v2, v3, face.color);
+			}
+		}
+		//If the model is not clipped
+		else
+		{
+			for (Vertex& vert : vertices)
+			{
+				Vector4 v = Vector4(vert.position, 1.0);
+
+				//Apply projection
+				v = cam->GetProjection() * v;
+				//Normalize
+				v /= v.w;
+
+				vert.position = Vector3(v);
+			}
+
+			//Draw each face (triangle)
+			for (const IndexedFace& face : model->GetBaseModel()->faces)
+			{
+				RasterizeTriangleWireframe(window,
+										   vertices[face.verticeIndices[0]].position,
+										   vertices[face.verticeIndices[1]].position,
+										   vertices[face.verticeIndices[2]].position,
+										   face.color);
 			}
 		}
 	}
@@ -323,7 +444,7 @@ namespace cvid
 				if (d1 >= 0 && d2 >= 0)
 					continue;
 				//If both are negative , line is behind the plane
-				else if (1 < 0 && d2 < 0)
+				else if (d1 < 0 && d2 < 0)
 					return { Vector3(0), Vector3(0) };
 				//If p1 is behind the plane clip the line against the plane and replace p1
 				else if (d1 < 0)

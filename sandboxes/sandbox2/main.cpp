@@ -120,7 +120,7 @@ int main()
 		//For some reason this stops the window from freezing
 		window.SendData("\x1b[0;0H", 7, cvid::DataType::String);
 
-		std::cout << fov << std::endl;
+		std::cout << cvid::EndTimePoint() << std::endl;
 	}
 
 	return 0;

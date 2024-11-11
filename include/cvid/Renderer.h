@@ -15,7 +15,9 @@ namespace cvid
 	void DrawLine(Vector3 p1, Vector3 p2, Color color, Matrix4 transform, Camera* cam, Window* window);
 	//Render a model to the window's framebuffer
 	void DrawModel(ModelInstance* model, Camera* cam, Window* window);
-	
+	//Render a model's vertices as wireframe to the window's framebuffer
+	void DrawModelWireframe(ModelInstance* model, Camera* cam, Window* window);
+
 	//Utility Functions
 	//Returns 0 if a model falls entirely outside a camera's clip space, 1 if it's entirely inside, and >1 if it falls in between
 	//If >1 the intersected planes can be acquired by checking each bit corresponding to a plane: 1 = near, 2 = left, 3 = right, 4 = bottom, and 5 = top
