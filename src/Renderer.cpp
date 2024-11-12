@@ -6,7 +6,7 @@
 namespace cvid
 {
 	//Render a point to the window's framebuffer
-	void DrawPoint(Vector3 point, Color color, Matrix4 transform, Camera* cam, Window* window)
+	void DrawPoint(Vector3 point, ConsoleColor color, Matrix4 transform, Camera* cam, Window* window)
 	{
 		//Apply the mvp
 		Vector4 v = Vector4(point, 1.0);
@@ -28,7 +28,7 @@ namespace cvid
 	}
 
 	//Render a line to the window's framebuffer
-	void DrawLine(Vector3 p1, Vector3 p2, Color color, Matrix4 transform, Camera* cam, Window* window)
+	void DrawLine(Vector3 p1, Vector3 p2, ConsoleColor color, Matrix4 transform, Camera* cam, Window* window)
 	{
 		//Apply the model and view transforms
 		Vector4 v1 = Vector4(p1, 1);
@@ -64,7 +64,6 @@ namespace cvid
 	}
 
 	//Render a model to the window's framebuffer
-	//TODO: fix this function it is extremely convoluted and unoptimized
 	void DrawModel(ModelInstance* model, Camera* cam, Window* window)
 	{
 		//Check if the model is inside, outside, or partially inside the clip space
@@ -236,7 +235,7 @@ namespace cvid
 				v3 /= v3.w;
 
 				//Draw the face (triangle)
-				RasterizeTriangleWireframe(window, v1, v2, v3, Color::Red);
+				RasterizeTriangleWireframe(window, v1, v2, v3, ConsoleColor::Red);
 			}
 		}
 		//If the model is not clipped
@@ -261,7 +260,7 @@ namespace cvid
 										   vertices[face.verticeIndices[0]].position,
 										   vertices[face.verticeIndices[1]].position,
 										   vertices[face.verticeIndices[2]].position,
-										   Color::Red);
+										   ConsoleColor::Red);
 			}
 		}
 	}

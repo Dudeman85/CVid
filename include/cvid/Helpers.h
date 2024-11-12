@@ -35,14 +35,14 @@ namespace cvid
 	}
 	
 	//Get a random color
-	enum class Color : uint8_t;
-	static inline cvid::Color RandomColor()
+	enum class ConsoleColor : uint8_t;
+	static inline cvid::ConsoleColor RandomColor()
 	{
 		int color = rand() % 16;
 		if (color > 7)
 			color += 82;
 		else
 			color += 30;
-		return (cvid::Color)color;
+		return (cvid::ConsoleColor)color;
 	}
 }

@@ -104,16 +104,16 @@ int main()
 			cubeInstance.Rotate({ 0, -cvid::Radians(1), 0 });
 
 
-		window.Fill(cvid::Color::Black);
+		window.Fill(cvid::ConsoleColor::Black);
 		window.ClearDepthBuffer();
 
 
-		cvid::DrawPoint({ 40, 40, -40 }, cvid::Color::Magenta, cvid::Matrix4::Identity(), &cam, &window);
+		cvid::DrawPoint({ 40, 40, -40 }, cvid::ConsoleColor::Magenta, cvid::Matrix4::Identity(), &cam, &window);
 
 		//Draw axis lines
-		cvid::DrawLine({ -10000, 0, 0 }, { 10000, 0, 0 }, cvid::Color::Red, cvid::Matrix4::Identity(), &cam, &window); //X is red
-		cvid::DrawLine({ 0, -10000, 0 }, { 0, 10000, 0 }, cvid::Color::Green, cvid::Matrix4::Identity(), &cam, &window); //Y is green
-		cvid::DrawLine({ 0, 0, -10000 }, { 0, 0, 10000 }, cvid::Color::Blue, cvid::Matrix4::Identity(), &cam, &window); //Z is blue
+		cvid::DrawLine({ -10000, 0, 0 }, { 10000, 0, 0 }, cvid::ConsoleColor::Red, cvid::Matrix4::Identity(), &cam, &window); //X is red
+		cvid::DrawLine({ 0, -10000, 0 }, { 0, 10000, 0 }, cvid::ConsoleColor::Green, cvid::Matrix4::Identity(), &cam, &window); //Y is green
+		cvid::DrawLine({ 0, 0, -10000 }, { 0, 0, 10000 }, cvid::ConsoleColor::Blue, cvid::Matrix4::Identity(), &cam, &window); //Z is blue
 
 		cvid::DrawModel(&cubeInstance, &cam, &window);
 

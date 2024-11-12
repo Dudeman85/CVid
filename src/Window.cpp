@@ -17,6 +17,16 @@ namespace cvid
 		maxWidth = GetLargestConsoleWindowSize(console).X;
 		maxHeight = GetLargestConsoleWindowSize(console).Y * 2;
 
+		//Get the 16 colors set as rgb values
+		CONSOLE_SCREEN_BUFFER_INFOEX consoleInfo;
+		consoleInfo.cbSize = sizeof(consoleInfo);
+		GetConsoleScreenBufferInfoEx(console, &consoleInfo);
+		for (const COLORREF& c : consoleInfo.ColorTable)
+		{
+			Vector3Int rgb{ GetRValue(c), GetGValue(c), GetBValue(c) };
+			std::cout << rgb.ToString() << std::endl;
+		}
+		
 		//Create the frame and depth buffers
 		frameBuffer = new CharPixel[(size_t)width * height / 2];
 		depthBuffer = new double[(size_t)width * height];
@@ -138,12 +148,12 @@ namespace cvid
 	}
 
 	//Set a pixel on the framebuffer to some color, returns true on success
-	bool Window::PutPixel(Vector2Int pos, Color color, float z)
+	bool Window::PutPixel(Vector2Int pos, ConsoleColor color, float z)
 	{
 		return PutPixel(pos.x, pos.y, color, z);
 	}
 	//Set a pixel on the framebuffer to some color, returns true on success
-	bool Window::PutPixel(uint16_t x, uint16_t y, Color color, float z)
+	bool Window::PutPixel(uint16_t x, uint16_t y, ConsoleColor color, float z)
 	{
 		//Make sure the pixel is in bounds
 		if (x >= width || y >= height || z < 0)
@@ -161,13 +171,25 @@ namespace cvid
 		//We will always print 223 where foreground is the top and background is the bottom.
 		CharPixel& thisPixel = frameBuffer[(y / 2) * width + x];
 
-		//Set le pixel character
+		//Set the pixel character
 		thisPixel.character = (char)223;
 		//Top or bottom pixel
 		if (y % 2 == 1)
 			thisPixel.backgroundColor = color;
 		else
 			thisPixel.foregroundColor = color;
+
+		return true;
+	}
+	//Set a pixel on the framebuffer to the closest rgb color
+	bool Window::PutPixel(Vector2Int pos, Vector3Int color, float z)
+	{
+		return PutPixel(pos.x, pos.y, color, z);
+	}
+	//Set a pixel on the framebuffer to the closest rgb color
+	bool Window::PutPixel(uint16_t x, uint16_t y, Vector3Int color, float z)
+	{
+
 
 		return true;
 	}
@@ -193,7 +215,7 @@ namespace cvid
 	}
 
 	//Fills the framebuffer with a color
-	bool Window::Fill(Color color)
+	bool Window::Fill(ConsoleColor color)
 	{
 		CharPixel charPixel{ color, color, (char)223 };
 		for (size_t y = 0; y < height / 2; y++)

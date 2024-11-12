@@ -20,7 +20,7 @@ namespace cvid
 	//Is the data a frame string or properties struct
 	enum class DataType { String = 1, Properties = 2, Frame = 3 };
 	//Color names for the Windows virtual terminal sequences, background is +10
-	enum class Color : uint8_t
+	enum class ConsoleColor : uint8_t
 	{
 		Black = 30, Red = 31, Green = 32, Yellow = 33, Blue = 34, Magenta = 35, Cyan = 36, White = 37,
 		BrightBlack = 90, BrightRed = 91, BrightGreen = 92, BrightYellow = 93,
@@ -30,8 +30,10 @@ namespace cvid
 	//Ascii representation of two vertically stacked pixels
 	struct CharPixel
 	{
-		Color foregroundColor = Color::Black;
-		Color backgroundColor = Color::Black;
+		//Top pixel color
+		ConsoleColor foregroundColor = ConsoleColor::Black;
+		//Bottom pixel color
+		ConsoleColor backgroundColor = ConsoleColor::Black;
 		char character = (char)223;
 	};
 
@@ -46,16 +48,20 @@ namespace cvid
 		Window(uint16_t width, uint16_t height, std::string name);
 		~Window();
 
-		//Set a pixel on the framebuffer to some color, returns true on success
-		bool PutPixel(Vector2Int pos, Color color, float z = 0);
-		//Set a pixel on the framebuffer to some color
-		bool PutPixel(uint16_t x, uint16_t y, Color color, float z = 0);
+		//Set a pixel on the framebuffer to some console color
+		bool PutPixel(Vector2Int pos, ConsoleColor color, float z = 0);
+		//Set a pixel on the framebuffer to some console color
+		bool PutPixel(uint16_t x, uint16_t y, ConsoleColor color, float z = 0);
+		//Set a pixel on the framebuffer to the closest rgb color
+		bool PutPixel(Vector2Int pos, Vector3Int color, float z = 0);
+		//Set a pixel on the framebuffer to the closest rgb color
+		bool PutPixel(uint16_t x, uint16_t y, Vector3Int color, float z = 0);
 		//Put a character on the framebuffer, in this case y is half
 		bool PutChar(Vector2Int pos, CharPixel charPixel);
 		//Put a character on the framebuffer, in this case y is half
 		bool PutChar(uint16_t x, uint16_t y, CharPixel charPixel);
 		//Fills the framebuffer with a color
-		bool Fill(Color color);
+		bool Fill(ConsoleColor color);
 		//Clear the depthbuffer, setting everything to 0
 		bool ClearDepthBuffer();
 		//Get a modifiable reference to the depth buffer bit of a pixel
@@ -98,6 +104,9 @@ namespace cvid
 		//Maximum window dimensions provided by windows
 		uint16_t maxWidth;
 		uint16_t maxHeight;
+
+		//A map from an rgb value to the corresponding console color (vts code)
+		//std::unordered_map<Vector3, uint8_t> rgbToCc;
 
 		//Pipes to send data to the window process
 		std::string outPipeName;

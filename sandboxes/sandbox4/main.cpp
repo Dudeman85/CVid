@@ -64,9 +64,9 @@ void ShiftHead(int amount)
 	}
 }
 size_t changedPixels = 0;
-void PutNextPixel(cvid::Color col, cvid::Window& window)
+void PutNextPixel(cvid::ConsoleColor col, cvid::Window& window)
 {
-	bool c = col == cvid::Color::Black ? true : false;
+	bool c = col == cvid::ConsoleColor::Black ? true : false;
 	if (testFrameBuffer[yPos * width + xPos] != c)
 		changedPixels++;
 	testFrameBuffer[yPos * width + xPos] = c;
@@ -93,7 +93,7 @@ int main()
 	size_t readHead = 2;
 
 	//Fill the screen with white
-	window.Fill(cvid::Color::White);
+	window.Fill(cvid::ConsoleColor::White);
 
 	//FPS
 	auto waitTime = chrono::microseconds((int)((1.f / 158888888888888) * 1000000));
@@ -113,9 +113,9 @@ int main()
 			for (int bitmask = 0b10000000; bitmask > 0; bitmask >>= 1)
 			{
 				if (pixel & bitmask)
-					PutNextPixel(cvid::Color::Black, window);
+					PutNextPixel(cvid::ConsoleColor::Black, window);
 				else
-					PutNextPixel(cvid::Color::White, window);
+					PutNextPixel(cvid::ConsoleColor::White, window);
 			}
 		}
 

@@ -7,7 +7,7 @@
 namespace cvid
 {
 	//Draw a point onto a window's framebuffer
-	void RasterizePoint(Window* window, Vector3 pt, Color color)
+	void RasterizePoint(Window* window, Vector3 pt, ConsoleColor color)
 	{
 		//Convert to window coords
 		Vector3 halfWindow(window->GetDimensions() / 2, 1);
@@ -21,7 +21,7 @@ namespace cvid
 	}
 
 	//Draw a line onto a window's framebuffer
-	void RasterizeLine(Window* window, Vector3 p1f, Vector3 p2f, Color color)
+	void RasterizeLine(Window* window, Vector3 p1f, Vector3 p2f, ConsoleColor color)
 	{
 		//Convert to window coords
 		Vector3 halfWindow(window->GetDimensions() / 2, 1);
@@ -232,7 +232,7 @@ namespace cvid
 	void RasterizeTriangle(Window* window, Face tri)
 	{
 		//TODO: optimize this out maybe, (or not lol this is totally permanent)
-		RasterizeTriangleWireframe(window, tri.vertices.v1, tri.vertices.v2, tri.vertices.v3, Color::Red);
+		RasterizeTriangleWireframe(window, tri.vertices.v1, tri.vertices.v2, tri.vertices.v3, ConsoleColor::Red);
 
 		//Convert from ndc to window coords
 		Vector3 windowHalfSize(window->GetDimensions() / 2, 1);
@@ -280,16 +280,16 @@ namespace cvid
 		std::vector<float> fullZPositions = LerpRange(abs(p3.y - p1.y), tri.vertices.v3.z, tri.vertices.v1.z);
 
 		//Figure out which segment is on which side
-		std::vector<int> rightSegment = combinedSegment;
-		std::vector<int> leftSegment = fullSegment;
-		std::vector<float> rightZPositions = combinedZPositions;
-		std::vector<float> leftZPositions = fullZPositions;
-		if (leftSegment[std::floor(leftSegment.size() / 2)] > rightSegment[std::floor(rightSegment.size() / 2)])
+		std::vector<int>* rightSegment = &combinedSegment;
+		std::vector<int>* leftSegment = &fullSegment;
+		std::vector<float>* rightZPositions = &combinedZPositions;
+		std::vector<float>* leftZPositions = &fullZPositions;
+		if (leftSegment->at(std::floor(leftSegment->size() / 2)) > rightSegment->at(std::floor(rightSegment->size() / 2)))
 		{
-			leftSegment = combinedSegment;
-			rightSegment = fullSegment;
-			leftZPositions = combinedZPositions;
-			rightZPositions = fullZPositions;
+			leftSegment = &combinedSegment;
+			rightSegment = &fullSegment;
+			leftZPositions = &combinedZPositions;
+			rightZPositions = &fullZPositions;
 		}
 
 		int startY = (int)std::round(p3.y);
@@ -297,21 +297,21 @@ namespace cvid
 		for (int yi = 0; yi < fullSegment.size(); yi++)
 		{
 			//Interpolate for z positions for each horizontal scanline
-			std::vector<float> zPositions = LerpRange(abs(leftSegment[yi] - rightSegment[yi]), leftZPositions[yi], rightZPositions[yi]);
+			std::vector<float> zPositions = LerpRange(abs(leftSegment->at(yi) - rightSegment->at(yi)), leftZPositions->at(yi), rightZPositions->at(yi));
 
 			//Draw a line from the full segment to the split segment
 			int i = 0;
-			for (int x = leftSegment[yi]; x <= rightSegment[yi]; x++)
+			for (int x = leftSegment->at(yi); x <= rightSegment->at(yi); x++)
 			{
 				//Attempt to draw the pixel
-				window->PutPixel(x, startY + yi, Color::Red, zPositions[i]);
+				window->PutPixel(x, startY + yi, ConsoleColor::Red, zPositions[i]);
 				i++;
 			}
 		}
 	}
 
 	//Draw a wireframe triangle onto a window's framebuffer
-	void RasterizeTriangleWireframe(Window* window, Vector3 p1, Vector3 p2, Vector3 p3, Color color)
+	void RasterizeTriangleWireframe(Window* window, Vector3 p1, Vector3 p2, Vector3 p3, ConsoleColor color)
 	{
 		RasterizeLine(window, p1, p2, color);
 		RasterizeLine(window, p2, p3, color);

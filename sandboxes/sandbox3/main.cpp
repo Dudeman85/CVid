@@ -69,7 +69,7 @@ void ShiftHead(int amount)
 		yPos -= height;
 	}
 }
-void PutNextPixel(cvid::Color col, cvid::Window& window)
+void PutNextPixel(cvid::ConsoleColor col, cvid::Window& window)
 {
 	window.PutPixel({ xPos, yPos }, col);
 	ShiftHead(1);
@@ -85,7 +85,7 @@ int main()
 	size_t readHead = 2;
 
 	//Fill the screen with white
-	window.Fill(cvid::Color::White);
+	window.Fill(cvid::ConsoleColor::White);
 
 	//FPS
 	auto waitTime = chrono::microseconds((int)((1.f / 15) * 1000000));
@@ -125,7 +125,7 @@ int main()
 							{
 								//Paint the next 8*6 pixels black
 								for (size_t i = 0; i < 8 * 6; i++)
-									PutNextPixel(cvid::Color::Black, window);
+									PutNextPixel(cvid::ConsoleColor::Black, window);
 								continue;
 							}
 							//Special case for all white
@@ -133,7 +133,7 @@ int main()
 							{
 								//Paint the next 8*6 pixels white
 								for (size_t i = 0; i < 8 * 6; i++)
-									PutNextPixel(cvid::Color::White, window);
+									PutNextPixel(cvid::ConsoleColor::White, window);
 								continue;
 							}
 
@@ -151,9 +151,9 @@ int main()
 									{
 										//If the bit is set in set3
 										if (set4 & set4bitmask)
-											PutNextPixel(cvid::Color::Black, window);
+											PutNextPixel(cvid::ConsoleColor::Black, window);
 										else
-											PutNextPixel(cvid::Color::White, window);
+											PutNextPixel(cvid::ConsoleColor::White, window);
 									}
 								}
 								else
