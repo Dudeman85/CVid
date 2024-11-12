@@ -18,7 +18,7 @@ namespace cvid
 		pt += Vector3(window->GetDimensions() / 2);
 
 		//Attempt to draw the pixel
-		window->PutPixel(pt.x, pt.y, color);
+		window->PutPixel(pt.x, pt.y, color, pt.z);
 	}
 
 	//Draw a line onto a window's framebuffer

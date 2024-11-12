@@ -106,11 +106,12 @@ int main()
 		window.ClearDepthBuffer();
 
 
+		cvid::DrawPoint({ 40, 40, -40 }, cvid::Color::Magenta, cvid::Matrix4::Identity(), &cam, &window);
+
 		//Draw axis lines
 		cvid::DrawLine({ -10000, 0, 0 }, { 10000, 0, 0 }, cvid::Color::Red, cvid::Matrix4::Identity(), &cam, &window); //X is red
 		cvid::DrawLine({ 0, -10000, 0 }, { 0, 10000, 0 }, cvid::Color::Green, cvid::Matrix4::Identity(), &cam, &window); //Y is green
 		cvid::DrawLine({ 0, 0, -10000 }, { 0, 0, 10000 }, cvid::Color::Blue, cvid::Matrix4::Identity(), &cam, &window); //Z is blue
-		
 
 		cvid::DrawModel(&cubeInstance, &cam, &window);
 

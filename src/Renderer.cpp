@@ -12,6 +12,14 @@ namespace cvid
 		Vector4 v = Vector4(point, 1.0);
 		v = transform * v;
 		v = cam->GetView() * v;
+
+		//Clip it against the camera clip space
+		for (const Vector3& plane : cam->GetClipPlanes())
+		{
+			if (plane.Dot(v) / sqrt(plane.Dot(plane)) < 0)
+				return;
+		}
+
 		v = cam->GetProjection() * v;
 		//Normalize
 		v /= v.w;
@@ -171,16 +179,16 @@ namespace cvid
 				if (!face.culled)
 				{
 					RasterizeTriangle(window,
-									  vertices[face.verticeIndices[0]].position,
-									  vertices[face.verticeIndices[1]].position,
-									  vertices[face.verticeIndices[2]].position,
-									  face.color);
+						vertices[face.verticeIndices[0]].position,
+						vertices[face.verticeIndices[1]].position,
+						vertices[face.verticeIndices[2]].position,
+						face.color);
 				}
 			}
 		}
 	}
 
-	//Render a model to the window's framebuffer
+	//Render a model's vertices as wireframe to the window's framebuffer
 	//TODO: fix this function it is extremely convoluted and unoptimized
 	void DrawModelWireframe(ModelInstance* model, Camera* cam, Window* window)
 	{
@@ -291,10 +299,10 @@ namespace cvid
 			for (const IndexedFace& face : model->GetBaseModel()->faces)
 			{
 				RasterizeTriangleWireframe(window,
-										   vertices[face.verticeIndices[0]].position,
-										   vertices[face.verticeIndices[1]].position,
-										   vertices[face.verticeIndices[2]].position,
-										   face.color);
+					vertices[face.verticeIndices[0]].position,
+					vertices[face.verticeIndices[1]].position,
+					vertices[face.verticeIndices[2]].position,
+					face.color);
 			}
 		}
 	}
@@ -449,10 +457,10 @@ namespace cvid
 				float d2 = clipPlanes[i].Dot(p2) / n;
 
 				//If both are positive, line is in front of the plane
-				if (d1 > 0 && d2 > 0)
+				if (d1 >= 0 && d2 >= 0)
 					continue;
 				//If both are negative , line is behind the plane
-				else if (d1 <= 0 && d2 <= 0)
+				else if (d1 < 0 && d2 < 0)
 					return { Vector3(0), Vector3(0) };
 				//If p1 is behind the plane clip the line against the plane and replace p1
 				else if (d1 < 0)
