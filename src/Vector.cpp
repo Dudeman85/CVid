@@ -394,6 +394,13 @@ namespace cvid
 	{
 		return Vector3(x + add.x, y + add.y, z + add.z);
 	}
+	Vector3& Vector3::operator+=(const double& add)
+	{
+		x += add;
+		y += add;
+		z += add;
+		return *this;
+	}
 	Vector3& Vector3::operator+=(const Vector3& add)
 	{
 		x += add.x;
@@ -410,6 +417,13 @@ namespace cvid
 	Vector3 Vector3::operator-(const Vector3& sub) const
 	{
 		return Vector3(x - sub.x, y - sub.y, z - sub.z);
+	}
+	Vector3& Vector3::operator-=(const double& sub)
+	{
+		x -= sub;
+		y -= sub;
+		z -= sub;
+		return *this;
 	}
 	Vector3& Vector3::operator-=(const Vector3& sub)
 	{
@@ -435,6 +449,13 @@ namespace cvid
 		z *= mult;
 		return *this;
 	}
+	Vector3& Vector3::operator*=(const Vector3& mult)
+	{
+		x *= mult.x;
+		y *= mult.y;
+		z *= mult.z;
+		return *this;
+	}
 
 	//Division
 	Vector3 Vector3::operator/(const double& div) const
@@ -450,6 +471,13 @@ namespace cvid
 		x /= div;
 		y /= div;
 		z /= div;
+		return *this;
+	}
+	Vector3& Vector3::operator/=(const Vector3& div)
+	{
+		x /= div.x;
+		y /= div.y;
+		z /= div.z;
 		return *this;
 	}
 

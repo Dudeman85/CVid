@@ -25,12 +25,14 @@ int main()
 
 	cvid::Model cube("../../../resources/cube.obj");
 
+	/*
 	cube.faces[0].color = cvid::Color::Magenta;
 	cube.faces[1].color = cvid::Color::Magenta;
 	cube.faces[2].color = cvid::Color::Cyan;
 	cube.faces[3].color = cvid::Color::Cyan;
 	cube.faces[4].color = cvid::Color::BrightYellow;
 	cube.faces[5].color = cvid::Color::BrightYellow;
+	*/
 
 	cvid::ModelInstance cubeInstance(&cube);
 	cubeInstance.SetScale(20);
@@ -121,7 +123,7 @@ int main()
 		//For some reason this stops the window from freezing
 		window.SendData("\x1b[0;0H", 7, cvid::DataType::String);
 
-		std::cout << cvid::EndTimePoint() << std::endl;
+		//std::cout << cvid::EndTimePoint() << std::endl;
 	}
 
 	return 0;

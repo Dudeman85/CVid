@@ -1,7 +1,6 @@
 #include <cvid/Rasterizer.h>
 #include <cvid/Math.h>
-
-#include <iostream>
+#include <cvid/Types.h>
 
 #define SWAP(a, b) {auto tmp = a; a = b; b = tmp;}
 
@@ -230,19 +229,16 @@ namespace cvid
 
 	//Draw a triangle onto a window's framebuffer
 	//Expects vertices in normalized device coordinates
-	void RasterizeTriangle(Window* window, Vector3 p1f, Vector3 p2f, Vector3 p3f, Color color)
+	void RasterizeTriangle(Window* window, Face tri)
 	{
 		//TODO: optimize this out maybe, (or not lol this is totally permanent)
-		RasterizeTriangleWireframe(window, p1f, p2f, p3f, color);
+		RasterizeTriangleWireframe(window, tri.vertices.v1, tri.vertices.v2, tri.vertices.v3, Color::Red);
 
-		//TODO: wtf is this, fix please
-		//Convert to window coords
-		Vector3 halfWindow(window->GetDimensions() / 2, 1);
-		p1f = p1f * halfWindow;
-		p2f = p2f * halfWindow;
-		p3f = p3f * halfWindow;
-		//Convert to window coords
-		Vector2Int windowHalfSize = window->GetDimensions() / 2;
+		//Convert from ndc to window coords
+		Vector3 windowHalfSize(window->GetDimensions() / 2, 1);
+		tri.vertices.v1 *= p1f * windowHalfSize;
+		tri.vertices.v1 *= p2f * windowHalfSize;
+		tri.vertices.v1 *= windowHalfSize;
 		Vector2Int p1 = p1f;
 		Vector2Int p2 = p2f;
 		Vector2Int p3 = p3f;
@@ -308,7 +304,7 @@ namespace cvid
 			for (int x = leftSegment[yi]; x <= rightSegment[yi]; x++)
 			{
 				//Attempt to draw the pixel
-				window->PutPixel(x, startY + yi, color, zPositions[i]);
+				window->PutPixel(x, startY + yi, Color::Red, zPositions[i]);
 				i++;
 			}
 		}

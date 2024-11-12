@@ -2,6 +2,7 @@
 #include <vector>
 #include <cvid/Window.h>
 #include <cvid/Vector.h>
+#include <cvid/Types.h>
 
 namespace cvid
 {
@@ -12,7 +13,7 @@ namespace cvid
 	//Get the x coordinates of a line
 	std::vector<int> InterpolateX(Vector2Int p1, Vector2Int p2);
 	//Draw a triangle onto a window's framebuffer
-	void RasterizeTriangle(Window* window, Vector3 p1, Vector3 p2, Vector3 p3, Color color);
+	void RasterizeTriangle(Window* window, Face triangle);
 	//Draw a triangle onto a window's framebuffer
 	void RasterizeTriangleWireframe(Window* window, Vector3 p1, Vector3 p2, Vector3 p3, Color color);
 }

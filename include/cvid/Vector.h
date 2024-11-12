@@ -139,19 +139,23 @@ namespace cvid
 		//Add
 		Vector3 operator+(const double& add) const;
 		Vector3 operator+(const Vector3& add) const;
+		Vector3& operator+=(const double& add);
 		Vector3& operator+=(const Vector3& add);
 		//Subtract
 		Vector3 operator-(const double& sub) const;
 		Vector3 operator-(const Vector3& sub) const;
+		Vector3& operator-=(const double& sub);
 		Vector3& operator-=(const Vector3& sub);
 		//Multiply
 		Vector3 operator*(const double& mult) const;
 		Vector3 operator*(const Vector3& mult) const;
 		Vector3& operator*=(const double& mult);
+		Vector3& operator*=(const Vector3& mult);
 		//Divide
 		Vector3 operator/(const double& div) const;
 		Vector3 operator/(const Vector3& div) const;
 		Vector3& operator/=(const double& div);
+		Vector3& operator/=(const Vector3& div);
 
 		//Get the length of this vector
 		double Length() const;

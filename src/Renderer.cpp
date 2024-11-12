@@ -126,7 +126,6 @@ namespace cvid
 					{texCoords[face.texCoordIndices[0]], texCoords[face.texCoordIndices[1]], texCoords[face.texCoordIndices[2]]},
 					face.normal,
 					face.culled,
-					face.color,
 				};
 
 				//Clip the triangle against every intersecting plane
@@ -154,7 +153,7 @@ namespace cvid
 				//Backface culling
 				if (!face.culled)
 					//Draw the face (triangle)
-					RasterizeTriangle(window, v1, v2, v3, face.color);
+					RasterizeTriangle(window, v1, v2, v3);
 			}
 		}
 		//If the model is not clipped
@@ -181,8 +180,8 @@ namespace cvid
 					RasterizeTriangle(window,
 						vertices[face.verticeIndices[0]].position,
 						vertices[face.verticeIndices[1]].position,
-						vertices[face.verticeIndices[2]].position,
-						face.color);
+						vertices[face.verticeIndices[2]].position
+					);
 				}
 			}
 		}
@@ -251,7 +250,6 @@ namespace cvid
 					{texCoords[face.texCoordIndices[0]], texCoords[face.texCoordIndices[1]], texCoords[face.texCoordIndices[2]]},
 					face.normal,
 					face.culled,
-					face.color,
 				};
 
 				//Clip the triangle against every intersecting plane
@@ -277,7 +275,7 @@ namespace cvid
 				v3 /= v3.w;
 
 				//Draw the face (triangle)
-				RasterizeTriangleWireframe(window, v1, v2, v3, face.color);
+				RasterizeTriangleWireframe(window, v1, v2, v3, Color::Red);
 			}
 		}
 		//If the model is not clipped
@@ -302,7 +300,7 @@ namespace cvid
 					vertices[face.verticeIndices[0]].position,
 					vertices[face.verticeIndices[1]].position,
 					vertices[face.verticeIndices[2]].position,
-					face.color);
+					Color::Red);
 			}
 		}
 	}
@@ -402,7 +400,7 @@ namespace cvid
 						Vector3 ci = SPIntersect(a, c, clipPlanes[i]);
 
 						//Decompose into 1 triangle
-						clippedTris.push_back(Face(Tri(a, bi, ci), tri.texCoords, tri.normal, tri.culled, tri.color));
+						clippedTris.push_back(Face(Tri(a, bi, ci), tri.texCoords, tri.normal, tri.culled));
 					}
 					//If two are positive, 1 vertice is behind
 					else
@@ -429,8 +427,8 @@ namespace cvid
 						Vector3 bi = SPIntersect(b, c, clipPlanes[i]);
 
 						//Decompose into 2 triangles
-						clippedTris.push_back(Face(Tri(a, b, ai), tri.texCoords, tri.normal, tri.culled, tri.color));
-						clippedTris.push_back(Face(Tri(ai, b, bi), tri.texCoords, tri.normal, tri.culled, tri.color));
+						clippedTris.push_back(Face(Tri(a, b, ai), tri.texCoords, tri.normal, tri.culled));
+						clippedTris.push_back(Face(Tri(ai, b, bi), tri.texCoords, tri.normal, tri.culled));
 					}
 				}
 			}

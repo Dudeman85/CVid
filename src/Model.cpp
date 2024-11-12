@@ -94,10 +94,6 @@ namespace cvid
 					vertices.push_back(vertice);
 				}
 
-				//TODO: TEMPORARY FOR TESTING
-				f.color = cvid::RandomColor();
-				//f.color = cvid::Color::BrightBlue;
-
 				faces.push_back(f);
 			}
 		}
