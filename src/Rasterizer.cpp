@@ -236,33 +236,33 @@ namespace cvid
 
 		//Convert from ndc to window coords
 		Vector3 windowHalfSize(window->GetDimensions() / 2, 1);
-		tri.vertices.v1 *= p1f * windowHalfSize;
-		tri.vertices.v1 *= p2f * windowHalfSize;
 		tri.vertices.v1 *= windowHalfSize;
-		Vector2Int p1 = p1f;
-		Vector2Int p2 = p2f;
-		Vector2Int p3 = p3f;
+		tri.vertices.v2 *= windowHalfSize;
+		tri.vertices.v3 *= windowHalfSize;
+		Vector2Int p1 = tri.vertices.v1;
+		Vector2Int p2 = tri.vertices.v2;
+		Vector2Int p3 = tri.vertices.v3;
 		p1.y = -p1.y;
-		p1 += windowHalfSize;
 		p2.y = -p2.y;
-		p2 += windowHalfSize;
 		p3.y = -p3.y;
+		p1 += windowHalfSize;
+		p2 += windowHalfSize;
 		p3 += windowHalfSize;
 
 		//Sort the vertices in descending order
 		if (p1.y < p2.y)
 		{
-			SWAP(p1f, p2f);
+			SWAP(tri.vertices.v1, tri.vertices.v2);
 			SWAP(p1, p2);
 		}
 		if (p1.y < p3.y)
 		{
-			SWAP(p1f, p3f);
+			SWAP(tri.vertices.v1, tri.vertices.v3);
 			SWAP(p1, p3);
 		}
 		if (p2.y < p3.y)
 		{
-			SWAP(p2f, p3f);
+			SWAP(tri.vertices.v2, tri.vertices.v3);
 			SWAP(p2, p3);
 		}
 
@@ -274,10 +274,10 @@ namespace cvid
 		std::vector<int> fullSegment = InterpolateX(p1, p3);
 
 		//Interpolate for z positions along the left and right segments
-		std::vector<float> combinedZPositions = LerpRange(abs(p3.y - p2.y), p3f.z, p2f.z);
-		std::vector<float> shortZPositions = LerpRange(abs(p2.y - p1.y), p2f.z, p1f.z);
+		std::vector<float> combinedZPositions = LerpRange(abs(p3.y - p2.y), tri.vertices.v3.z, tri.vertices.v2.z);
+		std::vector<float> shortZPositions = LerpRange(abs(p2.y - p1.y), tri.vertices.v2.z, tri.vertices.v1.z);
 		combinedZPositions.insert(combinedZPositions.end(), shortZPositions.begin(), shortZPositions.end());
-		std::vector<float> fullZPositions = LerpRange(abs(p3.y - p1.y), p3f.z, p1f.z);
+		std::vector<float> fullZPositions = LerpRange(abs(p3.y - p1.y), tri.vertices.v3.z, tri.vertices.v1.z);
 
 		//Figure out which segment is on which side
 		std::vector<int> rightSegment = combinedSegment;

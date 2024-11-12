@@ -79,17 +79,9 @@ namespace cvid
 		std::vector<Vector2>& texCoords = model->GetBaseModel()->texCoords;
 
 		//Apply transform to all vertices
-		//TODO: could optimize by caching transformed verts per instance
 		for (Vertex& vert : vertices)
-		{
-			Vector4 v = Vector4(vert.position, 1.0);
-			//Apply the model
-			v = model->GetTransform() * v;
+			vert.position = model->GetTransform() * Vector4(vert.position, 1.0);
 
-			vert.position = Vector3(v);
-		}
-
-		//TODO optimize hopefully
 		//Recalculate normals
 		for (IndexedFace& face : model->GetBaseModel()->faces)
 		{
@@ -113,30 +105,27 @@ namespace cvid
 			vert.position = Vector3(v);
 		}
 
-		//If model is partially intersecting at least one plane
-		if (clip.count() > 1)
+		//For each face in the model
+		for (IndexedFace& iFace : model->GetBaseModel()->faces)
 		{
-			std::vector<Face> clippedFaces;
-			//For each face in the model
-			for (IndexedFace& face : model->GetBaseModel()->faces)
-			{
-				Face f
-				{
-					{vertices[face.verticeIndices[0]].position,	vertices[face.verticeIndices[1]].position, vertices[face.verticeIndices[2]].position},
-					{texCoords[face.texCoordIndices[0]], texCoords[face.texCoordIndices[1]], texCoords[face.texCoordIndices[2]]},
-					face.normal,
-					face.culled,
-				};
+			//Copy the indexed face's vertices and texture coords to it's own container
+			Face face{
+				{vertices[iFace.verticeIndices[0]].position, vertices[iFace.verticeIndices[1]].position, vertices[iFace.verticeIndices[2]].position},
+				{texCoords[iFace.texCoordIndices[0]], texCoords[iFace.texCoordIndices[1]], texCoords[iFace.texCoordIndices[2]]},
+				iFace.normal,
+				iFace.culled,
+			};
 
+			//The final list of faces to render
+			std::vector<Face> faces{ face };
+
+			//If model is partially intersecting at least one plane
+			if (clip.count() > 1)
 				//Clip the triangle against every intersecting plane
-				std::vector<Face> decomposedFace = ClipFace(f, cam, clip);
+				faces = ClipFace(face, cam, clip);
 
-				//Add the resulting triangles into the new list
-				clippedFaces.insert(clippedFaces.end(), decomposedFace.begin(), decomposedFace.end());
-			}
-
-			//Render the partially clipped model
-			for (Face& face : clippedFaces)
+			//If the face was decomposed, loop over every new face, otherwise faces will only have one face
+			for (Face& face : faces)
 			{
 				Vector4 v1 = Vector4(face.vertices.v1, 1.0);
 				Vector4 v2 = Vector4(face.vertices.v2, 1.0);
@@ -149,40 +138,12 @@ namespace cvid
 				v1 /= v1.w;
 				v2 /= v2.w;
 				v3 /= v3.w;
+				face.vertices = { v1, v2, v3 };
 
 				//Backface culling
 				if (!face.culled)
 					//Draw the face (triangle)
-					RasterizeTriangle(window, v1, v2, v3);
-			}
-		}
-		//If the model is not clipped
-		else
-		{
-			for (Vertex& vert : vertices)
-			{
-				Vector4 v = Vector4(vert.position, 1.0);
-
-				//Apply projection
-				v = cam->GetProjection() * v;
-				//Normalize
-				v /= v.w;
-
-				vert.position = Vector3(v);
-			}
-
-			//Draw each face (triangle)
-			for (const IndexedFace& face : model->GetBaseModel()->faces)
-			{
-				//Backface culling
-				if (!face.culled)
-				{
-					RasterizeTriangle(window,
-						vertices[face.verticeIndices[0]].position,
-						vertices[face.verticeIndices[1]].position,
-						vertices[face.verticeIndices[2]].position
-					);
-				}
+					RasterizeTriangle(window, face);
 			}
 		}
 	}
@@ -297,10 +258,10 @@ namespace cvid
 			for (const IndexedFace& face : model->GetBaseModel()->faces)
 			{
 				RasterizeTriangleWireframe(window,
-					vertices[face.verticeIndices[0]].position,
-					vertices[face.verticeIndices[1]].position,
-					vertices[face.verticeIndices[2]].position,
-					Color::Red);
+										   vertices[face.verticeIndices[0]].position,
+										   vertices[face.verticeIndices[1]].position,
+										   vertices[face.verticeIndices[2]].position,
+										   Color::Red);
 			}
 		}
 	}
