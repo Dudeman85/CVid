@@ -15,9 +15,7 @@
 
 int main()
 {
-	cvid::Window window(80, 80, "Projection Test");
-
-	window.SetProperties({ 80, 80 });
+	cvid::Window window(128, 100, "Projection Test");
 
 	cvid::Camera cam(cvid::Vector3(0, 0, 100), 80, 80);
 	cam.MakePerspective();
@@ -107,7 +105,35 @@ int main()
 		window.Fill(cvid::ConsoleColor::Black);
 		window.ClearDepthBuffer();
 
+		/*
+		cvid::Vector2Int position;
+		for (int r = 0; r < 256; r += 8)
+		{
+			for (int g = 0; g < 256; g += 8)
+			{
+				for (int b = 0; b < 256; b += 8)
+				{
+					window.PutPixel(position, { r, g, b });
+					position.x++;
+					if (position.x >= window.GetDimensions().x)
+					{
+						position.x = 0;
+						position.y++;
+					}
+				}
+			}
+		}
+		*/
 
+		for (int y = 0; y < window.GetDimensions().y; y++)
+		{
+			for (int x = 0; x < window.GetDimensions().x; x++)
+			{
+				window.PutPixel(x, y, { x * 2, y * 2, 0 });
+			}
+		}
+
+		/*
 		cvid::DrawPoint({ 40, 40, -40 }, cvid::ConsoleColor::Magenta, cvid::Matrix4::Identity(), &cam, &window);
 
 		//Draw axis lines
@@ -116,6 +142,7 @@ int main()
 		cvid::DrawLine({ 0, 0, -10000 }, { 0, 0, 10000 }, cvid::ConsoleColor::Blue, cvid::Matrix4::Identity(), &cam, &window); //Z is blue
 
 		cvid::DrawModel(&cubeInstance, &cam, &window);
+		*/
 
 		if (!window.DrawFrame())
 			return 0;

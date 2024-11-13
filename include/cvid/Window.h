@@ -5,6 +5,7 @@
 #include <unordered_map>
 #include <windows.h>
 #include <cvid/Vector.h>
+#include <cvid/Types.h>
 
 namespace cvid
 {
@@ -26,10 +27,6 @@ namespace cvid
 		BrightBlack = 90, BrightRed = 91, BrightGreen = 92, BrightYellow = 93,
 		BrightBlue = 94, BrightMagenta = 95, BrightCyan = 96, BrightWhite = 97
 	};
-	//CMD colors by number to corresponsing vts code, background is +10
-	std::unordered_map<uint8_t, uint8_t> colorToVTS{
-		{0, 30}, {1, 34}, {2, 32}, {3, 36}, {4, 31}, {5, 35}, {6, 33}, {7, 37},
-		{8, 90}, {9, 94}, {10, 92}, {11, 96}, {12, 91}, {13, 95}, {14, 93}, {15, 97} };
 
 	//Ascii representation of two vertically stacked pixels
 	struct CharPixel
@@ -40,6 +37,11 @@ namespace cvid
 		ConsoleColor backgroundColor = ConsoleColor::Black;
 		char character = (char)223;
 	};
+
+	//CMD colors by number to corresponsing vts code, background is +10
+	static std::unordered_map<uint8_t, uint8_t> ccToVTS{
+		{0, 30}, {1, 34}, {2, 32}, {3, 36}, {4, 31}, {5, 35}, {6, 33}, {7, 37},
+		{8, 90}, {9, 94}, {10, 92}, {11, 96}, {12, 91}, {13, 95}, {14, 93}, {15, 97} };
 
 	//How many windows have ever been created
 	static int numWindowsCreated = 0;
@@ -109,8 +111,8 @@ namespace cvid
 		uint16_t maxWidth;
 		uint16_t maxHeight;
 
-		//A map from an rgb value to the corresponding console color (vts code)
-		//std::unordered_map<Vector3, uint8_t> rgbToCc;
+		//A map from a console color (vts code) to the corresponding rgb value
+		std::unordered_map<uint8_t, Vector3Int> ccToRgb;
 
 		//Pipes to send data to the window process
 		std::string outPipeName;

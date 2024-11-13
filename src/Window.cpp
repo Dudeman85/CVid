@@ -21,12 +21,13 @@ namespace cvid
 		CONSOLE_SCREEN_BUFFER_INFOEX consoleInfo;
 		consoleInfo.cbSize = sizeof(consoleInfo);
 		GetConsoleScreenBufferInfoEx(console, &consoleInfo);
-		for (const COLORREF& c : consoleInfo.ColorTable)
+		for (size_t i = 0; i < 16; i++)
 		{
-			Vector3Int rgb{ GetRValue(c), GetGValue(c), GetBValue(c) };
-			std::cout << rgb.ToString() << std::endl;
+			COLORREF col = consoleInfo.ColorTable[i];
+			//Add the rgb color to console color maps
+			ccToRgb[i] = { GetRValue(col), GetGValue(col),GetBValue(col) };
 		}
-		
+
 		//Create the frame and depth buffers
 		frameBuffer = new CharPixel[(size_t)width * height / 2];
 		depthBuffer = new double[(size_t)width * height];
@@ -181,16 +182,30 @@ namespace cvid
 
 		return true;
 	}
-	//Set a pixel on the framebuffer to the closest rgb color
+	//Set a pixel on the framebuffer to the closest available rgb color
 	bool Window::PutPixel(Vector2Int pos, Vector3Int color, float z)
 	{
 		return PutPixel(pos.x, pos.y, color, z);
 	}
-	//Set a pixel on the framebuffer to the closest rgb color
+	//Set a pixel on the framebuffer to the closest available rgb color
 	bool Window::PutPixel(uint16_t x, uint16_t y, Vector3Int color, float z)
 	{
+		float smallestDistance = INFINITY;
+		int closestColor = 0;
+		for (size_t i = 0; i < 16; i++)
+		{
+			float dist = Vector3(color).Distance(Vector3(ccToRgb[i])); 
+			dist = pow(((ccToRgb[i].x - color.x) * 0.30), 2) + pow(((ccToRgb[i].y - color.y) * 0.59), 2) + pow(((ccToRgb[i].z - color.z) * 0.11), 2);
 
+			if (dist < smallestDistance)
+			{
+				closestColor = i;
+				smallestDistance = dist;
+			}
+		}
 
+		PutPixel(x, y, (ConsoleColor)ccToVTS[closestColor], z);
+		
 		return true;
 	}
 

@@ -30,6 +30,13 @@ namespace cvid
 		Vector3 position;
 		Vector3 color;
 	};
+	//8-bit RGB color
+	struct Color
+	{
+		uint8_t r;
+		uint8_t g;
+		uint8_t b;
+	};
 
 	//A face (triangle) that uses it's own texture coords and vertices
 	struct Face
