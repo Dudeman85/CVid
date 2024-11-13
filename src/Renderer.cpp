@@ -75,23 +75,25 @@ namespace cvid
 
 		//Copy the vertices from the base model
 		std::vector<Vertex> vertices = model->GetBaseModel()->vertices;
-		std::vector<Vector2>& texCoords = model->GetBaseModel()->texCoords;
+		const std::vector<Vector2>& texCoords = model->GetBaseModel()->texCoords;
 
 		//Apply transform to all vertices
 		for (Vertex& vert : vertices)
 			vert.position = model->GetTransform() * Vector4(vert.position, 1.0);
 
-		//Recalculate normals
-		for (IndexedFace& face : model->GetBaseModel()->faces)
+		//Recalculate normals, and cull backwards faces
+		std::vector<Vector3> normals;
+		std::vector<Vector3> culled;
+		for (const IndexedFace& face : model->GetBaseModel()->faces)
 		{
 			//Calculate the surface normal
 			Vector3 v1 = vertices[face.verticeIndices[1]].position - vertices[face.verticeIndices[0]].position;
 			Vector3 v2 = vertices[face.verticeIndices[2]].position - vertices[face.verticeIndices[0]].position;
-			face.normal = v1.Cross(v2);
+			normals.push_back(v1.Cross(v2));
 
 			//Cull backwards facing faces
 			Vector3 vc = vertices[face.verticeIndices[0]].position - cam->GetPosition();
-			face.culled = vc.Dot(face.normal) >= 0;
+			culled.push_back(vc.Dot(face.normal) >= 0);
 		}
 
 		//Apply view to all vertices
@@ -105,7 +107,7 @@ namespace cvid
 		}
 
 		//For each face in the model
-		for (IndexedFace& iFace : model->GetBaseModel()->faces)
+		for (const IndexedFace& iFace : model->GetBaseModel()->faces)
 		{
 			//Copy the indexed face's vertices and texture coords to it's own container
 			Face face{
@@ -142,128 +144,11 @@ namespace cvid
 				//Backface culling
 				if (!face.culled)
 					//Draw the face (triangle)
-					RasterizeTriangle(window, face);
+					RasterizeTriangle(window, face, model->GetMaterial());
 			}
 		}
 	}
 
-	//Render a model's vertices as wireframe to the window's framebuffer
-	//TODO: fix this function it is extremely convoluted and unoptimized
-	void DrawModelWireframe(ModelInstance* model, Camera* cam, Window* window)
-	{
-		//Check if the model is inside, outside, or partially inside the clip space
-		std::bitset<8> clip = ClipModel(model, cam);
-
-		//Fully outside clip space
-		if (clip.none())
-			return;
-
-		//Copy the vertices from the base model
-		std::vector<Vertex> vertices = model->GetBaseModel()->vertices;
-		std::vector<Vector2>& texCoords = model->GetBaseModel()->texCoords;
-
-		//Apply transform to all vertices
-		//TODO: could optimize by caching transformed verts per instance
-		for (Vertex& vert : vertices)
-		{
-			Vector4 v = Vector4(vert.position, 1.0);
-			//Apply the model
-			v = model->GetTransform() * v;
-
-			vert.position = Vector3(v);
-		}
-
-		//TODO optimize hopefully
-		//Recalculate normals
-		for (IndexedFace& face : model->GetBaseModel()->faces)
-		{
-			//Calculate the surface normal
-			Vector3 v1 = vertices[face.verticeIndices[1]].position - vertices[face.verticeIndices[0]].position;
-			Vector3 v2 = vertices[face.verticeIndices[2]].position - vertices[face.verticeIndices[0]].position;
-			face.normal = v1.Cross(v2);
-
-			//Cull backwards facing faces
-			Vector3 vc = vertices[face.verticeIndices[0]].position - cam->GetPosition();
-			face.culled = vc.Dot(face.normal) >= 0;
-		}
-
-		//Apply view to all vertices
-		for (Vertex& vert : vertices)
-		{
-			Vector4 v = Vector4(vert.position, 1.0);
-			//Apply the view
-			v = cam->GetView() * v;
-
-			vert.position = Vector3(v);
-		}
-
-		//If model is partially intersecting at least one plane
-		if (clip.count() > 1)
-		{
-			std::vector<Face> clippedFaces;
-			//For each face in the model
-			for (IndexedFace& face : model->GetBaseModel()->faces)
-			{
-				Face f
-				{
-					{vertices[face.verticeIndices[0]].position,	vertices[face.verticeIndices[1]].position, vertices[face.verticeIndices[2]].position},
-					{texCoords[face.texCoordIndices[0]], texCoords[face.texCoordIndices[1]], texCoords[face.texCoordIndices[2]]},
-					face.normal,
-					face.culled,
-				};
-
-				//Clip the triangle against every intersecting plane
-				std::vector<Face> decomposedFace = ClipFace(f, cam, clip);
-
-				//Add the resulting triangles into the new list
-				clippedFaces.insert(clippedFaces.end(), decomposedFace.begin(), decomposedFace.end());
-			}
-
-			//Render the partially clipped model
-			for (Face& face : clippedFaces)
-			{
-				Vector4 v1 = Vector4(face.vertices.v1, 1.0);
-				Vector4 v2 = Vector4(face.vertices.v2, 1.0);
-				Vector4 v3 = Vector4(face.vertices.v3, 1.0);
-				//Apply projection
-				v1 = cam->GetProjection() * v1;
-				v2 = cam->GetProjection() * v2;
-				v3 = cam->GetProjection() * v3;
-				//Normalize
-				v1 /= v1.w;
-				v2 /= v2.w;
-				v3 /= v3.w;
-
-				//Draw the face (triangle)
-				RasterizeTriangleWireframe(window, v1, v2, v3, ConsoleColor::Red);
-			}
-		}
-		//If the model is not clipped
-		else
-		{
-			for (Vertex& vert : vertices)
-			{
-				Vector4 v = Vector4(vert.position, 1.0);
-
-				//Apply projection
-				v = cam->GetProjection() * v;
-				//Normalize
-				v /= v.w;
-
-				vert.position = Vector3(v);
-			}
-
-			//Draw each face (triangle)
-			for (const IndexedFace& face : model->GetBaseModel()->faces)
-			{
-				RasterizeTriangleWireframe(window,
-										   vertices[face.verticeIndices[0]].position,
-										   vertices[face.verticeIndices[1]].position,
-										   vertices[face.verticeIndices[2]].position,
-										   ConsoleColor::Red);
-			}
-		}
-	}
 
 	//Returns 0 if a model falls entirely outside a camera's clip space, 1 if it's entirely inside, and >1 if it falls in between
 	//If >1 the intersected planes can be acquired by checking each bit corresponding to a plane: 1 = near, 2 = left, 3 = right, 4 = bottom, and 5 = top
@@ -360,7 +245,7 @@ namespace cvid
 						Vector3 ci = SPIntersect(a, c, clipPlanes[i]);
 
 						//Decompose into 1 triangle
-						clippedTris.push_back(Face(Tri(a, bi, ci), tri.texCoords, tri.normal, tri.culled));
+						clippedTris.push_back(Face(Tri(a, bi, ci), tri.texCoords));
 					}
 					//If two are positive, 1 vertice is behind
 					else
@@ -387,8 +272,8 @@ namespace cvid
 						Vector3 bi = SPIntersect(b, c, clipPlanes[i]);
 
 						//Decompose into 2 triangles
-						clippedTris.push_back(Face(Tri(a, b, ai), tri.texCoords, tri.normal, tri.culled));
-						clippedTris.push_back(Face(Tri(ai, b, bi), tri.texCoords, tri.normal, tri.culled));
+						clippedTris.push_back(Face(Tri(a, b, ai), tri.texCoords));
+						clippedTris.push_back(Face(Tri(ai, b, bi), tri.texCoords));
 					}
 				}
 			}

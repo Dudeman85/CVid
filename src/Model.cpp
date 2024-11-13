@@ -6,6 +6,21 @@
 
 namespace cvid
 {
+	//Texture
+
+	Texture::Texture(std::string path)
+	{
+
+	}
+
+	//Material
+
+	Material::Material(std::string path)
+	{
+		//TODO implementation
+	}
+
+
 	//Model
 
 	Model::Model(std::string path)
@@ -37,7 +52,15 @@ namespace cvid
 			cvid::LogWarning("Cvid Warning in Load Model: " + reader.Warning());
 
 		const tinyobj::attrib_t& attrib = reader.GetAttrib();
-		auto& materials = reader.GetMaterials();
+		tinyobj::material_t mat = reader.GetMaterials()[0];
+
+		//For now we only support one material and texture per model
+		material.name = mat.name;
+		//Only use diffuse color
+		material.diffuseColor = Vector3Int(mat.diffuse[0], mat.diffuse[1], mat.diffuse[2]);
+		//Load the texture if applicable
+		if(!mat.diffuse_texname.empty())
+			material.texture = std::make_shared<Texture>(Texture(path + mat.diffuse_texname));
 
 		//Copy the attrib vertices to custom vertices
 		vertices.reserve(attrib.vertices.size());
@@ -114,13 +137,25 @@ namespace cvid
 	void ModelInstance::SetBaseModel(Model* model)
 	{
 		this->model = model;
+		SetMaterial(&model->material);
 		staleBounds |= 2;
 		RecalculateBounds();
 	}
 	//Get a pointer to the base model of this instance
-	Model* ModelInstance::GetBaseModel() const
+	const Model* ModelInstance::GetBaseModel() const
 	{
 		return model;
+	}
+
+	//Set the material this intance will use
+	void ModelInstance::SetMaterial(Material* mat) 
+	{
+		material = mat;
+	}
+	//Get a pointer to the material of this model
+	const Material* ModelInstance::GetMaterial() const
+	{
+		return material;
 	}
 
 	//Transform setters

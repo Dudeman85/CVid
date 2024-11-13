@@ -42,11 +42,8 @@ namespace cvid
 	struct Face
 	{
 		Tri vertices;
+		//Optional
 		Tri2D texCoords;
-		//Surface normal (calculated)
-		Vector3 normal;
-		//Should this face be rendered
-		bool culled = false;
 	};
 
 	//A face (triangle) that used indexed texture coords and vertices

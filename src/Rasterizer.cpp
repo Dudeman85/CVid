@@ -229,7 +229,7 @@ namespace cvid
 
 	//Draw a triangle onto a window's framebuffer
 	//Expects vertices in normalized device coordinates
-	void RasterizeTriangle(Window* window, Face tri)
+	void RasterizeTriangle(Window* window, Face tri, const Material* mat)
 	{
 		//TODO: optimize this out maybe, (or not lol this is totally permanent)
 		RasterizeTriangleWireframe(window, tri.vertices.v1, tri.vertices.v2, tri.vertices.v3, ConsoleColor::Red);

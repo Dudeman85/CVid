@@ -9,6 +9,31 @@
 
 namespace cvid
 {
+	class Texture
+	{
+	public:
+		//Load a texture from file
+		Texture(std::string path);
+
+		std::string name;
+	};
+
+	//Material of a model
+	class Material
+	{
+	public:
+		//Default constructor initializes nothing
+		Material() {};
+		//Load a material from file
+		Material(std::string path);
+
+		std::string name;
+		//Smart pointer cuz im lazy
+		std::shared_ptr<Texture> texture;
+		//Currently we only use diffuse
+		Vector3Int diffuseColor;
+	};
+
 	//A 3D model loaded from an obj file, this needs to be instanced before it can be rendered
 	class Model
 	{
@@ -21,6 +46,8 @@ namespace cvid
 		std::vector<Vertex> vertices;
 		//Texture coordinates are shared for the whole model
 		std::vector<Vector2> texCoords;
+		//Default material of this model, all instances automatically inherit it
+		Material material;
 
 	private:
 
@@ -29,7 +56,7 @@ namespace cvid
 	};
 
 	//A renderable instance of a 3D model with it's own transform
-	class ModelInstance 
+	class ModelInstance
 	{
 	public:
 		//Make a renderable instance from a model
@@ -38,7 +65,12 @@ namespace cvid
 		//Set the model this intance will use
 		void SetBaseModel(Model* model);
 		//Get a pointer to the base model of this instance
-		Model* GetBaseModel() const;
+		const Model* GetBaseModel() const;
+
+		//Set the material this intance will use
+		void SetMaterial(Material* mat);
+		//Get a pointer to the material of this model
+		const Material* GetMaterial() const;
 
 		//Transform setters
 		//Move this model in world space by translation
@@ -74,9 +106,11 @@ namespace cvid
 
 	private:
 		Model* model;
+		Material* material;
+
 		Matrix4 transform;
 		Sphere boundingSphere;
-		
+
 		//Transforms
 		Vector3 position;
 		Vector3 rotation;
