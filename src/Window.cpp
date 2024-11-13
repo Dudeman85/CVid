@@ -191,12 +191,17 @@ namespace cvid
 	bool Window::PutPixel(uint16_t x, uint16_t y, Vector3Int color, float z)
 	{
 		float smallestDistance = INFINITY;
-		int closestColor = 0;
+		uint8_t closestColor = 0;
+		//Loop through each of the 16 colors in the palette
 		for (size_t i = 0; i < 16; i++)
 		{
-			float dist = Vector3(color).Distance(Vector3(ccToRgb[i])); 
-			dist = pow(((ccToRgb[i].x - color.x) * 0.30), 2) + pow(((ccToRgb[i].y - color.y) * 0.59), 2) + pow(((ccToRgb[i].z - color.z) * 0.11), 2);
+			//Weighted distance
+			float dist = 
+				pow(((ccToRgb[i].x - color.x) * 0.30), 2) +
+				pow(((ccToRgb[i].y - color.y) * 0.59), 2) +
+				pow(((ccToRgb[i].z - color.z) * 0.11), 2);
 
+			//Save the closest color
 			if (dist < smallestDistance)
 			{
 				closestColor = i;
@@ -204,9 +209,8 @@ namespace cvid
 			}
 		}
 
-		PutPixel(x, y, (ConsoleColor)ccToVTS[closestColor], z);
-		
-		return true;
+		//Use the closest palette color to draw the pixel
+		return PutPixel(x, y, (ConsoleColor)ccToVTS[closestColor], z);
 	}
 
 	//Set a character on the framebuffer, y is half of resolution
@@ -303,6 +307,22 @@ namespace cvid
 		const size_t frameSize = (size_t)width * (height / 2);
 
 		return SendData(frameBuffer, frameSize * sizeof(CharPixel), DataType::Frame);
+	}
+
+	//Set the 16 color palette to be used by the window
+	void Window::SetPalette(std::unordered_map<uint8_t, Vector3Int> palette)
+	{
+		ccToRgb = palette;
+
+		//Send the VTS code to change each of the 16 palette colors
+		for (int i = 0; i < 16; i++)
+		{
+			std::string cmd = std::format("\x1b]4;{};rgb:{:x}/{:x}/{:x}\x1b", c2vID[i], palette[i].x, palette[i].y, palette[i].z);
+			//Add string terminator
+			cmd += 0x5C;
+			//Send command to window
+			SendData(cmd.c_str(), cmd.size(), cvid::DataType::String);
+		}
 	}
 
 	//Send data to the window process

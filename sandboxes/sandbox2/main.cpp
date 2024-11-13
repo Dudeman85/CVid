@@ -15,7 +15,7 @@
 
 int main()
 {
-	cvid::Window window(128, 100, "Projection Test");
+	cvid::Window window(64, 64, "Projection Test");
 
 	cvid::Camera cam(cvid::Vector3(0, 0, 100), 80, 80);
 	cam.MakePerspective();
@@ -38,6 +38,8 @@ int main()
 	cubeInstance.SetRotation({ 0, cvid::Radians(0), 0 });
 
 	float fov = 90;
+
+	window.SetPalette(cvid::grayscale);
 
 	while (true)
 	{
@@ -129,7 +131,7 @@ int main()
 		{
 			for (int x = 0; x < window.GetDimensions().x; x++)
 			{
-				window.PutPixel(x, y, { x * 2, y * 2, 0 });
+				window.PutPixel(x, y, { x * 4, y * 4, 0 });
 			}
 		}
 

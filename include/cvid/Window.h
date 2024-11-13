@@ -42,6 +42,17 @@ namespace cvid
 	static std::unordered_map<uint8_t, uint8_t> ccToVTS{
 		{0, 30}, {1, 34}, {2, 32}, {3, 36}, {4, 31}, {5, 35}, {6, 33}, {7, 37},
 		{8, 90}, {9, 94}, {10, 92}, {11, 96}, {12, 91}, {13, 95}, {14, 93}, {15, 97} };
+	//For some reason the palette numbers used by cmd are different from the ones used int VTS, this converts them
+	static std::unordered_map<uint8_t, uint8_t> c2vID{
+		{0, 0}, {1, 4}, {2, 2}, {3, 6}, {4, 1}, {5, 5}, {6, 3}, {7, 7},
+		{8, 8}, {9, 12}, {10, 10}, {11, 14}, {12, 9}, {13, 13}, {14, 11}, {15, 15}
+	};
+
+	//Premade color palettes
+	static std::unordered_map<uint8_t, Vector3Int> grayscale{
+		{0, 0}, {1, 16}, {2, 32}, {3, 48}, {4, 64}, {5, 80}, {6, 96}, {7, 112},
+		{8, 128}, {9, 144}, {10, 160}, {11, 176}, {12, 192}, {13, 208}, {14, 224}, {15, 240}
+	};
 
 	//How many windows have ever been created
 	static int numWindowsCreated = 0;
@@ -76,6 +87,8 @@ namespace cvid
 		bool DrawFrame();
 		//Send some arbitrary data to the window
 		bool SendData(const void* data, size_t amount, DataType type, bool block = true);
+		//Set the 16 color palette to be used by the window
+		void SetPalette(std::unordered_map<uint8_t, Vector3Int> palette);
 		//Set the properties of this window, clears the framebuffer
 		bool SetProperties(WindowProperties properties);
 		//Closes the window process
@@ -111,7 +124,7 @@ namespace cvid
 		uint16_t maxWidth;
 		uint16_t maxHeight;
 
-		//A map from a console color (vts code) to the corresponding rgb value
+		//A map from a console color (vts code) to the corresponding rgb value of the currently active palette
 		std::unordered_map<uint8_t, Vector3Int> ccToRgb;
 
 		//Pipes to send data to the window process
