@@ -26,6 +26,10 @@ namespace cvid
 		BrightBlack = 90, BrightRed = 91, BrightGreen = 92, BrightYellow = 93,
 		BrightBlue = 94, BrightMagenta = 95, BrightCyan = 96, BrightWhite = 97
 	};
+	//CMD colors by number to corresponsing vts code, background is +10
+	std::unordered_map<uint8_t, uint8_t> colorToVTS{
+		{0, 30}, {1, 34}, {2, 32}, {3, 36}, {4, 31}, {5, 35}, {6, 33}, {7, 37},
+		{8, 90}, {9, 94}, {10, 92}, {11, 96}, {12, 91}, {13, 95}, {14, 93}, {15, 97} };
 
 	//Ascii representation of two vertically stacked pixels
 	struct CharPixel
