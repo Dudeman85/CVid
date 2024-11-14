@@ -7,7 +7,7 @@
 namespace cvid
 {
 	//Draw a point onto a window's framebuffer
-	void RasterizePoint(Window* window, Vector3 pt, ConsoleColor color)
+	void RasterizePoint(Window* window, Vector3 pt, Vector3Int color)
 	{
 		//Convert to window coords
 		Vector3 halfWindow(window->GetDimensions() / 2, 1);
@@ -21,7 +21,7 @@ namespace cvid
 	}
 
 	//Draw a line onto a window's framebuffer
-	void RasterizeLine(Window* window, Vector3 p1f, Vector3 p2f, ConsoleColor color)
+	void RasterizeLine(Window* window, Vector3 p1f, Vector3 p2f, Vector3Int color)
 	{
 		//Convert to window coords
 		Vector3 halfWindow(window->GetDimensions() / 2, 1);
@@ -231,8 +231,10 @@ namespace cvid
 	//Expects vertices in normalized device coordinates
 	void RasterizeTriangle(Window* window, Face tri, const Material* mat)
 	{
+		Vector3Int color = mat != nullptr ? mat->diffuseColor : Vector3Int();
+
 		//TODO: optimize this out maybe, (or not lol this is totally permanent)
-		RasterizeTriangleWireframe(window, tri.vertices.v1, tri.vertices.v2, tri.vertices.v3, ConsoleColor::Red);
+		RasterizeTriangleWireframe(window, tri.vertices.v1, tri.vertices.v2, tri.vertices.v3, color);
 
 		//Convert from ndc to window coords
 		Vector3 windowHalfSize(window->GetDimensions() / 2, 1);
@@ -304,14 +306,14 @@ namespace cvid
 			for (int x = leftSegment->at(yi); x <= rightSegment->at(yi); x++)
 			{
 				//Attempt to draw the pixel
-				window->PutPixel(x, startY + yi, ConsoleColor::Red, zPositions[i]);
+				window->PutPixel(x, startY + yi, color, zPositions[i]);
 				i++;
 			}
 		}
 	}
 
 	//Draw a wireframe triangle onto a window's framebuffer
-	void RasterizeTriangleWireframe(Window* window, Vector3 p1, Vector3 p2, Vector3 p3, ConsoleColor color)
+	void RasterizeTriangleWireframe(Window* window, Vector3 p1, Vector3 p2, Vector3 p3, Vector3Int color)
 	{
 		RasterizeLine(window, p1, p2, color);
 		RasterizeLine(window, p2, p3, color);

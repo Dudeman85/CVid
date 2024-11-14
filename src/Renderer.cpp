@@ -6,7 +6,7 @@
 namespace cvid
 {
 	//Render a point to the window's framebuffer
-	void DrawPoint(Vector3 point, ConsoleColor color, Matrix4 transform, Camera* cam, Window* window)
+	void DrawPoint(Vector3 point, Vector3Int color, Matrix4 transform, Camera* cam, Window* window)
 	{
 		//Apply the mvp
 		Vector4 v = Vector4(point, 1.0);
@@ -28,7 +28,7 @@ namespace cvid
 	}
 
 	//Render a line to the window's framebuffer
-	void DrawLine(Vector3 p1, Vector3 p2, ConsoleColor color, Matrix4 transform, Camera* cam, Window* window)
+	void DrawLine(Vector3 p1, Vector3 p2, Vector3Int color, Matrix4 transform, Camera* cam, Window* window)
 	{
 		//Apply the model and view transforms
 		Vector4 v1 = Vector4(p1, 1);
@@ -82,18 +82,17 @@ namespace cvid
 			vert.position = model->GetTransform() * Vector4(vert.position, 1.0);
 
 		//Recalculate normals, and cull backwards faces
-		std::vector<Vector3> normals;
-		std::vector<Vector3> culled;
+		std::vector<bool> culled;
 		for (const IndexedFace& face : model->GetBaseModel()->faces)
 		{
 			//Calculate the surface normal
 			Vector3 v1 = vertices[face.verticeIndices[1]].position - vertices[face.verticeIndices[0]].position;
 			Vector3 v2 = vertices[face.verticeIndices[2]].position - vertices[face.verticeIndices[0]].position;
-			normals.push_back(v1.Cross(v2));
+			Vector3 normal = v1.Cross(v2);
 
 			//Cull backwards facing faces
 			Vector3 vc = vertices[face.verticeIndices[0]].position - cam->GetPosition();
-			culled.push_back(vc.Dot(face.normal) >= 0);
+			culled.push_back(vc.Dot(normal) >= 0);
 		}
 
 		//Apply view to all vertices
@@ -107,14 +106,13 @@ namespace cvid
 		}
 
 		//For each face in the model
-		for (const IndexedFace& iFace : model->GetBaseModel()->faces)
+		for (size_t i = 0; i < model->GetBaseModel()->faces.size(); i++)
 		{
+			const IndexedFace& iFace = model->GetBaseModel()->faces[i];
 			//Copy the indexed face's vertices and texture coords to it's own container
 			Face face{
 				{vertices[iFace.verticeIndices[0]].position, vertices[iFace.verticeIndices[1]].position, vertices[iFace.verticeIndices[2]].position},
 				{texCoords[iFace.texCoordIndices[0]], texCoords[iFace.texCoordIndices[1]], texCoords[iFace.texCoordIndices[2]]},
-				iFace.normal,
-				iFace.culled,
 			};
 
 			//The final list of faces to render
@@ -142,7 +140,7 @@ namespace cvid
 				face.vertices = { v1, v2, v3 };
 
 				//Backface culling
-				if (!face.culled)
+				if (!culled[i])
 					//Draw the face (triangle)
 					RasterizeTriangle(window, face, model->GetMaterial());
 			}

@@ -10,9 +10,9 @@
 namespace cvid
 {
 	//Render a point to the window's framebuffer
-	void DrawPoint(Vector3 point, ConsoleColor color, Matrix4 transform, Camera* cam, Window* window);
+	void DrawPoint(Vector3 point, Vector3Int color, Matrix4 transform, Camera* cam, Window* window);
 	//Render a line to the window's framebuffer
-	void DrawLine(Vector3 p1, Vector3 p2, ConsoleColor color, Matrix4 transform, Camera* cam, Window* window);
+	void DrawLine(Vector3 p1, Vector3 p2, Vector3Int color, Matrix4 transform, Camera* cam, Window* window);
 	//Render a model to the window's framebuffer
 	void DrawModel(ModelInstance* model, Camera* cam, Window* window);
 	//Render a model's vertices as wireframe to the window's framebuffer

@@ -51,9 +51,5 @@ namespace cvid
 	{
 		std::array<uint32_t, 3> verticeIndices = {};
 		std::array<uint32_t, 3> texCoordIndices = {};
-		//Surface normal (calculated)
-		Vector3 normal;
-		//Should this face be rendered
-		bool culled = false;
 	};
 }

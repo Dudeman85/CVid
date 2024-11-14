@@ -57,7 +57,7 @@ namespace cvid
 		//For now we only support one material and texture per model
 		material.name = mat.name;
 		//Only use diffuse color
-		material.diffuseColor = Vector3Int(mat.diffuse[0], mat.diffuse[1], mat.diffuse[2]);
+		material.diffuseColor = Vector3Int(mat.diffuse[0] * 255, mat.diffuse[1] * 255, mat.diffuse[2] * 255);
 		//Load the texture if applicable
 		if(!mat.diffuse_texname.empty())
 			material.texture = std::make_shared<Texture>(Texture(path + mat.diffuse_texname));
