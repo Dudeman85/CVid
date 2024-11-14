@@ -3,8 +3,6 @@ project(CVid)
 set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-# EXTERNAL LIBRARIES
-add_subdirectory("ext/glm-0.9.9.7")
 # Add the game engine
 add_subdirectory("engine")
 
@@ -21,7 +19,7 @@ target_include_directories(CVid PUBLIC
   $<INSTALL_INTERFACE:include>
 )
 
-target_link_libraries(CVid engine glm)
+target_link_libraries(CVid engine)
 
 add_subdirectory("sandboxes")
 add_subdirectory("app")

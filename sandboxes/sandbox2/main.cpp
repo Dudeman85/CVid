@@ -116,14 +116,13 @@ int main()
 			}
 		}
 		*/
-		/*
-		cvid::DrawPoint({ 40, 40, -40 }, cvid::ConsoleColor::Magenta, cvid::Matrix4::Identity(), &cam, &window);
+
+		cvid::DrawPoint({ 40, 40, -40 }, cvid::Vector3Int(200, 0, 200), cvid::Matrix4::Identity(), &cam, &window);
 
 		//Draw axis lines
-		cvid::DrawLine({ -10000, 0, 0 }, { 10000, 0, 0 }, cvid::ConsoleColor::Red, cvid::Matrix4::Identity(), &cam, &window); //X is red
-		cvid::DrawLine({ 0, -10000, 0 }, { 0, 10000, 0 }, cvid::ConsoleColor::Green, cvid::Matrix4::Identity(), &cam, &window); //Y is green
-		cvid::DrawLine({ 0, 0, -10000 }, { 0, 0, 10000 }, cvid::ConsoleColor::Blue, cvid::Matrix4::Identity(), &cam, &window); //Z is blue
-		*/
+		cvid::DrawLine({ -10000, 0, 0 }, { 10000, 0, 0 }, cvid::Vector3Int(200, 0, 0), cvid::Matrix4::Identity(), &cam, &window); //X is red
+		cvid::DrawLine({ 0, -10000, 0 }, { 0, 10000, 0 }, cvid::Vector3Int(0, 200, 0), cvid::Matrix4::Identity(), &cam, &window); //Y is green
+		cvid::DrawLine({ 0, 0, -10000 }, { 0, 0, 10000 }, cvid::Vector3Int(0, 50, 200), cvid::Matrix4::Identity(), &cam, &window); //Z is blue
 
 
 		cvid::DrawModel(&cubeInstance, &cam, &window);

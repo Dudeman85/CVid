@@ -2,27 +2,18 @@
 #include <tiny_obj_loader.h>
 #include <cvid/Model.h>
 #include <cvid/Helpers.h>
-#include <cvid/Window.h>
 
 namespace cvid
 {
-	//Texture
-
-	Texture::Texture(std::string path)
-	{
-
-	}
-
 	//Material
 
+	//Load material from file
 	Material::Material(std::string path)
 	{
 		//TODO implementation
 	}
 
-
-	//Model
-
+	//Load Model from obj file
 	Model::Model(std::string path)
 	{
 		LoadModel(path);

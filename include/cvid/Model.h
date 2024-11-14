@@ -5,19 +5,10 @@
 #include <cvid/Vector.h>
 #include <cvid/Matrix.h>
 #include <cvid/Types.h>
-#include <cvid/Helpers.h>
+#include <cvid/Texture.h>
 
 namespace cvid
 {
-	class Texture
-	{
-	public:
-		//Load a texture from file
-		Texture(std::string path);
-
-		std::string name;
-	};
-
 	//Material of a model
 	class Material
 	{
