@@ -70,9 +70,9 @@ namespace cvid
 		//Set a pixel on the framebuffer to some console color
 		bool PutPixel(uint16_t x, uint16_t y, ConsoleColor color, float z = 0);
 		//Set a pixel on the framebuffer to the closest rgb color
-		bool PutPixel(Vector2Int pos, Vector3Int color, float z = 0);
+		bool PutPixel(Vector2Int pos, Color color, float z = 0);
 		//Set a pixel on the framebuffer to the closest rgb color
-		bool PutPixel(uint16_t x, uint16_t y, Vector3Int color, float z = 0);
+		bool PutPixel(uint16_t x, uint16_t y, Color color, float z = 0);
 		//Put a character on the framebuffer, in this case y is half
 		bool PutChar(Vector2Int pos, CharPixel charPixel);
 		//Put a character on the framebuffer, in this case y is half
@@ -88,7 +88,7 @@ namespace cvid
 		//Send some arbitrary data to the window
 		bool SendData(const void* data, size_t amount, DataType type, bool block = true);
 		//Set the 16 color palette to be used by the window
-		void SetPalette(std::unordered_map<uint8_t, Vector3Int> palette);
+		void SetPalette(std::unordered_map<uint8_t, Color> palette);
 		//Set the properties of this window, clears the framebuffer
 		bool SetProperties(WindowProperties properties);
 		//Closes the window process
@@ -125,7 +125,7 @@ namespace cvid
 		uint16_t maxHeight;
 
 		//A map from a console color (vts code) to the corresponding rgb value of the currently active palette
-		std::unordered_map<uint8_t, Vector3Int> ccToRgb;
+		std::unordered_map<uint8_t, Color> ccToRgb;
 
 		//Pipes to send data to the window process
 		std::string outPipeName;

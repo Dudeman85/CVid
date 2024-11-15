@@ -43,7 +43,6 @@ namespace cvid
 	struct Face
 	{
 		Tri vertices;
-		//Optional
 		Tri2D texCoords;
 	};
 

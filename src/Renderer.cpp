@@ -6,7 +6,7 @@
 namespace cvid
 {
 	//Render a point to the window's framebuffer
-	void DrawPoint(Vector3 point, Vector3Int color, Matrix4 transform, Camera* cam, Window* window)
+	void DrawPoint(Vector3 point, Color color, Matrix4 transform, Camera* cam, Window* window)
 	{
 		//Apply the mvp
 		Vector4 v = Vector4(point, 1.0);
@@ -28,7 +28,7 @@ namespace cvid
 	}
 
 	//Render a line to the window's framebuffer
-	void DrawLine(Vector3 p1, Vector3 p2, Vector3Int color, Matrix4 transform, Camera* cam, Window* window)
+	void DrawLine(Vector3 p1, Vector3 p2, Color color, Matrix4 transform, Camera* cam, Window* window)
 	{
 		//Apply the model and view transforms
 		Vector4 v1 = Vector4(p1, 1);

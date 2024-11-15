@@ -7,7 +7,7 @@
 namespace cvid
 {
 	//Draw a point onto a window's framebuffer
-	void RasterizePoint(Window* window, Vector3 pt, Vector3Int color)
+	void RasterizePoint(Window* window, Vector3 pt, Color color)
 	{
 		//Convert to window coords
 		Vector3 halfWindow(window->GetDimensions() / 2, 1);
@@ -21,7 +21,7 @@ namespace cvid
 	}
 
 	//Draw a line onto a window's framebuffer
-	void RasterizeLine(Window* window, Vector3 p1f, Vector3 p2f, Vector3Int color)
+	void RasterizeLine(Window* window, Vector3 p1f, Vector3 p2f, Color color)
 	{
 		//Convert to window coords
 		Vector3 halfWindow(window->GetDimensions() / 2, 1);
@@ -80,7 +80,7 @@ namespace cvid
 				{
 					y += yi;
 					error -= 2 * dx;
-				} 
+				}
 				i++;
 			}
 		}
@@ -231,7 +231,7 @@ namespace cvid
 	//Expects vertices in normalized device coordinates
 	void RasterizeTriangle(Window* window, Face tri, const Material* mat)
 	{
-		Vector3Int color = mat != nullptr ? mat->diffuseColor : Vector3Int();
+		Color color = mat != nullptr ? mat->diffuseColor : Color();
 
 		//TODO: optimize this out maybe, (or not lol this is totally permanent)
 		RasterizeTriangleWireframe(window, tri.vertices.v1, tri.vertices.v2, tri.vertices.v3, color);
@@ -255,16 +255,19 @@ namespace cvid
 		if (p1.y < p2.y)
 		{
 			SWAP(tri.vertices.v1, tri.vertices.v2);
+			SWAP(tri.texCoords.v1, tri.texCoords.v2);
 			SWAP(p1, p2);
 		}
 		if (p1.y < p3.y)
 		{
 			SWAP(tri.vertices.v1, tri.vertices.v3);
+			SWAP(tri.texCoords.v1, tri.texCoords.v3);
 			SWAP(p1, p3);
 		}
 		if (p2.y < p3.y)
 		{
 			SWAP(tri.vertices.v2, tri.vertices.v3);
+			SWAP(tri.texCoords.v2, tri.texCoords.v3);
 			SWAP(p2, p3);
 		}
 
@@ -281,17 +284,37 @@ namespace cvid
 		combinedZPositions.insert(combinedZPositions.end(), shortZPositions.begin(), shortZPositions.end());
 		std::vector<float> fullZPositions = LerpRange(abs(p3.y - p1.y), tri.vertices.v3.z, tri.vertices.v1.z);
 
+		//If there is a material and texture
+		std::vector<Vector2> combinedTexCoords;
+		std::vector<Vector2> fullTexCoords;
+		if (mat)
+		{
+			if (mat->texture)
+			{
+				//Interpolate the texture coords for edges
+				combinedTexCoords = LerpRange2D(abs(p3.y - p2.y), tri.texCoords.v3, tri.texCoords.v2);
+				std::vector<Vector2> shortTexCoords = LerpRange2D(abs(p2.y - p1.y), tri.texCoords.v2, tri.texCoords.v1);
+				combinedTexCoords.insert(combinedTexCoords.end(), shortTexCoords.begin(), shortTexCoords.end());
+				fullTexCoords = LerpRange2D(abs(p3.y - p1.y), tri.texCoords.v3, tri.texCoords.v1);
+			}
+		}
+
 		//Figure out which segment is on which side
 		std::vector<int>* rightSegment = &combinedSegment;
 		std::vector<int>* leftSegment = &fullSegment;
 		std::vector<float>* rightZPositions = &combinedZPositions;
 		std::vector<float>* leftZPositions = &fullZPositions;
+		std::vector<Vector2>* rightTexCoords = &combinedTexCoords;
+		std::vector<Vector2>* leftTexCoords = &fullTexCoords;
+		//If the middle point of left segment is greater than the middle point of right segment, swap the segments
 		if (leftSegment->at(std::floor(leftSegment->size() / 2)) > rightSegment->at(std::floor(rightSegment->size() / 2)))
 		{
-			leftSegment = &combinedSegment;
 			rightSegment = &fullSegment;
-			leftZPositions = &combinedZPositions;
+			leftSegment = &combinedSegment;
 			rightZPositions = &fullZPositions;
+			leftZPositions = &combinedZPositions;
+			rightTexCoords = &fullTexCoords;
+			leftTexCoords = &combinedTexCoords;
 		}
 
 		int startY = (int)std::round(p3.y);
@@ -300,20 +323,29 @@ namespace cvid
 		{
 			//Interpolate for z positions for each horizontal scanline
 			std::vector<float> zPositions = LerpRange(abs(leftSegment->at(yi) - rightSegment->at(yi)), leftZPositions->at(yi), rightZPositions->at(yi));
+			//Interpolate texture coordiates if applicable
+			std::vector<Vector2> texCoords;
+			if (!leftTexCoords->empty())
+				texCoords = LerpRange2D(abs(leftSegment->at(yi) - rightSegment->at(yi)), leftTexCoords->at(yi), rightTexCoords->at(yi));
 
 			//Draw a line from the full segment to the split segment
 			int i = 0;
 			for (int x = leftSegment->at(yi); x <= rightSegment->at(yi); x++)
 			{
+				Color renderColor = color;
+				//Get the color from the texture if it exists
+				if (!texCoords.empty())
+					renderColor = mat->texture->GetPixel(texCoords[i] * Vector2(mat->texture->width, mat->texture->height));
+
 				//Attempt to draw the pixel
-				window->PutPixel(x, startY + yi, color, zPositions[i]);
+				window->PutPixel(x, startY + yi, renderColor, zPositions[i]);
 				i++;
 			}
 		}
 	}
 
 	//Draw a wireframe triangle onto a window's framebuffer
-	void RasterizeTriangleWireframe(Window* window, Vector3 p1, Vector3 p2, Vector3 p3, Vector3Int color)
+	void RasterizeTriangleWireframe(Window* window, Vector3 p1, Vector3 p2, Vector3 p3, Color color)
 	{
 		RasterizeLine(window, p1, p2, color);
 		RasterizeLine(window, p2, p3, color);

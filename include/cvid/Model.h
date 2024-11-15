@@ -21,9 +21,9 @@ namespace cvid
 
 		std::string name;
 		//Smart pointer cuz im lazy
-		std::shared_ptr<Texture> texture;
+		std::shared_ptr<Texture> texture = nullptr;
 		//Currently we only use diffuse
-		Vector3Int diffuseColor;
+		Color diffuseColor;
 	};
 
 	//A 3D model loaded from an obj file, this needs to be instanced before it can be rendered

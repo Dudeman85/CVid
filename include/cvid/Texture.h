@@ -23,8 +23,5 @@ namespace cvid
 		int height = 0;
 		//Pixel data, accessed [y * width + x] 
 		std::vector<Color> data;
-
-	private:
-		Texture(const Texture& tex);
 	};
 }

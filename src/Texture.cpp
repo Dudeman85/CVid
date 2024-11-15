@@ -23,7 +23,7 @@ namespace cvid
 
 		//Convert the pixel data to a more easily usable format
 		data.reserve((size_t)width * height);
-		for (size_t i = 0; i < (size_t)width * height; i += 4)
+		for (size_t i = 0; i < (size_t)width * height * 4; i += 4)
 		{
 			data.push_back(Color{ rawData[i], rawData[i + 1], rawData[i + 2], rawData[i + 3] });
 		}

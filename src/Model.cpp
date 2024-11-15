@@ -48,7 +48,7 @@ namespace cvid
 		//For now we only support one material and texture per model
 		material.name = mat.name;
 		//Only use diffuse color
-		material.diffuseColor = Vector3Int(mat.diffuse[0] * 255, mat.diffuse[1] * 255, mat.diffuse[2] * 255);
+		material.diffuseColor = Color(mat.diffuse[0] * 255, mat.diffuse[1] * 255, mat.diffuse[2] * 255, 255);
 
 		//Get the base folder
 		std::string folder = path.substr(0, path.find_last_of("/\\") + 1);
