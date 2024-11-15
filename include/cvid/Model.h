@@ -1,6 +1,7 @@
 #pragma once
 #include <string>
 #include <vector>
+#include <memory>
 #include <array>
 #include <cvid/Vector.h>
 #include <cvid/Matrix.h>

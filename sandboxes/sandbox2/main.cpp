@@ -25,15 +25,6 @@ int main()
 
 	cvid::Model cube("../../../resources/cube.obj");
 
-	/*
-	cube.faces[0].color = cvid::Color::Magenta;
-	cube.faces[1].color = cvid::Color::Magenta;
-	cube.faces[2].color = cvid::Color::Cyan;
-	cube.faces[3].color = cvid::Color::Cyan;
-	cube.faces[4].color = cvid::Color::BrightYellow;
-	cube.faces[5].color = cvid::Color::BrightYellow;
-	*/
-
 	cvid::ModelInstance cubeInstance(&cube);
 	cubeInstance.SetScale(20);
 	cubeInstance.SetPosition({ 0, 0, 0 });

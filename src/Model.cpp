@@ -49,9 +49,13 @@ namespace cvid
 		material.name = mat.name;
 		//Only use diffuse color
 		material.diffuseColor = Vector3Int(mat.diffuse[0] * 255, mat.diffuse[1] * 255, mat.diffuse[2] * 255);
+
+		//Get the base folder
+		std::string folder = path.substr(0, path.find_last_of("/\\") + 1);
+
 		//Load the texture if applicable
 		if(!mat.diffuse_texname.empty())
-			material.texture = std::make_shared<Texture>(Texture(path + mat.diffuse_texname));
+			material.texture = std::make_shared<Texture>(Texture(folder + mat.diffuse_texname));
 
 		//Copy the attrib vertices to custom vertices
 		vertices.reserve(attrib.vertices.size());
