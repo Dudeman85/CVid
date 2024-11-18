@@ -23,17 +23,15 @@ namespace cvid
 	//Draw a line onto a window's framebuffer
 	void RasterizeLine(Window* window, Vector3 p1f, Vector3 p2f, Color color)
 	{
-		//Convert to window coords
-		Vector3 halfWindow(window->GetDimensions() / 2, 1);
-		p1f = p1f * halfWindow;
-		p2f = p2f * halfWindow;
-		//Convert to window coords
-		Vector2Int windowHalfSize = window->GetDimensions() / 2;
+		//Convert from ndc to window coords
+		Vector3 windowHalfSize(window->GetDimensions() / 2, 1);
+		p1f *= windowHalfSize;
+		p2f *= windowHalfSize;
 		Vector2Int p1 = p1f;
 		Vector2Int p2 = p2f;
 		p1.y = -p1.y;
-		p1 += windowHalfSize;
 		p2.y = -p2.y;
+		p1 += windowHalfSize;
 		p2 += windowHalfSize;
 
 		int dx = p2.x - p1.x;
@@ -335,7 +333,10 @@ namespace cvid
 				Color renderColor = color;
 				//Get the color from the texture if it exists
 				if (!texCoords.empty())
-					renderColor = mat->texture->GetPixel(texCoords[i] * Vector2(mat->texture->width, mat->texture->height));
+				{
+					Vector2Int sampleCoord(std::floor(texCoords[i].x * mat->texture->width - 1), std::floor(texCoords[i].y * mat->texture->height - 1));
+					renderColor = mat->texture->GetPixel(sampleCoord);
+				}
 
 				//Attempt to draw the pixel
 				window->PutPixel(x, startY + yi, renderColor, zPositions[i]);

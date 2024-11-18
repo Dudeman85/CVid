@@ -10,6 +10,9 @@ namespace cvid
 	{
 		name = path;
 
+		//Flip texture
+		stbi_set_flip_vertically_on_load(true);
+
 		int n;
 		//Attempt to load the image
 		unsigned char* rawData = stbi_load(path.c_str(), &width, &height, &n, 4);
