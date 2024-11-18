@@ -106,7 +106,7 @@ namespace cvid
 		}
 
 		//For each face in the model
-		for (size_t i = 0; i < model->GetBaseModel()->faces.size(); i++)
+		for (size_t i = 0; i < 1 /*model->GetBaseModel()->faces.size()*/; i++)
 		{
 			const IndexedFace& iFace = model->GetBaseModel()->faces[i];
 			//Copy the indexed face's vertices and texture coords to it's own container

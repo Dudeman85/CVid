@@ -16,6 +16,7 @@
 int main()
 {
 	cvid::Window window(64, 64, "Projection Test");
+	window.enableDepthTest = false;
 
 	//window.SetPalette(cvid::grayscale);
 

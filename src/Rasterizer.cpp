@@ -231,6 +231,8 @@ namespace cvid
 	{
 		Color color = mat != nullptr ? mat->diffuseColor : Color();
 
+		Face tri2 = tri;
+
 		//TODO: optimize this out maybe, (or not lol this is totally permanent)
 		RasterizeTriangleWireframe(window, tri.vertices.v1, tri.vertices.v2, tri.vertices.v3, color);
 
@@ -269,11 +271,23 @@ namespace cvid
 			SWAP(p2, p3);
 		}
 
+		std::vector<int> combinedSegment;
 		//Get every x point of each segment
-		std::vector<int> combinedSegment = InterpolateX(p2, p3);
-		combinedSegment.pop_back();
-		std::vector<int> shortSegment = InterpolateX(p1, p2);
-		combinedSegment.insert(combinedSegment.end(), shortSegment.begin(), shortSegment.end());
+		if (p2.y == p3.y)
+		{
+			combinedSegment = InterpolateX(p1, p2);
+		}
+		else if (p1.y == p2.y)
+		{
+			combinedSegment = InterpolateX(p2, p3);
+		}
+		else
+		{
+			combinedSegment = InterpolateX(p2, p3);
+			combinedSegment.pop_back();
+			std::vector<int> shortSegment = InterpolateX(p1, p2);
+			combinedSegment.insert(combinedSegment.end(), shortSegment.begin(), shortSegment.end());
+		}
 		std::vector<int> fullSegment = InterpolateX(p1, p3);
 
 		//Interpolate for z positions along the left and right segments
@@ -343,6 +357,8 @@ namespace cvid
 				i++;
 			}
 		}
+
+		//RasterizeTriangleWireframe(window, tri2.vertices.v1, tri2.vertices.v2, tri2.vertices.v3, color);
 	}
 
 	//Draw a wireframe triangle onto a window's framebuffer
