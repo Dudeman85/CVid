@@ -131,7 +131,7 @@ namespace cvid
 
 	//Get the integer x coordinates of a line at every y point
 	//Based on Bresenham's algorithm
-	std::vector<int> InterpolateX(Vector2Int p1, Vector2Int p2)
+	std::vector<int> InterpolateX(Vector2Int p1, Vector2Int p2, bool prioritizeLeft)
 	{
 		int dx = p2.x - p1.x;
 		int dy = p2.y - p1.y;
@@ -140,6 +140,7 @@ namespace cvid
 		points.reserve(abs(dy));
 
 		int x;
+		int lx;
 
 		//Slope is < 1
 		if (abs(dx) > abs(dy))
@@ -161,6 +162,7 @@ namespace cvid
 
 			//Keep track of closest y and the error to actual y
 			int y = p1.y;
+			lx = p1.x;
 			int error = 0;
 
 			//For each x position
@@ -169,7 +171,16 @@ namespace cvid
 				error += 2 * dy;
 				if (error > abs(dx))
 				{
-					points.push_back(x);
+					//Push the leftmost pixel instead of the rightmost
+					if (prioritizeLeft)
+					{
+						points.push_back(lx);
+						lx = x;
+					}
+					else
+					{
+						points.push_back(x);
+					}
 
 					y += yi;
 					error -= 2 * dx;
@@ -220,7 +231,12 @@ namespace cvid
 		}
 		//Add final x if it did not change before end
 		if (points.size() <= dy)
-			points.push_back(x);
+		{
+			if (prioritizeLeft && abs(dx) > abs(dy))
+				points.push_back(lx);
+			else
+				points.push_back(x);
+		}
 
 		return points;
 	}
@@ -271,24 +287,49 @@ namespace cvid
 			SWAP(p2, p3);
 		}
 
+		//If p2.x > center of (p1, p3).x
+		//then we will draw from combined to full segment
+		//which means combined will prioritize left, while full will prioritize right
+		//else we will draw from full segment to combined
+		//which means combined will prioritize right, while full will prioritize left
+
+
 		std::vector<int> combinedSegment;
+		std::vector<int> fullSegment;
+
+		bool fullOnRight = p2.x > (p1.x + p2.x) / 2;
+
 		//Get every x point of each segment
 		if (p2.y == p3.y)
 		{
 			combinedSegment = InterpolateX(p1, p2);
+			fullSegment = InterpolateX(p1, p3);
 		}
 		else if (p1.y == p2.y)
 		{
 			combinedSegment = InterpolateX(p2, p3);
+			fullSegment = InterpolateX(p1, p3);
 		}
-		else
 		{
-			combinedSegment = InterpolateX(p2, p3);
-			combinedSegment.pop_back();
-			std::vector<int> shortSegment = InterpolateX(p1, p2);
-			combinedSegment.insert(combinedSegment.end(), shortSegment.begin(), shortSegment.end());
+			if (p2.x <= p1.x)
+			{
+
+				combinedSegment = InterpolateX(p2, p3, p2.x < p3.x);
+				combinedSegment.pop_back();
+				std::vector<int> shortSegment = InterpolateX(p1, p2, true);
+				combinedSegment.insert(combinedSegment.end(), shortSegment.begin(), shortSegment.end());
+				fullSegment = InterpolateX(p1, p3);
+			}
+			else
+			{
+				combinedSegment = InterpolateX(p2, p3);
+				combinedSegment.pop_back();
+				std::vector<int> shortSegment = InterpolateX(p1, p2);
+				combinedSegment.insert(combinedSegment.end(), shortSegment.begin(), shortSegment.end());
+				fullSegment = InterpolateX(p1, p3, true);
+
+			}
 		}
-		std::vector<int> fullSegment = InterpolateX(p1, p3);
 
 		//Interpolate for z positions along the left and right segments
 		std::vector<float> combinedZPositions = LerpRange(abs(p3.y - p2.y), tri.vertices.v3.z, tri.vertices.v2.z);
