@@ -175,7 +175,7 @@ namespace cvid
 					if (prioritizeLeft)
 					{
 						points.push_back(lx);
-						lx = x;
+						lx = x + 1;
 					}
 					else
 					{
@@ -190,7 +190,12 @@ namespace cvid
 			if (yi < 0)
 			{
 				if (points.size() <= dy)
-					points.push_back(x);
+				{
+					if (prioritizeLeft)
+						points.push_back(lx);
+					else
+						points.push_back(x);
+				}
 				std::reverse(points.begin(), points.end());
 			}
 		}
@@ -287,49 +292,22 @@ namespace cvid
 			SWAP(p2, p3);
 		}
 
-		//If p2.x > center of (p1, p3).x
-		//then we will draw from combined to full segment
-		//which means combined will prioritize left, while full will prioritize right
-		//else we will draw from full segment to combined
-		//which means combined will prioritize right, while full will prioritize left
+		//If p2 is to the left of the center of p1 and p3, the full segment will be on the right
 
+		//If p2 is to the left of p1 or p3, the full segment will be on the right
+		Vector2 v1 = p2 - p1;
+		v1 = v1.Normalize();
+		Vector2 v2 = p3 - p1;
+		v2 = v2.Normalize();
 
-		std::vector<int> combinedSegment;
-		std::vector<int> fullSegment;
+		bool fullOnRight = v1.x < v2.x;
 
-		bool fullOnRight = p2.x > (p1.x + p2.x) / 2;
-
-		//Get every x point of each segment
-		if (p2.y == p3.y)
-		{
-			combinedSegment = InterpolateX(p1, p2);
-			fullSegment = InterpolateX(p1, p3);
-		}
-		else if (p1.y == p2.y)
-		{
-			combinedSegment = InterpolateX(p2, p3);
-			fullSegment = InterpolateX(p1, p3);
-		}
-		{
-			if (p2.x <= p1.x)
-			{
-
-				combinedSegment = InterpolateX(p2, p3, p2.x < p3.x);
-				combinedSegment.pop_back();
-				std::vector<int> shortSegment = InterpolateX(p1, p2, true);
-				combinedSegment.insert(combinedSegment.end(), shortSegment.begin(), shortSegment.end());
-				fullSegment = InterpolateX(p1, p3);
-			}
-			else
-			{
-				combinedSegment = InterpolateX(p2, p3);
-				combinedSegment.pop_back();
-				std::vector<int> shortSegment = InterpolateX(p1, p2);
-				combinedSegment.insert(combinedSegment.end(), shortSegment.begin(), shortSegment.end());
-				fullSegment = InterpolateX(p1, p3, true);
-
-			}
-		}
+		//Interpolate the right and left edges x coordinates
+		std::vector<int> combinedSegment = InterpolateX(p2, p3, fullOnRight);
+		combinedSegment.pop_back();
+		std::vector<int> shortSegment = InterpolateX(p1, p2, fullOnRight);
+		combinedSegment.insert(combinedSegment.end(), shortSegment.begin(), shortSegment.end());
+		std::vector<int> fullSegment = InterpolateX(p1, p3, !fullOnRight);
 
 		//Interpolate for z positions along the left and right segments
 		std::vector<float> combinedZPositions = LerpRange(abs(p3.y - p2.y), tri.vertices.v3.z, tri.vertices.v2.z);
@@ -360,7 +338,7 @@ namespace cvid
 		std::vector<Vector2>* rightTexCoords = &combinedTexCoords;
 		std::vector<Vector2>* leftTexCoords = &fullTexCoords;
 		//If the middle point of left segment is greater than the middle point of right segment, swap the segments
-		if (leftSegment->at(std::floor(leftSegment->size() / 2)) > rightSegment->at(std::floor(rightSegment->size() / 2)))
+		if (fullOnRight)
 		{
 			rightSegment = &fullSegment;
 			leftSegment = &combinedSegment;
