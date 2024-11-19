@@ -15,8 +15,8 @@
 
 int main()
 {
-	cvid::Window window(64, 64, "Projection Test");
-	window.enableDepthTest = false;
+	cvid::Window window(120, 120, "CVid");
+	window.enableDepthTest = true;
 
 	window.SetPalette(cvid::cmdDefault);
 

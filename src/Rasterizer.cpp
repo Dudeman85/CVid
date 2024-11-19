@@ -252,11 +252,6 @@ namespace cvid
 	{
 		Color color = mat != nullptr ? mat->diffuseColor : Color();
 
-		Face tri2 = tri;
-
-		//TODO: optimize this out maybe, (or not lol this is totally permanent)
-		RasterizeTriangleWireframe(window, tri.vertices.v1, tri.vertices.v2, tri.vertices.v3, color);
-
 		//Convert from ndc to window coords
 		Vector3 windowHalfSize(window->GetDimensions() / 2, 1);
 		tri.vertices.v1 *= windowHalfSize;
@@ -376,8 +371,6 @@ namespace cvid
 				i++;
 			}
 		}
-
-		//RasterizeTriangleWireframe(window, tri2.vertices.v1, tri2.vertices.v2, tri2.vertices.v3, color);
 	}
 
 	//Draw a wireframe triangle onto a window's framebuffer
