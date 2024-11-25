@@ -221,57 +221,91 @@ namespace cvid
 					//If one is positive, 2 vertices are behind
 					else if (d1 * d2 * d3 > 0)
 					{
-						//Sort the vertices so that A is the positive one
+						//Sort the vertices so that v1 is the positive one
+						Vector2 atc = tri.texCoords.v1;
+						Vector2 btc = tri.texCoords.v2;
+						Vector2 ctc = tri.texCoords.v3;
 						Vector3 a = tri.vertices.v1;
 						Vector3 b = tri.vertices.v2;
 						Vector3 c = tri.vertices.v3;
 						if (d2 > 0)
 						{
+							atc = tri.texCoords.v2;
+							btc = tri.texCoords.v1;
+							ctc = tri.texCoords.v3;
 							a = tri.vertices.v2;
 							b = tri.vertices.v1;
 							c = tri.vertices.v3;
 						}
 						if (d3 > 0)
 						{
+							atc = tri.texCoords.v3;
+							btc = tri.texCoords.v1;
+							ctc = tri.texCoords.v2;
 							a = tri.vertices.v3;
 							b = tri.vertices.v1;
 							c = tri.vertices.v2;
 						}
 
+						//Calculate the ratios of the old and new sides
+						float bit = (-clipPlanes[i].Dot(a) / clipPlanes[i].Dot(b - a));
+						float cit = (-clipPlanes[i].Dot(a) / clipPlanes[i].Dot(c - a));
+
 						//Calculate the points where the triangle's sides intersect the plane
-						Vector3 bi = SPIntersect(a, b, clipPlanes[i]);
-						Vector3 ci = SPIntersect(a, c, clipPlanes[i]);
+						Vector3 bi = a + (b - a) * bit;
+						Vector3 ci = a + (c - a) * cit;
+
+						//Calculate the new texture coordinates
+						Vector2 bitc = atc + (btc - atc) * bit;
+						Vector2 citc = atc + (ctc - atc) * cit;
 
 						//Decompose into 1 triangle
-						clippedTris.push_back(Face(Tri(a, bi, ci), tri.texCoords));
+						clippedTris.push_back(Face(Tri(a, bi, ci), Tri2D{ atc, bitc, citc }));
 					}
 					//If two are positive, 1 vertice is behind
 					else
 					{
 						//Sort the vertices so that C is the negative one
+						Vector2 atc = tri.texCoords.v1;
+						Vector2 btc = tri.texCoords.v2;
+						Vector2 ctc = tri.texCoords.v3;
 						Vector3 a = tri.vertices.v1;
 						Vector3 b = tri.vertices.v2;
 						Vector3 c = tri.vertices.v3;
 						if (d1 < 0)
 						{
+							atc = tri.texCoords.v3;
+							btc = tri.texCoords.v2;
+							ctc = tri.texCoords.v1;
 							a = tri.vertices.v3;
 							b = tri.vertices.v2;
 							c = tri.vertices.v1;
 						}
 						if (d2 < 0)
 						{
+							atc = tri.texCoords.v1;
+							btc = tri.texCoords.v3;
+							ctc = tri.texCoords.v2;
 							a = tri.vertices.v1;
 							b = tri.vertices.v3;
 							c = tri.vertices.v2;
 						}
 
+						//Calculate the ratios of the old and new sides
+						float ait = (-clipPlanes[i].Dot(a) / clipPlanes[i].Dot(c - a));
+						float bit = (-clipPlanes[i].Dot(b) / clipPlanes[i].Dot(c - b));
+
 						//Calculate the points where the triangle's sides intersect the plane
-						Vector3 ai = SPIntersect(a, c, clipPlanes[i]);
-						Vector3 bi = SPIntersect(b, c, clipPlanes[i]);
+						Vector3 ai = a + (c - a) * ait;
+						Vector3 bi = b + (c - b) * bit;
+
+						//Calculate the new texture coordinates
+						Vector2 aitc = atc + (ctc - atc) * ait;
+						Vector2 bitc = btc + (ctc - btc) * bit;
 
 						//Decompose into 2 triangles
-						clippedTris.push_back(Face(Tri(a, b, ai), tri.texCoords));
-						clippedTris.push_back(Face(Tri(ai, b, bi), tri.texCoords));
+						clippedTris.push_back(Face(Tri(a, b, ai), Tri2D{ atc, btc, aitc }));
+						clippedTris.push_back(Face(Tri(ai, b, bi), Tri2D{ aitc, btc, bitc }));
 					}
 				}
 			}
@@ -317,7 +351,6 @@ namespace cvid
 	//Calculate the intersection of a segment and a clip plane, not suitable for general use
 	Vector3 SPIntersect(Vector3 a, Vector3 b, Vector3 n)
 	{
-		float t = -n.Dot(a) / n.Dot(b - a);
-		return a + (b - a) * t;
+		return a + (b - a) * (-n.Dot(a) / n.Dot(b - a));
 	}
 }
