@@ -1,9 +1,7 @@
 REQUIRED:
 Rasterizer:
-- texturing
+- Fix texture distortion
 - sprite rendering
-Model:
-- Add option to not triangulate
 Window:
 - Make a standard window with win32
 - Fix pipe buffer issues
@@ -15,10 +13,10 @@ Window:
 
 WOULD BE NICE:
 Rasterizer:
-- optimize out wireframe drawing over filled triangle
-- refactor for normal colors
 - dithering for blending
 Window:
 - adaptive palette swapping
 Renderer:
 - allow for drawing wireframe indexed polygons
+Model:
+- Add option to not triangulate
