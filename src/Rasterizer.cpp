@@ -300,10 +300,10 @@ namespace cvid
 		std::vector<int> fullSegment = InterpolateX(p1, p3, !fullOnRight);
 
 		//Interpolate for z positions along the left and right segments
-		std::vector<float> combinedZPositions = LerpRange(abs(p3.y - p2.y), tri.vertices.v3.z, tri.vertices.v2.z);
-		std::vector<float> shortZPositions = LerpRange(abs(p2.y - p1.y), tri.vertices.v2.z, tri.vertices.v1.z);
+		std::vector<float> combinedZPositions = LerpRange(abs(p3.y - p2.y), 1 / tri.vertices.v3.z, 1 / tri.vertices.v2.z);
+		std::vector<float> shortZPositions = LerpRange(abs(p2.y - p1.y), 1 / tri.vertices.v2.z, 1 / tri.vertices.v1.z);
 		combinedZPositions.insert(combinedZPositions.end(), shortZPositions.begin(), shortZPositions.end());
-		std::vector<float> fullZPositions = LerpRange(abs(p3.y - p1.y), tri.vertices.v3.z, tri.vertices.v1.z);
+		std::vector<float> fullZPositions = LerpRange(abs(p3.y - p1.y), 1 / tri.vertices.v3.z, 1 / tri.vertices.v1.z);
 
 		//If there is a material and texture
 		std::vector<Vector2> combinedTexCoords;
