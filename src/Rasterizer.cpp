@@ -287,14 +287,9 @@ namespace cvid
 			SWAP(p2, p3);
 		}
 
-		//If p2 is to the left of the center of p1 and p3, the full segment will be on the right
-
 		//If p2 is to the left of p1 or p3, the full segment will be on the right
-		Vector2 v1 = p2 - p1;
-		v1 = v1.Normalize();
-		Vector2 v2 = p3 - p1;
-		v2 = v2.Normalize();
-
+		Vector2 v1 = Vector2(p2 - p1).Normalize();
+		Vector2 v2 = Vector2(p3 - p1).Normalize();
 		bool fullOnRight = v1.x < v2.x;
 
 		//Interpolate the right and left edges x coordinates
