@@ -164,9 +164,9 @@ namespace cvid
 		if (enableDepthTest)
 		{
 			//Basically higher z means further away
-			if (1 / z < depthBuffer[y * width + x])
+			if (z < depthBuffer[y * width + x])
 				return false;
-			depthBuffer[y * width + x] = 1 / z;
+			depthBuffer[y * width + x] = z;
 		}
 
 		//Pixels are formatted two above each other in one character
