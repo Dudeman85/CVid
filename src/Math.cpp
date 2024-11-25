@@ -6,10 +6,10 @@ namespace cvid
 	std::vector<float> LerpRange(int range, float start, float end)
 	{
 		std::vector<float> values;
-		values.reserve(range);
+		values.reserve(range + 2);
 
 		//Slope of the line
-		float m = (end - start) / range;
+		float m = (end - start) / (range + 1);
 
 		//For each position in range interpolate d
 		float d = start;
@@ -23,14 +23,15 @@ namespace cvid
 
 		return values;
 	}
+
 	//Linearly interpolate a Vector2 between start and end range times, will include start and end in the result
 	std::vector<Vector2> LerpRange2D(int range, Vector2 start, Vector2 end)
 	{
 		std::vector<Vector2> values;
-		values.reserve(range);
+		values.reserve(range + 2);
 
 		//Slope
-		Vector2 m = (end - start) / range;
+		Vector2 m = (end - start) / (range + 1);
 
 		//For each position in range interpolate d
 		Vector2 d = start;

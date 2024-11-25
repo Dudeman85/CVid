@@ -250,6 +250,8 @@ namespace cvid
 	//Expects vertices in normalized device coordinates
 	void RasterizeTriangle(Window* window, Face tri, const Material* mat)
 	{
+		//TODO check if the z coordinate is calculated properly for ndc
+
 		Color color = mat != nullptr ? mat->diffuseColor : Color();
 
 		//Convert from ndc to window coords
@@ -313,10 +315,10 @@ namespace cvid
 			if (mat->texture)
 			{
 				//Interpolate the texture coords for edges
-				combinedTexCoords = LerpRange2D(abs(p3.y - p2.y), tri.texCoords.v3, tri.texCoords.v2);
-				std::vector<Vector2> shortTexCoords = LerpRange2D(abs(p2.y - p1.y), tri.texCoords.v2, tri.texCoords.v1);
+				combinedTexCoords = LerpRange2D(abs(p3.y - p2.y), tri.texCoords.v3 / tri.vertices.v3.z, tri.texCoords.v2 / tri.vertices.v2.z);
+				std::vector<Vector2> shortTexCoords = LerpRange2D(abs(p2.y - p1.y), tri.texCoords.v2 / tri.vertices.v2.z, tri.texCoords.v1 / tri.vertices.v1.z);
 				combinedTexCoords.insert(combinedTexCoords.end(), shortTexCoords.begin(), shortTexCoords.end());
-				fullTexCoords = LerpRange2D(abs(p3.y - p1.y), tri.texCoords.v3, tri.texCoords.v1);
+				fullTexCoords = LerpRange2D(abs(p3.y - p1.y), tri.texCoords.v3 / tri.vertices.v3.z, tri.texCoords.v1 / tri.vertices.v1.z);
 			}
 		}
 
@@ -357,7 +359,7 @@ namespace cvid
 				//Get the color from the texture if it exists
 				if (!texCoords.empty())
 				{
-					Vector2Int sampleCoord(std::floor(texCoords[i].x * mat->texture->width - 1), std::floor(texCoords[i].y * mat->texture->height - 1));
+					Vector2Int sampleCoord(std::round((texCoords[i].x / zPositions[i]) * (mat->texture->width - 1)), std::round((texCoords[i].y / zPositions[i]) * (mat->texture->height - 1)));
 					renderColor = mat->texture->GetPixel(sampleCoord);
 				}
 

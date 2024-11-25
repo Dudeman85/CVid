@@ -137,6 +137,12 @@ namespace cvid
 				v1 /= v1.w;
 				v2 /= v2.w;
 				v3 /= v3.w;
+
+				//I dont even know anymore
+				v1.z = -face.vertices.v1.z;
+				v2.z = -face.vertices.v2.z;
+				v3.z = -face.vertices.v3.z;
+
 				face.vertices = { v1, v2, v3 };
 
 				//Backface culling
