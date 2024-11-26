@@ -1,142 +1,40 @@
-#include <iostream>
-#include <vector>
-#include <fstream>
-#include <chrono>
 #include <cvid/Window.h>
 
-#define byte uint8_t
-
-constexpr uint8_t width = 96;
-constexpr uint8_t height = 64;
-
-using namespace std;
-
-uint16_t frameCount = 0;
-uint16_t frame = 0;
-
-//Load an image or video from a binary file
-vector<byte> LoadData(const string& path)
+void DrawLine(cvid::Window& w, int x0, int y0, int x1, int y1) 
 {
-	//Open the file in binary mode and seek to end
-	ifstream ifs(path, ios::binary | ios::ate);
+	float m = (float)(y1 - y0) / (x1 - x0);
+	float y = y0;
 
-	//Make sure the file can be opened
-	if (!ifs)
+	for (size_t x = x0; x <= x1; x++)
 	{
-		cout << "Could not load data from " + path;
-		throw runtime_error("Error loading data from " + path);
+		w.PutPixel(x, std::round(y), {0, 0, 0});
+		y += m;
 	}
-
-	//Save end point and go back to start
-	streampos end = ifs.tellg();
-	ifs.seekg(0, ios::beg);
-
-	//Create a byte vector for the entire file data
-	size_t size = size_t(end - ifs.tellg());
-	vector<byte> data(size);
-
-	//Copy the data from filestream to vector
-	ifs.read((char*)data.data(), data.size());
-
-	//Get the 2-byte frame count
-	frameCount = (data[1] << 8) | data[0];
-
-	return data;
-}
-
-bool* testFrameBuffer = new bool[width * height];
-
-//Helper for painting the next pixel
-int xPos = 0;
-int yPos = 0;
-void ShiftHead(int amount)
-{
-	//Next scanline
-	xPos += amount;
-	while (xPos >= width)
-	{
-		xPos -= width;
-		yPos++;
-	}
-	if (yPos >= height)
-	{
-		yPos -= height;
-	}
-}
-size_t changedPixels = 0;
-void PutNextPixel(cvid::ConsoleColor col, cvid::Window& window)
-{
-	bool c = col == cvid::ConsoleColor::Black ? true : false;
-	if (testFrameBuffer[yPos * width + xPos] != c)
-		changedPixels++;
-	testFrameBuffer[yPos * width + xPos] = c;
-
-	window.PutPixel({ xPos, yPos }, col);
-
-	ShiftHead(1);
 }
 
 int main()
 {
-	//Test framebuffer
-	for (size_t i = 0; i < (size_t)width * height; i++)
-	{
-		testFrameBuffer[i] = 0;
-	}
-
-
-	cvid::Window window(width, height, "Decompression test");
+	cvid::Window window(64, 64, "CVid");
 	window.enableDepthTest = false;
 
-	vector<byte> data = LoadData("C:\\Users\\Aleksi\\Desktop\\TIASM\\programs\\video\\BadApple Uncompressed.cvid");
-	//Start after frame count
-	size_t readHead = 2;
+	window.SetPalette(cvid::cmdDefault);
 
-	//Fill the screen with white
-	window.Fill(cvid::ConsoleColor::White);
-
-	//FPS
-	auto waitTime = chrono::microseconds((int)((1.f / 158888888888888) * 1000000));
-
-	//For each frame in the video
-	for (frame = 0; frame < frameCount; frame++)
+	while (true)
 	{
-		cout << "Start frame " << frame << endl;
-		auto frameStart = chrono::high_resolution_clock::now();
+		if (GetKeyState(VK_ESCAPE) & 0x8000)
+			return 0;
 
-		//For each bit
-		for (size_t i = 0; i < ((size_t)width * height) / 8; i++)
-		{
-			//Read the byte
-			byte pixel = data[readHead++];
+		window.Fill(cvid::ConsoleColor::BrightWhite);
+		window.ClearDepthBuffer();
 
-			for (int bitmask = 0b10000000; bitmask > 0; bitmask >>= 1)
-			{
-				if (pixel & bitmask)
-					PutNextPixel(cvid::ConsoleColor::Black, window);
-				else
-					PutNextPixel(cvid::ConsoleColor::White, window);
-			}
-		}
 
-		//Display the frame
-		window.DrawFrame();
-		window.SendData("\x1b[0;0H", 7, cvid::DataType::String);
-		xPos = 0;
-		yPos = 0;
 
-		cout << "Drew frame " << frame << " of " << frameCount << endl;
-		std::cout << changedPixels << endl;
-		changedPixels = 0;
+		DrawLine(window, 0, 63, 32, 0);
 
-		//Keep a steady FPS regardless of processing time
-		while (true)
-		{
-			if (waitTime < chrono::high_resolution_clock::now() - frameStart)
-				break;
-		}
+
+		if (!window.DrawFrame())
+			return 0;
 	}
-
 
 	return 0;
 }
