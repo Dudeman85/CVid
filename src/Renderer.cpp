@@ -42,23 +42,16 @@ namespace cvid
 		std::pair<Vector3, Vector3> clippedLine = ClipSegment(v1, v2, cam);
 		if (clippedLine.first == 0 && clippedLine.second == 0)
 			return;
+
 		v1 = Vector4(clippedLine.first, 1);
 		v2 = Vector4(clippedLine.second, 1);
-
-		Vector4 test = v1;
-		if (v1.x > 10000)
-			return;
 
 		//Apply projection
 		v1 = cam->GetProjection() * v1;
 		v2 = cam->GetProjection() * v2;
-		Vector4 test2 = v1;
 		//Normalize
 		v1 /= v1.w;
 		v2 /= v2.w;
-
-		if (v1.x > 10000)
-			return;
 
 		RasterizeLine(window, v1, v2, color);
 	}
@@ -133,15 +126,25 @@ namespace cvid
 				v1 = cam->GetProjection() * v1;
 				v2 = cam->GetProjection() * v2;
 				v3 = cam->GetProjection() * v3;
+
+				//I dont even know anymore
+				float w1 = v1.w;
+				float w2 = v2.w;
+				float w3 = v3.w;
+
 				//Normalize
 				v1 /= v1.w;
 				v2 /= v2.w;
 				v3 /= v3.w;
 
-				//I dont even know anymore
+				//I dont even know anymore pt2
+				v1.z = w1;
+				v2.z = w2;
+				v3.z = w3;
 				v1.z = -face.vertices.v1.z;
 				v2.z = -face.vertices.v2.z;
 				v3.z = -face.vertices.v3.z;
+				
 
 				face.vertices = { v1, v2, v3 };
 
