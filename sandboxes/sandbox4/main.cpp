@@ -1,14 +1,49 @@
 #include <cvid/Window.h>
 
-void DrawLine(cvid::Window& w, int x0, int y0, int x1, int y1) 
+#define SWAP(a, b) {auto tmp = a; a = b; b = tmp;}
+
+void DrawLineBad(cvid::Window& w, int x0, int y0, int x1, int y1)
 {
 	float m = (float)(y1 - y0) / (x1 - x0);
 	float y = y0;
-
 	for (size_t x = x0; x <= x1; x++)
 	{
-		w.PutPixel(x, std::round(y), {0, 0, 0});
+		w.PutPixel(x, std::round(y), { 0, 0, 0 });
 		y += m;
+	}
+}
+
+void DrawLine(cvid::Window& w, int x0, int y0, int x1, int y1)
+{
+	if (abs(x1 - x0) > abs(y1 - y0))
+	{
+		if (x0 > x1)
+		{
+			SWAP(x0, x1);
+			SWAP(y0, y1);
+		}
+		float m = (float)(y1 - y0) / (x1 - x0);
+		float y = y0;
+		for (size_t x = x0; x <= x1; x++)
+		{
+			w.PutPixel(x, std::round(y), { 0, 0, 0 });
+			y += m;
+		}
+	}
+	else
+	{
+		if (y0 > y1)
+		{
+			SWAP(x0, x1);
+			SWAP(y0, y1);
+		}
+		float m = (float)(x1 - x0) / (y1 - y0);
+		float x = x0;
+		for (size_t y = y0; y <= y1; y++)
+		{
+			w.PutPixel(x, std::round(y), { 0, 0, 0 });
+			x += m;
+		}
 	}
 }
 

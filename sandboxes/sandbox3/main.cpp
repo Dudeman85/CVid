@@ -14,6 +14,36 @@ using namespace std;
 uint16_t frameCount = 0;
 uint16_t frame = 0;
 
+
+DrawLine(x0, y0, x1, y1):
+	//If slope is less than 1
+	if abs(x1 - x0) > abs(y1 - y0):
+		//Make sure x1 is smaller than x2
+		if x0 > x1:
+			swap(x0, x1)
+			swap(y0, y1)
+		//Slope is rise/run
+		m = (y1 - y0) / (x1 - x0)
+		y = y0
+		//For each x position, plot the corresponding y
+		for x from x0 to x1:
+			PutPixel(x, y)
+			y += m
+	else:
+		//Make sure y1 is smaller than y2
+		if y0 > y1:
+			swap(x0, x1)
+			swap(y0, y1)
+		//Slope is run/rise
+		m = (y1 - y0) / (x1 - x0)
+		x = x0
+		//For each y position, plot the corresponding x
+		for y from y0 to y1:
+			PutPixel(x, y)
+			x += m
+		
+
+
 //Load an image or video from a binary file
 vector<byte> LoadData(const string& path)
 {
