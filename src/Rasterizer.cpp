@@ -234,7 +234,7 @@ namespace cvid
 				}
 			}
 		}
-		//Add final x if it did not change before end
+		//Add final x if y did not change before end
 		if (points.size() <= dy)
 		{
 			if (prioritizeLeft && abs(dx) > abs(dy))
