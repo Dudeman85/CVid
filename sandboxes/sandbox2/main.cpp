@@ -15,7 +15,7 @@
 
 int main()
 {
-	cvid::Window window(120, 120, "CVid");
+	cvid::Window window(64, 64, "CVid");
 	window.enableDepthTest = true;
 
 	window.SetPalette(cvid::cmdDefault);
@@ -90,10 +90,18 @@ int main()
 			cam.SetFOV(--fov);
 
 
-		if (GetKeyState(VK_DIVIDE) & 0x8000)
-			cubeInstance.Rotate({ 0, cvid::Radians(1), 0 });
-		if (GetKeyState(VK_MULTIPLY) & 0x8000)
+		if (GetKeyState('U') & 0x8000)
+			cubeInstance.Rotate({ cvid::Radians(1), 0, 0 });
+		if (GetKeyState('J') & 0x8000)
+			cubeInstance.Rotate({ -cvid::Radians(1), 0, 0 });
+		if (GetKeyState('H') & 0x8000)
 			cubeInstance.Rotate({ 0, -cvid::Radians(1), 0 });
+		if (GetKeyState('K') & 0x8000)
+			cubeInstance.Rotate({ 0, cvid::Radians(1), 0 });
+		if (GetKeyState('Y') & 0x8000)
+			cubeInstance.Rotate({ 0, 0, -cvid::Radians(1) });
+		if (GetKeyState('I') & 0x8000)
+			cubeInstance.Rotate({ 0, 0, cvid::Radians(1) });
 
 
 		window.Fill(cvid::ConsoleColor::Black);
