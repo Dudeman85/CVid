@@ -250,8 +250,6 @@ namespace cvid
 	//Expects vertices in normalized device coordinates
 	void RasterizeTriangle(Window* window, Face tri, const Material* mat)
 	{
-		//TODO check if the z coordinate is calculated properly for ndc
-
 		Color color = mat != nullptr ? mat->diffuseColor : Color();
 
 		//Convert from ndc to window coords
@@ -296,16 +294,15 @@ namespace cvid
 
 		//Interpolate the right and left edges x coordinates
 		std::vector<int> combinedSegment = InterpolateX(p2, p3, fullOnRight);
-		combinedSegment.pop_back();
 		std::vector<int> shortSegment = InterpolateX(p1, p2, fullOnRight);
-		combinedSegment.insert(combinedSegment.end(), shortSegment.begin(), shortSegment.end());
 		std::vector<int> fullSegment = InterpolateX(p1, p3, !fullOnRight);
+		combinedSegment.insert(combinedSegment.end(), shortSegment.begin() + 1, shortSegment.end());
 
 		//Interpolate for z positions along the left and right segments
-		std::vector<float> combinedZPositions = LerpRange(abs(p3.y - p2.y), 1 / tri.vertices.v3.z, 1 / tri.vertices.v2.z);
-		std::vector<float> shortZPositions = LerpRange(abs(p2.y - p1.y), 1 / tri.vertices.v2.z, 1 / tri.vertices.v1.z);
-		combinedZPositions.insert(combinedZPositions.end(), shortZPositions.begin(), shortZPositions.end());
-		std::vector<float> fullZPositions = LerpRange(abs(p3.y - p1.y), 1 / tri.vertices.v3.z, 1 / tri.vertices.v1.z);
+		std::vector<float> combinedZPositions = LerpRange(abs(p3.y - p2.y) - 1, 1 / tri.vertices.v3.z, 1 / tri.vertices.v2.z);
+		std::vector<float> shortZPositions = LerpRange(abs(p2.y - p1.y) - 1, 1 / tri.vertices.v2.z, 1 / tri.vertices.v1.z);
+		std::vector<float> fullZPositions = LerpRange(abs(p3.y - p1.y) - 1, 1 / tri.vertices.v3.z, 1 / tri.vertices.v1.z);
+		combinedZPositions.insert(combinedZPositions.end(), shortZPositions.begin() + 1, shortZPositions.end());
 
 		//If there is a material and texture
 		std::vector<Vector2> combinedTexCoords;
@@ -315,10 +312,10 @@ namespace cvid
 			if (mat->texture)
 			{
 				//Interpolate the texture coords for edges
-				combinedTexCoords = LerpRange2D(abs(p3.y - p2.y), tri.texCoords.v3 / tri.vertices.v3.z, tri.texCoords.v2 / tri.vertices.v2.z);
-				std::vector<Vector2> shortTexCoords = LerpRange2D(abs(p2.y - p1.y), tri.texCoords.v2 / tri.vertices.v2.z, tri.texCoords.v1 / tri.vertices.v1.z);
-				combinedTexCoords.insert(combinedTexCoords.end(), shortTexCoords.begin(), shortTexCoords.end());
-				fullTexCoords = LerpRange2D(abs(p3.y - p1.y), tri.texCoords.v3 / tri.vertices.v3.z, tri.texCoords.v1 / tri.vertices.v1.z);
+				combinedTexCoords = LerpRange2D(abs(p3.y - p2.y) - 1, tri.texCoords.v3 / tri.vertices.v3.z, tri.texCoords.v2 / tri.vertices.v2.z);
+				std::vector<Vector2> shortTexCoords = LerpRange2D(abs(p2.y - p1.y) - 1, tri.texCoords.v2 / tri.vertices.v2.z, tri.texCoords.v1 / tri.vertices.v1.z);
+				fullTexCoords = LerpRange2D(abs(p3.y - p1.y) - 1, tri.texCoords.v3 / tri.vertices.v3.z, tri.texCoords.v1 / tri.vertices.v1.z);
+				combinedTexCoords.insert(combinedTexCoords.end(), shortTexCoords.begin() + 1, shortTexCoords.end());
 			}
 		}
 
