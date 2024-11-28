@@ -115,11 +115,11 @@ namespace cvid
 
 	private:
 		//Bitmap of each character pixel for the window
-		//Half the screen height, accessed [y * width + x] 
+		//Half the screen height and upside down, accessed [(height - 1 - y) / 2 * width + x] 
 		CharPixel* frameBuffer;
 
 		//Depth buffer for current z of every pixel 
-		//Half the screen height, accessed [y * width + x]
+		//Full screen height, accessed [y * width + x]
 		double* depthBuffer;
 
 		//Window properties

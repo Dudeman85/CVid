@@ -252,40 +252,26 @@ namespace cvid
 	{
 		Color color = mat != nullptr ? mat->diffuseColor : Color();
 
-		//Convert from ndc to window coords
-		Vector3 windowHalfSize(window->GetDimensions() / 2, 1);
-		tri.vertices.v1 *= windowHalfSize;
-		tri.vertices.v2 *= windowHalfSize;
-		tri.vertices.v3 *= windowHalfSize;
-		Vector2Int p1 = tri.vertices.v1;
-		Vector2Int p2 = tri.vertices.v2;
-		Vector2Int p3 = tri.vertices.v3;
-		p1.y = -p1.y;
-		p2.y = -p2.y;
-		p3.y = -p3.y;
-		p1 += windowHalfSize;
-		p2 += windowHalfSize;
-		p3 += windowHalfSize;
-
 		//Sort the vertices in descending order
-		if (p1.y < p2.y)
+		if (tri.vertices.v1.y < tri.vertices.v2.y)
 		{
 			SWAP(tri.vertices.v1, tri.vertices.v2);
 			SWAP(tri.texCoords.v1, tri.texCoords.v2);
-			SWAP(p1, p2);
 		}
-		if (p1.y < p3.y)
+		if (tri.vertices.v1.y < tri.vertices.v3.y)
 		{
 			SWAP(tri.vertices.v1, tri.vertices.v3);
 			SWAP(tri.texCoords.v1, tri.texCoords.v3);
-			SWAP(p1, p3);
 		}
-		if (p2.y < p3.y)
+		if (tri.vertices.v2.y < tri.vertices.v3.y)
 		{
 			SWAP(tri.vertices.v2, tri.vertices.v3);
 			SWAP(tri.texCoords.v2, tri.texCoords.v3);
-			SWAP(p2, p3);
 		}
+
+		Vector2Int p1 = tri.vertices.v1;
+		Vector2Int p2 = tri.vertices.v2;
+		Vector2Int p3 = tri.vertices.v3;
 
 		//If p2 is to the left of p1 or p3, the full segment will be on the right
 		Vector2 v1 = Vector2(p2 - p1).Normalize();

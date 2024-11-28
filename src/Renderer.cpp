@@ -126,32 +126,34 @@ namespace cvid
 				v1 = cam->GetProjection() * v1;
 				v2 = cam->GetProjection() * v2;
 				v3 = cam->GetProjection() * v3;
-
-				//I dont even know anymore
-				float w1 = v1.w;
-				float w2 = v2.w;
-				float w3 = v3.w;
-
 				//Normalize
-				v1 /= v1.w;
-				v2 /= v2.w;
-				v3 /= v3.w;
-
-				//I dont even know anymore pt2
-				v1.z = w1;
-				v2.z = w2;
-				v3.z = w3;
-				v1.z = -face.vertices.v1.z;
-				v2.z = -face.vertices.v2.z;
-				v3.z = -face.vertices.v3.z;
-				
+				v1.x /= v1.w;
+				v1.y /= v1.w;
+				v2.x /= v2.w;
+				v2.y /= v2.w;
+				v3.x /= v3.w;
+				v3.y /= v3.w;
 
 				face.vertices = { v1, v2, v3 };
 
 				//Backface culling
 				if (!culled[i])
+				{
+					//Convert from clip space to screen space
+					Vector3 windowHalfSize(window->GetDimensions() / 2, 1);
+					face.vertices.v1 *= windowHalfSize;
+					face.vertices.v2 *= windowHalfSize;
+					face.vertices.v3 *= windowHalfSize;
+					face.vertices.v1 += windowHalfSize;
+					face.vertices.v2 += windowHalfSize;
+					face.vertices.v3 += windowHalfSize;
+					face.vertices.v1.z = v1.w;
+					face.vertices.v2.z = v2.w;
+					face.vertices.v3.z = v3.w;
+
 					//Draw the face (triangle)
 					RasterizeTriangle(window, face, model->GetMaterial());
+				}
 			}
 		}
 	}
