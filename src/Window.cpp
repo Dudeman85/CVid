@@ -171,12 +171,12 @@ namespace cvid
 
 		//Pixels are formatted two above each other in one character
 		//We will always print 223 where foreground is the top and background is the bottom.
-		CharPixel& thisPixel = frameBuffer[(y / 2) * width + x];
+		CharPixel& thisPixel = frameBuffer[((height - 1 - y) / 2) * width + x];
 
 		//Set the pixel character
 		thisPixel.character = (char)223;
 		//Top or bottom pixel
-		if (y % 2 == 1)
+		if (y % 2 == 0)
 			thisPixel.backgroundColor = color;
 		else
 			thisPixel.foregroundColor = color;
