@@ -31,6 +31,11 @@ int main()
 	cubeInstance.SetPosition({ 0, 0, 0 });
 	cubeInstance.SetRotation({ 0, cvid::Radians(0), 0 });
 
+	cvid::ModelInstance cubeInstance2(&cube);
+	cubeInstance2.SetScale(10);
+	cubeInstance2.SetPosition({ -60, 50, -30 });
+	cubeInstance2.SetRotation({ 0, cvid::Radians(43), cvid::Radians(170)});
+
 	float fov = 90;
 
 	while (true)
@@ -127,6 +132,7 @@ int main()
 		*/
 
 		cvid::DrawModel(&cubeInstance, &cam, &window);
+		cvid::DrawModel(&cubeInstance2, &cam, &window);
 		
 
 		if (!window.DrawFrame())
