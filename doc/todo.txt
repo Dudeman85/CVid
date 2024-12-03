@@ -1,6 +1,5 @@
 REQUIRED:
 Rasterizer:
-- Fix texture distortion
 - sprite rendering
 Window:
 - Make a standard window with win32
