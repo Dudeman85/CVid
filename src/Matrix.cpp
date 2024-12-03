@@ -427,7 +427,6 @@ namespace cvid
 	Matrix4 Matrix4::Translate(const Vector3& tv)
 	{
 		Matrix4 m = *this;
-		//m[3] = m[0] * tv[0] + m[1] * tv[1] + m[2] * tv[2] + m[3];
 		m[3] = Vector4(tv, 1.0);
 		return m;
 	}

@@ -15,12 +15,12 @@
 
 int main()
 {
-	cvid::Window window(64, 64, "CVid");
+	cvid::Window window(100, 64, "CVid");
 	window.enableDepthTest = true;
 
 	window.SetPalette(cvid::cmdDefault);
 
-	cvid::Camera cam(cvid::Vector3(0, 0, 100), 80, 80);
+	cvid::Camera cam(cvid::Vector3(0, 0, 100), 100, 64);
 	cam.MakePerspective();
 	cam.Rotate(cvid::Vector3(0, cvid::Radians(0), 0));
 
