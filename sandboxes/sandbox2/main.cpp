@@ -18,7 +18,7 @@ int main()
 	cvid::Window window(100, 64, "CVid");
 	window.enableDepthTest = true;
 
-	window.SetPalette(cvid::cmdDefault);
+	window.SetPalette(cvid::grayscale);
 
 	cvid::Camera cam(cvid::Vector3(0, 0, 100), 100, 64);
 	cam.MakePerspective();

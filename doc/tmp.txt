@@ -33,4 +33,16 @@ The last  thing we need to do to get our objects rendering as they would in real
 Perspective projection of a point can be calculated using basic trigonometry. Consider the below diagram where P is the point we want to project, P' is the projected point, n is the projection plane, also known as the near clip plane, and the camera is at the origin facing toward -Z. [sp]
 {TODO Add picture}
 The points ABP and ACP' form two similar triangles, whose properties we can use to calculate p'. By the properties of similar triangles AC/AB = CP'/BP, substituting our known values and solving for BP we get BP = P'y = n * Py / -Pz. Also note that since the camera is facing towards -Z Pz is inverted to preserve the sign of the y coordinate. The same logic works for P'x = n * Px / -Pz. [sp]
-Now we have the point P projected to the near clip plane, but we still need to map it to NDC. OpenGL calculates this by defining the left, right, top, and bottom edges of the camera and mapping the point inside those bounds. For now let's consider left = l = -5, right = r = 5, top = t = 5, and bottom = b = -5. 
+Now we have the point P projected to the near clip plane, but we still need to map it to NDC. APIs like OpenGL calculate this by defining the left (l), right (r), top (t), and bottom (b) edges of the camera and mapping the point inside those bounds, we will do the same. We also need to map the z coordinate to between (-1, 1) or (0, 1), which we do with the help of the near (n) and far (f) clip planes. The OpenGL projection matrix maps z to (-1, 1), but (0, 1) is a more standard range and easier for us to work with, so we will slightly modify the matrix to achieve this result. [sp]
+{TODO maybe explain derivation}
+{TODO Add opengl projection matrix}
+Now that we have the projection matrix, we still need to calculate the values it needs. The near and far planes are easy, as they are given by the user. The other values are slightly more difficult, since we will want to calculate them based on the camera's field of view, or fov, and aspect ratio. The fov can be defined as either the vertical or horizontal view angle. Here we will define it as the vertical angle, since that is the convention used by OpenGL, and it makes more sense with the standard way of defining aspect ratio as width/height. Calculating these values is trivial with basic trigonometry.
+{TODO add picture}
+From the above image you can derive the following:
+top = tan(fov / 2) * near
+bottom = -top
+And for the width and height,  all we have to do is factor in the aspect ratio, which is also given by the user.
+right = top * aspectRatio
+left = -right
+Now we can construct the final projection matrix and apply it to our vertices. For the final step before sending our triangle to the rasterizer, we need to convert it's homogenous coordinates back into cartesian coordinates by diving xyz by w.
+{TODO Add pseudocode}
