@@ -18,7 +18,7 @@ int main()
 	cvid::Window window(100, 64, "CVid");
 	window.enableDepthTest = true;
 
-	window.SetPalette(cvid::grayscale);
+	window.SetPalette(cvid::cmdDefault);
 
 	cvid::Camera cam(cvid::Vector3(0, 0, 100), 100, 64);
 	cam.MakePerspective();
@@ -34,7 +34,7 @@ int main()
 	cvid::ModelInstance cubeInstance2(&cube);
 	cubeInstance2.SetScale(10);
 	cubeInstance2.SetPosition({ -60, 50, -30 });
-	cubeInstance2.SetRotation({ 0, cvid::Radians(43), cvid::Radians(170)});
+	cubeInstance2.SetRotation({ 0, cvid::Radians(43), cvid::Radians(170) });
 
 	float fov = 90;
 
@@ -109,7 +109,7 @@ int main()
 			cubeInstance.Rotate({ 0, 0, cvid::Radians(1) });
 
 
-		window.Fill(cvid::ConsoleColor::Black);
+		window.Fill({ 0, 0, 0 });
 		window.ClearDepthBuffer();
 
 		/*
@@ -133,7 +133,7 @@ int main()
 
 		cvid::DrawModel(&cubeInstance, &cam, &window);
 		cvid::DrawModel(&cubeInstance2, &cam, &window);
-		
+
 
 		if (!window.DrawFrame())
 			return 0;

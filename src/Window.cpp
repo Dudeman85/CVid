@@ -149,12 +149,12 @@ namespace cvid
 	}
 
 	//Set a pixel on the framebuffer to some color, returns true on success
-	bool Window::PutPixel(Vector2Int pos, ConsoleColor color, float z)
+	bool Window::PutPixel(Vector2Int pos, Color color, float z)
 	{
 		return PutPixel(pos.x, pos.y, color, z);
 	}
 	//Set a pixel on the framebuffer to some color, returns true on success
-	bool Window::PutPixel(uint16_t x, uint16_t y, ConsoleColor color, float z)
+	bool Window::PutPixel(uint16_t x, uint16_t y, Color color, float z)
 	{
 		//Make sure the pixel is in bounds
 		if (x >= width || y >= height || z < 0)
@@ -183,6 +183,7 @@ namespace cvid
 
 		return true;
 	}
+	/*
 	//Set a pixel on the framebuffer to the closest available rgb color
 	bool Window::PutPixel(Vector2Int pos, Color color, float z)
 	{
@@ -196,13 +197,13 @@ namespace cvid
 		//Loop through each of the 16 colors in the palette
 		for (size_t i = 0; i < 16; i++)
 		{
-			/*
+			
 			//Weighted distance
 			float dist = 
 				pow(((ccToRgb[i].x - color.x) * 0.30), 2) +
 				pow(((ccToRgb[i].y - color.y) * 0.59), 2) +
 				pow(((ccToRgb[i].z - color.z) * 0.11), 2);
-			*/
+			
 
 			//Unweighted distance
 			float dist = 
@@ -221,6 +222,7 @@ namespace cvid
 		//Use the closest palette color to draw the pixel
 		return PutPixel(x, y, (ConsoleColor)ccToVTS[closestColor], z);
 	}
+	*/
 
 	//Set a character on the framebuffer, y is half of resolution
 	bool Window::PutChar(Vector2Int pos, CharPixel charPixel)
@@ -243,7 +245,7 @@ namespace cvid
 	}
 
 	//Fills the framebuffer with a color
-	bool Window::Fill(ConsoleColor color)
+	bool Window::Fill(Color color)
 	{
 		CharPixel charPixel{ color, color, (char)223 };
 		for (size_t y = 0; y < height / 2; y++)
