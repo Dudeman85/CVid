@@ -154,8 +154,9 @@ int main(int argc, char* argv[])
 					cvid::CharPixel& thisPixel = pixelData[y * width + x];
 
 					//Add the proper vts to the displayFrame
-					//Format: \x1b[<fg color>;<bg color>m<char>
-					frameString.append(std::format("\x1b[{};{}m{}", (uint8_t)thisPixel.foregroundColor, (uint8_t)thisPixel.backgroundColor + 10, thisPixel.character));
+					//Format: \x1b38;2;<r>;<g>;<b>;m
+					frameString.append(std::format("\x1b[38;2;{};{};{}m", thisPixel.foregroundColor.r, thisPixel.foregroundColor.g, thisPixel.foregroundColor.b));
+					frameString.append(std::format("\x1b[48;2;{};{};{}m{}", thisPixel.backgroundColor.r, thisPixel.backgroundColor.g, thisPixel.backgroundColor.b, thisPixel.character));
 				}
 			}
 

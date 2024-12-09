@@ -19,7 +19,7 @@ namespace cvid
 	//Status message from the window process
 	enum class WindowStatus : uint8_t { Ready = 1 };
 	//Is the data a frame string or properties struct
-	enum class DataType { String = 1, Properties = 2, Frame = 3 };
+	enum class DataType : uint8_t { String = 1, Properties = 2, Frame = 3 };
 	//Color names for the Windows virtual terminal sequences, background is +10
 	enum class ConsoleColor : uint8_t
 	{
@@ -32,9 +32,9 @@ namespace cvid
 	struct CharPixel
 	{
 		//Top pixel color
-		ConsoleColor foregroundColor = ConsoleColor::Black;
+		Color foregroundColor;
 		//Bottom pixel color
-		ConsoleColor backgroundColor = ConsoleColor::Black;
+		Color backgroundColor;
 		char character = (char)223;
 	};
 
@@ -73,10 +73,6 @@ namespace cvid
 		Window(uint16_t width, uint16_t height, std::string name);
 		~Window();
 
-		//Set a pixel on the framebuffer to some console color
-		bool PutPixel(Vector2Int pos, ConsoleColor color, float z = 0);
-		//Set a pixel on the framebuffer to some console color
-		bool PutPixel(uint16_t x, uint16_t y, ConsoleColor color, float z = 0);
 		//Set a pixel on the framebuffer to the closest rgb color
 		bool PutPixel(Vector2Int pos, Color color, float z = 0);
 		//Set a pixel on the framebuffer to the closest rgb color
@@ -86,7 +82,7 @@ namespace cvid
 		//Put a character on the framebuffer, in this case y is half
 		bool PutChar(uint16_t x, uint16_t y, CharPixel charPixel);
 		//Fills the framebuffer with a color
-		bool Fill(ConsoleColor color);
+		bool Fill(Color color);
 		//Clear the depthbuffer, setting everything to 0
 		bool ClearDepthBuffer();
 		//Get a modifiable reference to the depth buffer bit of a pixel
@@ -108,8 +104,6 @@ namespace cvid
 
 		//Function to call when the window closes
 		std::function<void(Window*)> onClose;
-		//Should adaptive palette swapping be used
-		bool useAdaptivePalette = false;
 		//Enable depth buffering
 		bool enableDepthTest = true;
 
