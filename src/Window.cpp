@@ -17,17 +17,6 @@ namespace cvid
 		maxWidth = GetLargestConsoleWindowSize(console).X;
 		maxHeight = GetLargestConsoleWindowSize(console).Y * 2;
 
-		//Get the 16 colors set as rgb values
-		CONSOLE_SCREEN_BUFFER_INFOEX consoleInfo;
-		consoleInfo.cbSize = sizeof(consoleInfo);
-		GetConsoleScreenBufferInfoEx(console, &consoleInfo);
-		for (size_t i = 0; i < 16; i++)
-		{
-			COLORREF col = consoleInfo.ColorTable[i];
-			//Add the rgb color to console color maps
-			ccToRgb[i] = { GetRValue(col), GetGValue(col),GetBValue(col) };
-		}
-
 		//Create the frame and depth buffers
 		frameBuffer = new CharPixel[(size_t)width * height / 2];
 		depthBuffer = new double[(size_t)width * height];
@@ -183,46 +172,6 @@ namespace cvid
 
 		return true;
 	}
-	/*
-	//Set a pixel on the framebuffer to the closest available rgb color
-	bool Window::PutPixel(Vector2Int pos, Color color, float z)
-	{
-		return PutPixel(pos.x, pos.y, color, z);
-	}
-	//Set a pixel on the framebuffer to the closest available rgb color
-	bool Window::PutPixel(uint16_t x, uint16_t y, Color color, float z)
-	{
-		float smallestDistance = INFINITY;
-		uint8_t closestColor = 0;
-		//Loop through each of the 16 colors in the palette
-		for (size_t i = 0; i < 16; i++)
-		{
-			
-			//Weighted distance
-			float dist = 
-				pow(((ccToRgb[i].x - color.x) * 0.30), 2) +
-				pow(((ccToRgb[i].y - color.y) * 0.59), 2) +
-				pow(((ccToRgb[i].z - color.z) * 0.11), 2);
-			
-
-			//Unweighted distance
-			float dist = 
-				pow(((ccToRgb[i].r - color.r)), 2) +
-				pow(((ccToRgb[i].g - color.g)), 2) +
-				pow(((ccToRgb[i].b - color.b)), 2);
-
-			//Save the closest color
-			if (dist < smallestDistance)
-			{
-				closestColor = i;
-				smallestDistance = dist;
-			}
-		}
-
-		//Use the closest palette color to draw the pixel
-		return PutPixel(x, y, (ConsoleColor)ccToVTS[closestColor], z);
-	}
-	*/
 
 	//Set a character on the framebuffer, y is half of resolution
 	bool Window::PutChar(Vector2Int pos, CharPixel charPixel)
@@ -318,22 +267,6 @@ namespace cvid
 		const size_t frameSize = (size_t)width * (height / 2);
 
 		return SendData(frameBuffer, frameSize * sizeof(CharPixel), DataType::Frame);
-	}
-
-	//Set the 16 color palette to be used by the window
-	void Window::SetPalette(std::unordered_map<uint8_t, Color> palette)
-	{
-		ccToRgb = palette;
-
-		//Send the VTS code to change each of the 16 palette colors
-		for (int i = 0; i < 16; i++)
-		{
-			std::string cmd = std::format("\x1b]4;{};rgb:{:x}/{:x}/{:x}\x1b", c2vID[i], palette[i].r, palette[i].g, palette[i].b);
-			//Add string terminator
-			cmd += 0x5C;
-			//Send command to window
-			SendData(cmd.c_str(), cmd.size(), cvid::DataType::String);
-		}
 	}
 
 	//Send data to the window process
