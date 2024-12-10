@@ -23,8 +23,12 @@ int main()
 	cam.Rotate(cvid::Vector3(0, cvid::Radians(0), 0));
 
 	cvid::Model cube("../../../resources/cube.obj");
+	cvid::Texture cubeFlat("../../../resources/cubeFlat.png");
 
 	cvid::ModelInstance cubeInstance(&cube);
+	cvid::Material mat;
+	mat.texture = std::make_shared<cvid::Texture>(cubeFlat);
+	cubeInstance.SetMaterial(&mat);
 	cubeInstance.SetScale(20);
 	cubeInstance.SetPosition({ 0, 0, 0 });
 	cubeInstance.SetRotation({ 0, cvid::Radians(0), 0 });
@@ -107,12 +111,12 @@ int main()
 			cubeInstance.Rotate({ 0, 0, cvid::Radians(1) });
 
 
-		window.Fill({ 0, 0, 0 });
+		window.Fill({ 240, 240, 240 });
 		window.ClearDepthBuffer();
 
 
 		cvid::DrawModel(&cubeInstance, &cam, &window);
-		cvid::DrawModel(&cubeInstance2, &cam, &window);
+		//cvid::DrawModel(&cubeInstance2, &cam, &window);
 
 
 		if (!window.DrawFrame())

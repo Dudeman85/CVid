@@ -1,4 +1,5 @@
 #include <cvid/Window.h>
+#include <cvid/Model.h>
 
 #define SWAP(a, b) {auto tmp = a; a = b; b = tmp;}
 
@@ -52,14 +53,19 @@ int main()
 	cvid::Window window(64, 64, "CVid");
 	window.enableDepthTest = false;
 
-	window.SetPalette(cvid::cmdDefault);
+	cvid::Model cube("../../../resources/cube.obj");
+
+	cvid::ModelInstance cubeInstance(&cube);
+	cubeInstance.SetScale(20);
+	cubeInstance.SetPosition({ 0, 0, 0 });
+	cubeInstance.SetRotation({ 0, cvid::Radians(0), 0 });
 
 	while (true)
 	{
 		if (GetKeyState(VK_ESCAPE) & 0x8000)
 			return 0;
 
-		window.Fill(cvid::ConsoleColor::BrightWhite);
+		window.Fill({240, 240, 240});
 		window.ClearDepthBuffer();
 
 
