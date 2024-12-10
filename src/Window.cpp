@@ -152,8 +152,8 @@ namespace cvid
 		//Make sure there is not already a closer pixel
 		if (enableDepthTest)
 		{
-			//Basically higher z means further away
-			if (z < depthBuffer[y * width + x])
+			//Basically smaller z means further away, +0.01 prevents edge fighting
+			if (z < depthBuffer[y * width + x] + 0.01)
 				return false;
 			depthBuffer[y * width + x] = z;
 		}
