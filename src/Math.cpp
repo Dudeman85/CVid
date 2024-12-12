@@ -1,47 +1,48 @@
 #include <cvid/Math.h>
+#include <cvid/Math.h>
 
 namespace cvid
 {
-	//Linearly interpolate a value between start and end range times, will include start and end in the result
-	std::vector<float> LerpRange(int range, float start, float end)
+	//Linearly interpolate values for each point between start and end (both inclusive)
+	std::vector<float> LerpRange(int start, int end, float a, float b)
 	{
+		int range = abs(start - end);
 		std::vector<float> values;
-		values.reserve(range + 2);
+		values.reserve(range);
 
-		//Slope of the line
-		float m = (end - start) / (range + 1);
+		//Slope
+		float m = (b - a) / (range + 1);
 
-		//For each position in range interpolate d
-		float d = start;
-		values.push_back(d);
-		for (int i = 0; i < range; i++)
+		//For each position from start to end (both inclusive)
+		float d = a;
+		for (int i = 0; i <= range; i++)
 		{
-			d += m;
+			//Interpolate d
 			values.push_back(d);
+			d += m;
 		}
-		values.push_back(end);
 
 		return values;
 	}
 
-	//Linearly interpolate a Vector2 between start and end range times, will include start and end in the result
-	std::vector<Vector2> LerpRange2D(int range, Vector2 start, Vector2 end)
+	//Linearly interpolate Vector2 values for each point between start and end (both inclusive)
+	std::vector<Vector2> LerpRange2D(int start, int end, Vector2 a, Vector2 b)
 	{
+		int range = abs(start - end);
 		std::vector<Vector2> values;
-		values.reserve(range + 2);
+		values.reserve(range);
 
 		//Slope
-		Vector2 m = (end - start) / (range + 1);
+		Vector2 m = (b - a) / (range);
 
-		//For each position in range interpolate d
-		Vector2 d = start;
-		values.push_back(d);
-		for (int i = 0; i < range; i++)
+		//For each position from start to end (both inclusive)
+		Vector2 d = a;
+		for (int i = 0; i <= range; i++)
 		{
-			d += m;
+			//Interpolate both d.x and d.y
 			values.push_back(d);
+			d += m;
 		}
-		values.push_back(end);
 
 		return values;
 	}

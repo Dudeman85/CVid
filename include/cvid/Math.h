@@ -4,8 +4,8 @@
 
 namespace cvid
 {
-	//Linearly interpolate a value between start and end range times, will include start and end in the result
-	std::vector<float> LerpRange(int range, float start, float end);
-	//Linearly interpolate a Vector2 between start and end range times, will include start and end in the result
-	std::vector<Vector2> LerpRange2D(int range, Vector2 start, Vector2 end);
+	//Linearly interpolate values for each step between start and end (both inclusive)
+	std::vector<float> LerpRange(int start, int end, float a, float b);
+	//Linearly interpolate Vector2 values for each step between start and end (both inclusive)
+	std::vector<Vector2> LerpRange2D(int start, int end, Vector2 a, Vector2 b);
 }

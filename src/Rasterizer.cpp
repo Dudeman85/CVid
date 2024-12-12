@@ -48,7 +48,7 @@ namespace cvid
 			}
 
 			//Interpolate for z positions
-			std::vector<float> zPositions = LerpRange(abs(p2.x - p1.x), p1f.z, p2f.z);
+			std::vector<float> zPositions = LerpRange(p2.x, p1.x, p1f.z, p2f.z);
 
 			dx = p2.x - p1.x;
 			dy = p2.y - p1.y;
@@ -93,7 +93,7 @@ namespace cvid
 			}
 
 			//Interpolate for z positions
-			std::vector<float> zPositions = LerpRange(abs(p2.y - p1.y), p1f.z, p2f.z);
+			std::vector<float> zPositions = LerpRange(p2.y, p1.y, p1f.z, p2f.z);
 
 			dx = p2.x - p1.x;
 			dy = p2.y - p1.y;
@@ -285,9 +285,9 @@ namespace cvid
 		combinedSegment.insert(combinedSegment.end(), shortSegment.begin() + 1, shortSegment.end());
 
 		//Interpolate for z positions along the left and right segments
-		std::vector<float> combinedZPositions = LerpRange(abs(p3.y - p2.y) - 1, 1 / tri.vertices.v3.z, 1 / tri.vertices.v2.z);
-		std::vector<float> shortZPositions = LerpRange(abs(p2.y - p1.y) - 1, 1 / tri.vertices.v2.z, 1 / tri.vertices.v1.z);
-		std::vector<float> fullZPositions = LerpRange(abs(p3.y - p1.y) - 1, 1 / tri.vertices.v3.z, 1 / tri.vertices.v1.z);
+		std::vector<float> combinedZPositions = LerpRange(p3.y, p2.y, 1 / tri.vertices.v3.z, 1 / tri.vertices.v2.z);
+		std::vector<float> shortZPositions = LerpRange(p2.y, p1.y, 1 / tri.vertices.v2.z, 1 / tri.vertices.v1.z);
+		std::vector<float> fullZPositions = LerpRange(p3.y, p1.y, 1 / tri.vertices.v3.z, 1 / tri.vertices.v1.z);
 		combinedZPositions.insert(combinedZPositions.end(), shortZPositions.begin() + 1, shortZPositions.end());
 
 		//If there is a material and texture
@@ -298,10 +298,13 @@ namespace cvid
 			if (mat->texture)
 			{
 				//Interpolate the texture coords for edges
-				combinedTexCoords = LerpRange2D(abs(p3.y - p2.y) - 1, tri.texCoords.v3 / tri.vertices.v3.z, tri.texCoords.v2 / tri.vertices.v2.z);
-				std::vector<Vector2> shortTexCoords = LerpRange2D(abs(p2.y - p1.y) - 1, tri.texCoords.v2 / tri.vertices.v2.z, tri.texCoords.v1 / tri.vertices.v1.z);
-				fullTexCoords = LerpRange2D(abs(p3.y - p1.y) - 1, tri.texCoords.v3 / tri.vertices.v3.z, tri.texCoords.v1 / tri.vertices.v1.z);
-				combinedTexCoords.insert(combinedTexCoords.end(), shortTexCoords.begin() + 1, shortTexCoords.end());
+				combinedTexCoords = LerpRange2D(p3.y, p2.y, tri.texCoords.v3 / tri.vertices.v3.z, tri.texCoords.v2 / tri.vertices.v2.z);
+				std::vector<Vector2> shortTexCoords = LerpRange2D(p2.y, p1.y, tri.texCoords.v2 / tri.vertices.v2.z, tri.texCoords.v1 / tri.vertices.v1.z);
+				fullTexCoords = LerpRange2D(p3.y, p1.y, tri.texCoords.v3 / tri.vertices.v3.z, tri.texCoords.v1 / tri.vertices.v1.z);
+				if (p3.y == p2.y)
+					combinedTexCoords = shortTexCoords;
+				else
+					combinedTexCoords.insert(combinedTexCoords.end(), shortTexCoords.begin() + 1, shortTexCoords.end());
 			}
 		}
 
@@ -328,11 +331,11 @@ namespace cvid
 		for (int yi = 0; yi < fullSegment.size(); yi++)
 		{
 			//Interpolate for z positions for each horizontal scanline
-			std::vector<float> zPositions = LerpRange(abs(leftSegment->at(yi) - rightSegment->at(yi)), leftZPositions->at(yi), rightZPositions->at(yi));
+			std::vector<float> zPositions = LerpRange(leftSegment->at(yi), rightSegment->at(yi), leftZPositions->at(yi), rightZPositions->at(yi));
 			//Interpolate texture coordiates if applicable
 			std::vector<Vector2> texCoords;
 			if (!leftTexCoords->empty())
-				texCoords = LerpRange2D(abs(leftSegment->at(yi) - rightSegment->at(yi)), leftTexCoords->at(yi), rightTexCoords->at(yi));
+				texCoords = LerpRange2D(leftSegment->at(yi), rightSegment->at(yi), leftTexCoords->at(yi), rightTexCoords->at(yi));
 
 			//Draw a line from the full segment to the split segment
 			int i = 0;
