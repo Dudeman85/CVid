@@ -31,7 +31,7 @@ int main()
 	cvid::Material mat;
 	mat.diffuseColor = { 25, 250, 2 };
 	//mat.texture = std::make_shared<cvid::Texture>(cubeFlat);
-	cubeInstance.SetMaterial(&mat);
+	//cubeInstance.SetMaterial(&mat);
 	cubeInstance.SetScale(20);
 	cubeInstance.SetPosition({ 0, 0, 0 });
 	cubeInstance.SetRotation({ 0, cvid::Radians(0), 0 });
