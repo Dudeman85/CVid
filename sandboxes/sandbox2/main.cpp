@@ -6,6 +6,7 @@
 #include <cvid/Renderer.h>
 #include <cvid/Model.h>
 #include <cvid/Matrix.h>
+#include <cvid/Math.h>
 
 //https://gabrielgambetta.com/computer-graphics-from-scratch/
 //https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-defwindowproca
@@ -28,7 +29,7 @@ int main()
 	cvid::ModelInstance cubeInstance(&cube);
 	cvid::Material mat;
 	mat.texture = std::make_shared<cvid::Texture>(cubeFlat);
-	cubeInstance.SetMaterial(&mat);
+	//cubeInstance.SetMaterial(&mat);
 	cubeInstance.SetScale(20);
 	cubeInstance.SetPosition({ 0, 0, 0 });
 	cubeInstance.SetRotation({ 0, cvid::Radians(0), 0 });
@@ -111,8 +112,11 @@ int main()
 			cubeInstance.Rotate({ 0, 0, cvid::Radians(1) });
 
 
-		window.Fill({ 240, 240, 240 });
+		window.Fill({ 0, 0, 0 });
 		window.ClearDepthBuffer();
+
+
+		auto a = cvid::LerpRange2D(12, 24, { 0, 0 }, {100, 100});
 
 
 		cvid::DrawModel(&cubeInstance, &cam, &window);
