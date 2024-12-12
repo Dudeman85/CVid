@@ -36,7 +36,7 @@ namespace cvid
 	}
 
 	//Get the color of a pixel at position
-	Color Texture::GetPixel(int x, int y)
+	Color Texture::GetTexel(int x, int y)
 	{
 		//Check in bounds
 		if (x >= width || x < 0 || y >= height || y < 0)
@@ -48,8 +48,8 @@ namespace cvid
 		return data[(size_t)y * width + x];
 	}
 	//Get the color of a pixel at position
-	Color Texture::GetPixel(Vector2Int pos)
+	Color Texture::GetTexel(Vector2Int pos)
 	{
-		return GetPixel(pos.x, pos.y);
+		return GetTexel(pos.x, pos.y);
 	}
 }

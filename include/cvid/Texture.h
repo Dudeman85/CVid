@@ -13,8 +13,8 @@ namespace cvid
 		Texture(std::string path);
 
 		//Get the color of a pixel at position
-		Color GetPixel(int x, int y);
-		Color GetPixel(Vector2Int pos);
+		Color GetTexel(int x, int y);
+		Color GetTexel(Vector2Int pos);
 
 		//Name of the file
 		std::string name;

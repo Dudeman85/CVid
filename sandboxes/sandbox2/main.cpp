@@ -7,6 +7,7 @@
 #include <cvid/Model.h>
 #include <cvid/Matrix.h>
 #include <cvid/Math.h>
+#include <cvid/Rasterizer.h>
 
 //https://gabrielgambetta.com/computer-graphics-from-scratch/
 //https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-defwindowproca
@@ -17,7 +18,7 @@
 int main()
 {
 	cvid::Window window(100, 64, "CVid");
-	window.enableDepthTest = true;
+	window.enableDepthTest = false;
 
 	cvid::Camera cam(cvid::Vector3(0, 0, 100), 100, 64);
 	cam.MakePerspective();
@@ -28,8 +29,9 @@ int main()
 
 	cvid::ModelInstance cubeInstance(&cube);
 	cvid::Material mat;
-	mat.texture = std::make_shared<cvid::Texture>(cubeFlat);
-	//cubeInstance.SetMaterial(&mat);
+	mat.diffuseColor = { 25, 250, 2 };
+	//mat.texture = std::make_shared<cvid::Texture>(cubeFlat);
+	cubeInstance.SetMaterial(&mat);
 	cubeInstance.SetScale(20);
 	cubeInstance.SetPosition({ 0, 0, 0 });
 	cubeInstance.SetRotation({ 0, cvid::Radians(0), 0 });
@@ -115,8 +117,9 @@ int main()
 		window.Fill({ 0, 0, 0 });
 		window.ClearDepthBuffer();
 
-
-		auto a = cvid::LerpRange2D(12, 24, { 0, 0 }, {100, 100});
+		cvid::Material mat;
+		mat.diffuseColor = { 25, 250, 2 };
+		//cvid::RasterizeTriangle(&window, cvid::Face{ { {5, 5, 1}, {40, 5, 10}, {40, 40, 15} }}, &mat);
 
 
 		cvid::DrawModel(&cubeInstance, &cam, &window);
