@@ -9,6 +9,9 @@
 
 namespace cvid
 {
+	//Get the maximum size of a cmd window
+	Vector2Int MaxWindowSize();
+
 	//Properties of the console window which cannot be controlled by vts
 	struct WindowProperties
 	{

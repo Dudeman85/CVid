@@ -4,6 +4,12 @@
 
 namespace cvid
 {
+	Vector2Int MaxWindowSize()
+	{
+		HANDLE console = GetStdHandle(STD_OUTPUT_HANDLE);
+		return Vector2Int(GetLargestConsoleWindowSize(console).X, GetLargestConsoleWindowSize(console).Y * 2);
+	};
+
 	//Create a new console window
 	Window::Window(uint16_t width, uint16_t height, std::string name)
 	{
