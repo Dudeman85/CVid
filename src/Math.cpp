@@ -4,17 +4,17 @@
 namespace cvid
 {
 	//Linearly interpolate values for each point between start and end (both inclusive)
-	std::vector<float> LerpRange(int start, int end, float a, float b)
+	std::vector<double> LerpRange(int start, int end, double a, double b)
 	{
 		int range = abs(start - end);
-		std::vector<float> values;
+		std::vector<double> values;
 		values.reserve(range);
 
 		//Slope
-		float m = (b - a) / (range + 1);
+		double m = (b - a) / (range);
 
 		//For each position from start to end (both inclusive)
-		float d = a;
+		double d = a;
 		for (int i = 0; i <= range; i++)
 		{
 			//Interpolate d
