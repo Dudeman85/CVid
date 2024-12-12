@@ -37,7 +37,7 @@ namespace cvid
 		void SetFOV(float fov);
 
 		//Set the camera to use perspective projection
-		void MakePerspective();
+		void MakePerspective(float fov, float near, float far);
 		//Set the camera to use orthographic projection
 		void MakeOrtho(float width, float height);
 
@@ -68,7 +68,7 @@ namespace cvid
 		//Vertical fov, for horizontal, multiply by aspect ratio
 		float fov = 90;
 		float aspectRatio;
-		float farPlane = 100;
+		float farPlane = 1000;
 		float nearPlane = 1;
 
 		//Is the camera using perspective projection

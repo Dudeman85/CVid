@@ -89,9 +89,12 @@ namespace cvid
 	}
 
 	//Set the camera to use perspective projection
-	void Camera::MakePerspective()
+	void Camera::MakePerspective(float fov, float near, float far)
 	{
 		perspective = true;
+		this->fov = fov;
+		nearPlane = near;
+		farPlane = far;
 
 		UpdateProjection();
 		UpdateClipPlanes();

@@ -17,14 +17,16 @@
 
 int main()
 {
-	cvid::Window window(100, 64, "CVid");
-	window.enableDepthTest = false;
+	cvid::Vector2Int windowSize = cvid::MaxWindowSize();
+	cvid::Window window(windowSize.x - 10, windowSize.y - 5, "CVid");
+	window.enableDepthTest = true;
 
-	cvid::Camera cam(cvid::Vector3(0, 0, 100), 100, 64);
-	cam.MakePerspective();
+	cvid::Camera cam(cvid::Vector3(0, 0, 100), windowSize.x, windowSize.y);
+	float fov = 90;
+	cam.MakePerspective(fov, 1, 5000);
 	cam.Rotate(cvid::Vector3(0, cvid::Radians(0), 0));
 
-	cvid::Model cube("../../../resources/cube.obj");
+	cvid::Model cube("../../../resources/Achelous.obj");
 	cvid::Texture cubeFlat("../../../resources/cubeFlat.png");
 
 	cvid::ModelInstance cubeInstance(&cube);
@@ -40,8 +42,6 @@ int main()
 	cubeInstance2.SetScale(10);
 	cubeInstance2.SetPosition({ -60, 50, -30 });
 	cubeInstance2.SetRotation({ 0, cvid::Radians(43), cvid::Radians(170) });
-
-	float fov = 90;
 
 	while (true)
 	{
@@ -125,6 +125,7 @@ int main()
 		cvid::DrawModel(&cubeInstance, &cam, &window);
 		//cvid::DrawModel(&cubeInstance2, &cam, &window);
 
+		std::cout << "Frame rendered in: " << cvid::EndTimePoint() << std::endl;
 
 		if (!window.DrawFrame())
 			return 0;
@@ -132,7 +133,7 @@ int main()
 		//For some reason this stops the window from freezing
 		window.SendData("\x1b[0;0H", 7, cvid::DataType::String);
 
-		//std::cout << cvid::EndTimePoint() << std::endl;
+		std::cout << "Window responded in: " << cvid::EndTimePoint() << std::endl;
 	}
 
 	return 0;
