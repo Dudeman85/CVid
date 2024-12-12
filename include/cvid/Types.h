@@ -14,15 +14,15 @@ namespace cvid
 
 	struct Tri
 	{
+		Vector3 v0;
 		Vector3 v1;
 		Vector3 v2;
-		Vector3 v3;
 	};
 	struct Tri2D
 	{
+		Vector2 v0;
 		Vector2 v1;
 		Vector2 v2;
-		Vector2 v3;
 	};
 
 	struct Vertex

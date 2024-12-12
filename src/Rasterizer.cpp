@@ -21,37 +21,29 @@ namespace cvid
 	}
 
 	//Draw a line onto a window's framebuffer
-	void RasterizeLine(Window* window, Vector3 p1f, Vector3 p2f, Color color)
+	void RasterizeLine(Window* window, Vector3 v0, Vector3 v1, Color color)
 	{
-		//Convert from ndc to window coords
-		Vector3 windowHalfSize(window->GetDimensions() / 2, 1);
-		p1f *= windowHalfSize;
-		p2f *= windowHalfSize;
-		Vector2Int p1 = p1f;
-		Vector2Int p2 = p2f;
-		p1.y = -p1.y;
-		p2.y = -p2.y;
-		p1 += windowHalfSize;
-		p2 += windowHalfSize;
+		Vector2Int p0 = v0;
+		Vector2Int p1 = v1;
 
-		int dx = p2.x - p1.x;
-		int dy = p2.y - p1.y;
+		int dx = p1.x - p0.x;
+		int dy = p1.y - p0.y;
 
 		//Slope is < 1
 		if (abs(dx) > abs(dy))
 		{
 			//Make sure starting point is before ending point
-			if (p1.x > p2.x)
+			if (p0.x > p1.x)
 			{
-				SWAP(p1, p2);
-				SWAP(p1f, p2f);
+				SWAP(p0, p1);
+				SWAP(v0, v1);
 			}
 
 			//Interpolate for z positions
-			std::vector<float> zPositions = LerpRange(p2.x, p1.x, p1f.z, p2f.z);
+			std::vector<float> zPositions = LerpRange(p1.x, p0.x, v0.z, v1.z);
 
-			dx = p2.x - p1.x;
-			dy = p2.y - p1.y;
+			dx = p1.x - p0.x;
+			dy = p1.y - p0.y;
 
 			//If slope is positive increment y, else decrement
 			int yi = 1;
@@ -62,12 +54,12 @@ namespace cvid
 			}
 
 			//Keep track of closest y and the error to actual y
-			int y = p1.y;
+			int y = p0.y;
 			int error = 0;
 
 			//For each x position, plot the corresponding y
 			int i = 0;
-			for (int x = p1.x; x <= p2.x; x++)
+			for (int x = p0.x; x <= p1.x; x++)
 			{
 				//Attempt to draw the pixel
 				window->PutPixel(x, y, color, zPositions[i]);
@@ -86,17 +78,17 @@ namespace cvid
 		else
 		{
 			//Make sure starting point is before ending point
-			if (p1.y > p2.y)
+			if (p0.y > p1.y)
 			{
-				SWAP(p1, p2);
-				SWAP(p1f, p2f);
+				SWAP(p0, p1);
+				SWAP(v0, v1);
 			}
 
 			//Interpolate for z positions
-			std::vector<float> zPositions = LerpRange(p2.y, p1.y, p1f.z, p2f.z);
+			std::vector<float> zPositions = LerpRange(p1.y, p0.y, v0.z, v1.z);
 
-			dx = p2.x - p1.x;
-			dy = p2.y - p1.y;
+			dx = p1.x - p0.x;
+			dy = p1.y - p0.y;
 
 			//If slope is positive increment x, else decrement
 			int xi = 1;
@@ -107,12 +99,12 @@ namespace cvid
 			}
 
 			//Keep track of closest x and the error to actual x
-			int x = p1.x;
+			int x = p0.x;
 			int error = 0;
 
 			//For each y position, plot the corresponding x
 			int i = 0;
-			for (int y = p1.y; y <= p2.y; y++)
+			for (int y = p0.y; y <= p1.y; y++)
 			{
 				//Attempt to draw the pixel
 				window->PutPixel(x, y, color, zPositions[i]);
@@ -129,121 +121,113 @@ namespace cvid
 		}
 	}
 
-	//Get the integer x coordinates of a line at every y point
-	//Based on Bresenham's algorithm
-	std::vector<int> InterpolateX(Vector2Int p1, Vector2Int p2, bool prioritizeLeft)
+	//Interpolate vertex attributes for each position between start and end (inclusive), left or right edge is prioritized
+	std::vector<Attributes> InterpolateAttributes(Vector2Int start, Vector2Int end, Attributes a, Attributes b, bool prioritizeLeft)
 	{
-		int dx = p2.x - p1.x;
-		int dy = p2.y - p1.y;
+		int dx = end.x - start.x;
+		int dy = end.y - start.y;
 
-		std::vector<int> points;
-		points.reserve(abs(dy));
+		//Can't interpolate a horizontal line
+		if (dy == 0)
+			return {b};
 
-		int x;
-		int lx;
+		std::vector<Attributes> results;
+		results.reserve(abs(dy));
+
+		//Right and leftmost interpolated attributes for the y or x position
+		Attributes rAttrib = a;
+		Attributes lAttrib = a;
 
 		//Slope is < 1
 		if (abs(dx) > abs(dy))
 		{
-			//Make sure starting point is before ending point
-			if (p1.x > p2.x)
-				SWAP(p1, p2);
-
-			dx = p2.x - p1.x;
-			dy = p2.y - p1.y;
-
-			//If slope is positive increment y, else decrement
-			int yi = 1;
-			if (dy < 0)
+			//If going right to left swap priority
+			int xi = 1;
+			if (dx < 0) 
 			{
-				yi = -1;
-				dy = -dy;
+				xi = -1;
+				prioritizeLeft = !prioritizeLeft;
 			}
 
-			//Keep track of closest y and the error to actual y
-			int y = p1.y;
-			lx = p1.x;
+			//Calculate the change in float attributes per change in x
+			Attributes dAttrib = ChangePerD(b, a, dx);
+
+			//Keep track of the error to y
 			int error = 0;
 
 			//For each x position
-			for (x = p1.x; x < p2.x; x++)
+			for (int i = 0; i < abs(dx); i++)
 			{
+				//Increase error
 				error += 2 * dy;
+				//Increment rightmost attributes
+				rAttrib = Add(rAttrib, dAttrib);
+				rAttrib.x += xi;
+
+				//If difference to actual y is more than 0.5
 				if (error > abs(dx))
 				{
-					//Push the leftmost pixel instead of the rightmost
 					if (prioritizeLeft)
 					{
-						points.push_back(lx);
-						lx = x + 1;
+						//Push the leftmost interpolation of this y value
+						results.push_back(lAttrib);
+						lAttrib = Add(rAttrib, dAttrib);
+						lAttrib.x = rAttrib.x + xi;
 					}
 					else
 					{
-						points.push_back(x);
+						//Push the rightmost interpolation of this y value
+						results.push_back(rAttrib);
 					}
 
-					y += yi;
-					error -= 2 * dx;
+					//Decrease error
+					error -= 2 * abs(dx);
 				}
-			}
-			//Make sure the list is in ascending order
-			if (yi < 0)
-			{
-				if (points.size() <= dy)
-				{
-					if (prioritizeLeft)
-						points.push_back(lx);
-					else
-						points.push_back(x);
-				}
-				std::reverse(points.begin(), points.end());
 			}
 		}
 		//Slope is > 1
 		else
 		{
-			//Make sure starting point is before ending point
-			if (p1.y > p2.y)
-				SWAP(p1, p2);
-
-			dx = p2.x - p1.x;
-			dy = p2.y - p1.y;
-
 			//If slope is positive increment x, else decrement
 			int xi = 1;
-			if (dx < 0)
+			if (dx < 0) 
 			{
 				xi = -1;
 				dx = -dx;
 			}
 
-			//Keep track of closest x and the error to actual x
-			x = p1.x;
+			//Calculate the change in attributes per change in y
+			Attributes dAttrib = ChangePerD(b, a, dy);
+
+			//Keep track of the error to x
 			int error = 0;
 
 			//For each y position
-			for (int y = p1.y; y < p2.y; y++)
+			for (int i = 0; i < abs(dy); i++)
 			{
-				points.push_back(x);
+				results.push_back(rAttrib);
+				rAttrib = Add(rAttrib, dAttrib);
 
+				//Increase error
 				error += 2 * dx;
+				//If difference to actual x is more than 0.5
 				if (error > abs(dy))
 				{
-					x += xi;
+					rAttrib.x += xi;
 					error -= 2 * dy;
 				}
 			}
 		}
 		//Add final x if y did not change before end
-		if (points.size() <= dy)
+		if (results.size() <= dy)
 		{
 			if (prioritizeLeft && abs(dx) > abs(dy))
-				points.push_back(lx);
+				results.push_back(lAttrib);
 			else
-				points.push_back(x);
+				results.push_back(rAttrib);
 		}
 
-		return points;
+		return results;
 	}
 
 	//Draw a triangle onto a window's framebuffer
@@ -252,115 +236,89 @@ namespace cvid
 	{
 		Color color = mat != nullptr ? mat->diffuseColor : Color();
 
-		//Sort the vertices in descending order
-		if (tri.vertices.v1.y < tri.vertices.v2.y)
-		{
-			SWAP(tri.vertices.v1, tri.vertices.v2);
-			SWAP(tri.texCoords.v1, tri.texCoords.v2);
-		}
-		if (tri.vertices.v1.y < tri.vertices.v3.y)
-		{
-			SWAP(tri.vertices.v1, tri.vertices.v3);
-			SWAP(tri.texCoords.v1, tri.texCoords.v3);
-		}
-		if (tri.vertices.v2.y < tri.vertices.v3.y)
-		{
-			SWAP(tri.vertices.v2, tri.vertices.v3);
-			SWAP(tri.texCoords.v2, tri.texCoords.v3);
-		}
-
+		//Get the points and attributes from the tri
+		Vector2Int p0 = tri.vertices.v0;
 		Vector2Int p1 = tri.vertices.v1;
 		Vector2Int p2 = tri.vertices.v2;
-		Vector2Int p3 = tri.vertices.v3;
+		//Correct for perspective correct interpolation
+		Attributes a0 = { std::round(tri.vertices.v0.x), 1 / tri.vertices.v0.z, tri.texCoords.v0 / tri.vertices.v0.z };
+		Attributes a1 = { std::round(tri.vertices.v1.x), 1 / tri.vertices.v1.z, tri.texCoords.v1 / tri.vertices.v1.z };
+		Attributes a2 = { std::round(tri.vertices.v2.x), 1 / tri.vertices.v2.z, tri.texCoords.v2 / tri.vertices.v2.z };
 
-		//If p2 is to the left of p1 or p3, the full segment will be on the right
-		Vector2 v1 = Vector2(p2 - p1).Normalize();
-		Vector2 v2 = Vector2(p3 - p1).Normalize();
-		bool fullOnRight = v1.x < v2.x;
+		RasterizeTriangleWireframe(window, tri.vertices.v0, tri.vertices.v1, tri.vertices.v2, {255, 0, 0});
 
-		//Interpolate the right and left edges x coordinates
-		std::vector<int> combinedSegment = InterpolateX(p2, p3, fullOnRight);
-		std::vector<int> shortSegment = InterpolateX(p1, p2, fullOnRight);
-		std::vector<int> fullSegment = InterpolateX(p1, p3, !fullOnRight);
-		combinedSegment.insert(combinedSegment.end(), shortSegment.begin() + 1, shortSegment.end());
-
-		//Interpolate for z positions along the left and right segments
-		std::vector<float> combinedZPositions = LerpRange(p3.y, p2.y, 1 / tri.vertices.v3.z, 1 / tri.vertices.v2.z);
-		std::vector<float> shortZPositions = LerpRange(p2.y, p1.y, 1 / tri.vertices.v2.z, 1 / tri.vertices.v1.z);
-		std::vector<float> fullZPositions = LerpRange(p3.y, p1.y, 1 / tri.vertices.v3.z, 1 / tri.vertices.v1.z);
-		combinedZPositions.insert(combinedZPositions.end(), shortZPositions.begin() + 1, shortZPositions.end());
-
-		//If there is a material and texture
-		std::vector<Vector2> combinedTexCoords;
-		std::vector<Vector2> fullTexCoords;
-		if (mat)
+		//Sort the vertices in vertically descending order
+		if (p0.y < p1.y)
 		{
-			if (mat->texture)
-			{
-				//Interpolate the texture coords for edges
-				combinedTexCoords = LerpRange2D(p3.y, p2.y, tri.texCoords.v3 / tri.vertices.v3.z, tri.texCoords.v2 / tri.vertices.v2.z);
-				std::vector<Vector2> shortTexCoords = LerpRange2D(p2.y, p1.y, tri.texCoords.v2 / tri.vertices.v2.z, tri.texCoords.v1 / tri.vertices.v1.z);
-				fullTexCoords = LerpRange2D(p3.y, p1.y, tri.texCoords.v3 / tri.vertices.v3.z, tri.texCoords.v1 / tri.vertices.v1.z);
-				if (p3.y == p2.y)
-					combinedTexCoords = shortTexCoords;
-				else
-					combinedTexCoords.insert(combinedTexCoords.end(), shortTexCoords.begin() + 1, shortTexCoords.end());
-			}
+			SWAP(p0, p1);
+			SWAP(a0, a1);
+		}
+		if (p0.y < p2.y)
+		{
+			SWAP(p0, p2);
+			SWAP(a0, a2);
+		}
+		if (p1.y < p2.y)
+		{
+			SWAP(p1, p2);
+			SWAP(a1, a2);
 		}
 
+		//If p2 is to the left of p1 or p3, the full segment will be on the right
+		Vector2 v1 = Vector2(p1 - p0).Normalize();
+		Vector2 v2 = Vector2(p2 - p0).Normalize();
+		bool fullOnRight = v1.x < v2.x;
+
+		//Interpolate the vertex attributes for each side (x, z, texCoord)
+		std::vector<Attributes> combinedSegment = InterpolateAttributes(p2, p1, a2, a1, fullOnRight);
+		std::vector<Attributes> shortSegment = InterpolateAttributes(p1, p0, a1, a0, fullOnRight);
+		std::vector<Attributes> fullSegment = InterpolateAttributes(p2, p0, a2, a0, !fullOnRight);
+		combinedSegment.insert(combinedSegment.end(), shortSegment.begin() + 1, shortSegment.end());
+
 		//Figure out which segment is on which side
-		std::vector<int>* rightSegment = &combinedSegment;
-		std::vector<int>* leftSegment = &fullSegment;
-		std::vector<float>* rightZPositions = &combinedZPositions;
-		std::vector<float>* leftZPositions = &fullZPositions;
-		std::vector<Vector2>* rightTexCoords = &combinedTexCoords;
-		std::vector<Vector2>* leftTexCoords = &fullTexCoords;
-		//If the middle point of left segment is greater than the middle point of right segment, swap the segments
+		std::vector<Attributes>* rightSegment = &combinedSegment;
+		std::vector<Attributes>* leftSegment = &fullSegment;
+		//If the full segment is on the right side, swap the segments
 		if (fullOnRight)
 		{
 			rightSegment = &fullSegment;
 			leftSegment = &combinedSegment;
-			rightZPositions = &fullZPositions;
-			leftZPositions = &combinedZPositions;
-			rightTexCoords = &fullTexCoords;
-			leftTexCoords = &combinedTexCoords;
 		}
 
-		int startY = (int)std::round(p3.y);
+		int startY = (int)std::round(p2.y);
 		//For each y coordinate in the triangle
 		for (int yi = 0; yi < fullSegment.size(); yi++)
 		{
 			//Interpolate for z positions for each horizontal scanline
-			std::vector<float> zPositions = LerpRange(leftSegment->at(yi), rightSegment->at(yi), leftZPositions->at(yi), rightZPositions->at(yi));
+			std::vector<float> zPositions = LerpRange(leftSegment->at(yi).x, rightSegment->at(yi).x, leftSegment->at(yi).z, rightSegment->at(yi).z);
 			//Interpolate texture coordiates if applicable
 			std::vector<Vector2> texCoords;
-			if (!leftTexCoords->empty())
-				texCoords = LerpRange2D(leftSegment->at(yi), rightSegment->at(yi), leftTexCoords->at(yi), rightTexCoords->at(yi));
+			if (mat) if (mat->texture)
+				texCoords = LerpRange2D(leftSegment->at(yi).x, rightSegment->at(yi).x, leftSegment->at(yi).texCoord, rightSegment->at(yi).texCoord);
 
 			//Draw a line from the full segment to the split segment
-			int i = 0;
-			for (int x = leftSegment->at(yi); x <= rightSegment->at(yi); x++)
+			int startX = leftSegment->at(yi).x;
+			for (int xi = 0; xi <= rightSegment->at(yi).x - leftSegment->at(yi).x; xi++)
 			{
 				Color renderColor = color;
 				//Get the color from the texture if it exists
 				if (!texCoords.empty())
 				{
-					Vector2Int sampleCoord(std::round((texCoords[i].x / zPositions[i]) * (mat->texture->width - 1)), std::round((texCoords[i].y / zPositions[i]) * (mat->texture->height - 1)));
-					renderColor = mat->texture->GetPixel(sampleCoord);
+					Vector2Int sampleCoord(std::round((texCoords[xi].x) * (mat->texture->width - 1)), std::round((texCoords[xi].y) * (mat->texture->height - 1)));
+					renderColor = mat->texture->GetTexel(sampleCoord);
 				}
 
 				//Attempt to draw the pixel
-				window->PutPixel(x, startY + yi, renderColor, zPositions[i]);
-				i++;
+				window->PutPixel(startX + xi, startY + yi, renderColor, zPositions[xi]);
 			}
 		}
 	}
 
 	//Draw a wireframe triangle onto a window's framebuffer
-	void RasterizeTriangleWireframe(Window* window, Vector3 p1, Vector3 p2, Vector3 p3, Color color)
+	void RasterizeTriangleWireframe(Window* window, Vector3 v0, Vector3 v1, Vector3 v2, Color color)
 	{
-		RasterizeLine(window, p1, p2, color);
-		RasterizeLine(window, p2, p3, color);
-		RasterizeLine(window, p1, p3, color);
+		RasterizeLine(window, v0, v1, color);
+		RasterizeLine(window, v1, v2, color);
+		RasterizeLine(window, v0, v2, color);
 	}
 }

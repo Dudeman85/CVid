@@ -119,9 +119,9 @@ namespace cvid
 			//If the face was decomposed, loop over every new face, otherwise faces will only have one face
 			for (Face& face : faces)
 			{
-				Vector4 v1 = Vector4(face.vertices.v1, 1.0);
-				Vector4 v2 = Vector4(face.vertices.v2, 1.0);
-				Vector4 v3 = Vector4(face.vertices.v3, 1.0);
+				Vector4 v1 = Vector4(face.vertices.v0, 1.0);
+				Vector4 v2 = Vector4(face.vertices.v1, 1.0);
+				Vector4 v3 = Vector4(face.vertices.v2, 1.0);
 				//Apply projection
 				v1 = cam->GetProjection() * v1;
 				v2 = cam->GetProjection() * v2;
@@ -141,15 +141,15 @@ namespace cvid
 				{
 					//Convert from clip space to screen space
 					Vector3 windowHalfSize(window->GetDimensions() / 2, 1);
+					face.vertices.v0 *= windowHalfSize;
 					face.vertices.v1 *= windowHalfSize;
 					face.vertices.v2 *= windowHalfSize;
-					face.vertices.v3 *= windowHalfSize;
+					face.vertices.v0 += windowHalfSize;
 					face.vertices.v1 += windowHalfSize;
 					face.vertices.v2 += windowHalfSize;
-					face.vertices.v3 += windowHalfSize;
-					face.vertices.v1.z = v1.w;
-					face.vertices.v2.z = v2.w;
-					face.vertices.v3.z = v3.w;
+					face.vertices.v0.z = v1.w;
+					face.vertices.v1.z = v2.w;
+					face.vertices.v2.z = v3.w;
 
 					//Draw the face (triangle)
 					RasterizeTriangle(window, face, model->GetMaterial());
@@ -214,9 +214,9 @@ namespace cvid
 				{
 					//Calculate the distances from each vertex to the plane
 					float n = sqrt(clipPlanes[i].Dot(clipPlanes[i]));
-					float d1 = clipPlanes[i].Dot(tri.vertices.v1) / n;
-					float d2 = clipPlanes[i].Dot(tri.vertices.v2) / n;
-					float d3 = clipPlanes[i].Dot(tri.vertices.v3) / n;
+					float d1 = clipPlanes[i].Dot(tri.vertices.v0) / n;
+					float d2 = clipPlanes[i].Dot(tri.vertices.v1) / n;
+					float d3 = clipPlanes[i].Dot(tri.vertices.v2) / n;
 
 					//If all are positive, the triangle is entirely in front of the plane
 					if (d1 >= 0 && d2 >= 0 && d3 >= 0)
@@ -233,29 +233,29 @@ namespace cvid
 					else if (d1 * d2 * d3 > 0)
 					{
 						//Sort the vertices so that v1 is the positive one
-						Vector2 atc = tri.texCoords.v1;
-						Vector2 btc = tri.texCoords.v2;
-						Vector2 ctc = tri.texCoords.v3;
-						Vector3 a = tri.vertices.v1;
-						Vector3 b = tri.vertices.v2;
-						Vector3 c = tri.vertices.v3;
+						Vector2 atc = tri.texCoords.v0;
+						Vector2 btc = tri.texCoords.v1;
+						Vector2 ctc = tri.texCoords.v2;
+						Vector3 a = tri.vertices.v0;
+						Vector3 b = tri.vertices.v1;
+						Vector3 c = tri.vertices.v2;
 						if (d2 > 0)
 						{
-							atc = tri.texCoords.v2;
-							btc = tri.texCoords.v1;
-							ctc = tri.texCoords.v3;
-							a = tri.vertices.v2;
-							b = tri.vertices.v1;
-							c = tri.vertices.v3;
+							atc = tri.texCoords.v1;
+							btc = tri.texCoords.v0;
+							ctc = tri.texCoords.v2;
+							a = tri.vertices.v1;
+							b = tri.vertices.v0;
+							c = tri.vertices.v2;
 						}
 						if (d3 > 0)
 						{
-							atc = tri.texCoords.v3;
-							btc = tri.texCoords.v1;
-							ctc = tri.texCoords.v2;
-							a = tri.vertices.v3;
-							b = tri.vertices.v1;
-							c = tri.vertices.v2;
+							atc = tri.texCoords.v2;
+							btc = tri.texCoords.v0;
+							ctc = tri.texCoords.v1;
+							a = tri.vertices.v2;
+							b = tri.vertices.v0;
+							c = tri.vertices.v1;
 						}
 
 						//Calculate the ratios of the old and new sides
@@ -277,29 +277,29 @@ namespace cvid
 					else
 					{
 						//Sort the vertices so that C is the negative one
-						Vector2 atc = tri.texCoords.v1;
-						Vector2 btc = tri.texCoords.v2;
-						Vector2 ctc = tri.texCoords.v3;
-						Vector3 a = tri.vertices.v1;
-						Vector3 b = tri.vertices.v2;
-						Vector3 c = tri.vertices.v3;
+						Vector2 atc = tri.texCoords.v0;
+						Vector2 btc = tri.texCoords.v1;
+						Vector2 ctc = tri.texCoords.v2;
+						Vector3 a = tri.vertices.v0;
+						Vector3 b = tri.vertices.v1;
+						Vector3 c = tri.vertices.v2;
 						if (d1 < 0)
 						{
-							atc = tri.texCoords.v3;
-							btc = tri.texCoords.v2;
-							ctc = tri.texCoords.v1;
-							a = tri.vertices.v3;
-							b = tri.vertices.v2;
-							c = tri.vertices.v1;
+							atc = tri.texCoords.v2;
+							btc = tri.texCoords.v1;
+							ctc = tri.texCoords.v0;
+							a = tri.vertices.v2;
+							b = tri.vertices.v1;
+							c = tri.vertices.v0;
 						}
 						if (d2 < 0)
 						{
-							atc = tri.texCoords.v1;
-							btc = tri.texCoords.v3;
-							ctc = tri.texCoords.v2;
-							a = tri.vertices.v1;
-							b = tri.vertices.v3;
-							c = tri.vertices.v2;
+							atc = tri.texCoords.v0;
+							btc = tri.texCoords.v2;
+							ctc = tri.texCoords.v1;
+							a = tri.vertices.v0;
+							b = tri.vertices.v2;
+							c = tri.vertices.v1;
 						}
 
 						//Calculate the ratios of the old and new sides
