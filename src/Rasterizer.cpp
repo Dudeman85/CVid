@@ -40,7 +40,7 @@ namespace cvid
 			}
 
 			//Interpolate for z positions
-			std::vector<float> zPositions = LerpRange(p1.x, p0.x, v0.z, v1.z);
+			std::vector<double> zPositions = LerpRange(p1.x, p0.x, v0.z, v1.z);
 
 			dx = p1.x - p0.x;
 			dy = p1.y - p0.y;
@@ -85,7 +85,7 @@ namespace cvid
 			}
 
 			//Interpolate for z positions
-			std::vector<float> zPositions = LerpRange(p1.y, p0.y, v0.z, v1.z);
+			std::vector<double> zPositions = LerpRange(p1.y, p0.y, v0.z, v1.z);
 
 			dx = p1.x - p0.x;
 			dy = p1.y - p0.y;
@@ -150,7 +150,7 @@ namespace cvid
 			}
 
 			//Calculate the change in float attributes per change in x
-			Attributes dAttrib = ChangePerD(b, a, dx);
+			Attributes dAttrib = ChangePerD(b, a, abs(dx));
 
 			//Keep track of the error to y
 			int error = 0;
@@ -160,9 +160,6 @@ namespace cvid
 			{
 				//Increase error
 				error += 2 * dy;
-				//Increment rightmost attributes
-				rAttrib = Add(rAttrib, dAttrib);
-				rAttrib.x += xi;
 
 				//If difference to actual y is more than 0.5
 				if (error > abs(dx))
@@ -183,6 +180,10 @@ namespace cvid
 					//Decrease error
 					error -= 2 * abs(dx);
 				}
+
+				//Increment rightmost attributes
+				rAttrib = Add(rAttrib, dAttrib);
+				rAttrib.x += xi;
 			}
 		}
 		//Slope is > 1
@@ -197,7 +198,7 @@ namespace cvid
 			}
 
 			//Calculate the change in attributes per change in y
-			Attributes dAttrib = ChangePerD(b, a, dy);
+			Attributes dAttrib = ChangePerD(b, a, abs(dy));
 
 			//Keep track of the error to x
 			int error = 0;
@@ -241,11 +242,11 @@ namespace cvid
 		Vector2Int p1 = tri.vertices.v1;
 		Vector2Int p2 = tri.vertices.v2;
 		//Correct for perspective correct interpolation
-		Attributes a0 = { std::round(tri.vertices.v0.x), 1 / tri.vertices.v0.z, tri.texCoords.v0 / tri.vertices.v0.z };
-		Attributes a1 = { std::round(tri.vertices.v1.x), 1 / tri.vertices.v1.z, tri.texCoords.v1 / tri.vertices.v1.z };
-		Attributes a2 = { std::round(tri.vertices.v2.x), 1 / tri.vertices.v2.z, tri.texCoords.v2 / tri.vertices.v2.z };
+		Attributes a0 = { std::round(tri.vertices.v0.x), 1.0 / tri.vertices.v0.z, tri.texCoords.v0 / tri.vertices.v0.z };
+		Attributes a1 = { std::round(tri.vertices.v1.x), 1.0 / tri.vertices.v1.z, tri.texCoords.v1 / tri.vertices.v1.z };
+		Attributes a2 = { std::round(tri.vertices.v2.x), 1.0 / tri.vertices.v2.z, tri.texCoords.v2 / tri.vertices.v2.z };
 
-		RasterizeTriangleWireframe(window, tri.vertices.v0, tri.vertices.v1, tri.vertices.v2, {255, 0, 0});
+		//RasterizeTriangleWireframe(window, tri.vertices.v0, tri.vertices.v1, tri.vertices.v2, {255, 0, 0});
 
 		//Sort the vertices in vertically descending order
 		if (p0.y < p1.y)
@@ -290,7 +291,7 @@ namespace cvid
 		for (int yi = 0; yi < fullSegment.size(); yi++)
 		{
 			//Interpolate for z positions for each horizontal scanline
-			std::vector<float> zPositions = LerpRange(leftSegment->at(yi).x, rightSegment->at(yi).x, leftSegment->at(yi).z, rightSegment->at(yi).z);
+			std::vector<double> zPositions = LerpRange(leftSegment->at(yi).x, rightSegment->at(yi).x, leftSegment->at(yi).z, rightSegment->at(yi).z);
 			//Interpolate texture coordiates if applicable
 			std::vector<Vector2> texCoords;
 			if (mat) if (mat->texture)
@@ -304,7 +305,7 @@ namespace cvid
 				//Get the color from the texture if it exists
 				if (!texCoords.empty())
 				{
-					Vector2Int sampleCoord(std::round((texCoords[xi].x) * (mat->texture->width - 1)), std::round((texCoords[xi].y) * (mat->texture->height - 1)));
+					Vector2Int sampleCoord(std::round((texCoords[xi].x / zPositions[xi]) * (mat->texture->width - 1)), std::round((texCoords[xi].y / zPositions[xi]) * (mat->texture->height - 1)));
 					renderColor = mat->texture->GetTexel(sampleCoord);
 				}
 

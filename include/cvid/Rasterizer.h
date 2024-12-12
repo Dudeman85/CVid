@@ -11,7 +11,7 @@ namespace cvid
 	struct Attributes
 	{
 		int x;
-		float z;
+		double z;
 		Vector2 texCoord;
 	};
 	//Difference between two attributes
