@@ -53,6 +53,10 @@ namespace cvid
 		bool PutChar(Vector2Int pos, CharPixel charPixel);
 		//Put a character on the framebuffer, in this case y is half
 		bool PutChar(uint16_t x, uint16_t y, CharPixel charPixel);
+		//Put a string of characters on the framebuffer, in this case y is half
+		bool PutString(Vector2Int pos, std::string string, Color bg = { 0, 0, 0 }, Color fg = { 204, 204, 204 });
+		//Put a string of characters on the framebuffer, in this case y is half
+		bool PutString(uint16_t x, uint16_t y, std::string string, Color bg = { 0, 0, 0 }, Color fg = { 204, 204, 204 });
 		//Fills the framebuffer with a color
 		bool Fill(Color color);
 		//Clear the depthbuffer, setting everything to 0

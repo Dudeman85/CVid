@@ -199,6 +199,24 @@ namespace cvid
 		return true;
 	}
 
+	//Put a string of characters on the framebuffer, in this case y is half
+	bool Window::PutString(Vector2Int pos, std::string string, Color bg, Color fg)
+	{
+		return PutString(pos.x, pos.y, string, bg, fg);
+	}
+	//Put a string of characters on the framebuffer, in this case y is half
+	bool Window::PutString(uint16_t x, uint16_t y, std::string string, Color bg, Color fg)
+	{
+		//For each character
+		for (size_t i = 0; i < string.size(); i++)
+		{
+			CharPixel c = {fg, bg, string[i]};
+			PutChar(x + i, y, c);
+		}
+
+		return true;
+	}
+
 	//Fills the framebuffer with a color
 	bool Window::Fill(Color color)
 	{
