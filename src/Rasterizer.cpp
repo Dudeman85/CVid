@@ -20,15 +20,8 @@ namespace cvid
 	//Draw a point onto a window's framebuffer
 	void RasterizePoint(Window* window, Vector3 pt, Color color)
 	{
-		//Convert to window coords
-		Vector3 halfWindow(window->GetDimensions() / 2, 1);
-		pt = pt * halfWindow;
-		//Convert to window coords
-		pt.y = -pt.y;
-		pt += Vector3(window->GetDimensions() / 2);
-
 		//Attempt to draw the pixel
-		window->PutPixel(pt.x, pt.y, color, pt.z);
+		window->PutPixel(pt.x, pt.y, color, 1 / pt.z);
 	}
 
 	//Draw a line onto a window's framebuffer
@@ -51,7 +44,7 @@ namespace cvid
 			}
 
 			//Interpolate for z positions
-			std::vector<double> zPositions = LerpRange(p1.x, p0.x, v0.z, v1.z);
+			std::vector<double> zPositions = LerpRange(p1.x, p0.x, 1 / v0.z, 1 / v1.z);
 
 			dx = p1.x - p0.x;
 			dy = p1.y - p0.y;
@@ -96,7 +89,7 @@ namespace cvid
 			}
 
 			//Interpolate for z positions
-			std::vector<double> zPositions = LerpRange(p1.y, p0.y, v0.z, v1.z);
+			std::vector<double> zPositions = LerpRange(p1.y, p0.y, 1 / v0.z, 1 / v1.z);
 
 			dx = p1.x - p0.x;
 			dy = p1.y - p0.y;

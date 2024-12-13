@@ -113,6 +113,7 @@ int main()
 		if (GetKeyState('I') & 0x8000)
 			cubeInstance.Rotate({ 0, 0, cvid::Radians(1) });
 
+		std::cout << cubeInstance.GetPosition().ToString() << std::endl;
 
 		window.Fill({ 0, 0, 0 });
 		window.ClearDepthBuffer();
@@ -125,7 +126,7 @@ int main()
 		cvid::DrawModel(&cubeInstance, &cam, &window);
 		//cvid::DrawModel(&cubeInstance2, &cam, &window);
 
-		std::cout << "Frame rendered in: " << cvid::EndTimePoint() << std::endl;
+		//std::cout << "Frame rendered in: " << cvid::EndTimePoint() << std::endl;
 
 		if (!window.DrawFrame())
 			return 0;
@@ -133,7 +134,7 @@ int main()
 		//For some reason this stops the window from freezing
 		window.SendData("\x1b[0;0H", 7, cvid::DataType::String);
 
-		std::cout << "Window responded in: " << cvid::EndTimePoint() << std::endl;
+		//std::cout << "Window responded in: " << cvid::EndTimePoint() << std::endl;
 	}
 
 	return 0;

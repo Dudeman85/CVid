@@ -1,6 +1,8 @@
 #include <cvid/Window.h>
 #include <cvid/Renderer.h>
 #include <cvid/Model.h>
+#include <cvid/Rasterizer.h>
+#include "stdio.h"
 
 #define SWAP(a, b) {auto tmp = a; a = b; b = tmp;}
 
@@ -53,6 +55,7 @@ int main()
 {
 	//Make a console window with width, height, and name
 	cvid::Window window(64, 64, "CVid");
+	window.enableDepthTest = false;
 
 	//Make the camera with {x, y, z}, width, height
 	cvid::Camera cam({ 0, 0, 100 }, 64, 64);
@@ -64,19 +67,29 @@ int main()
 	//Create an instance of the model and change its transform
 	cvid::ModelInstance cubeInstance(&cube);
 	cubeInstance.SetScale(20);
-	cubeInstance.SetPosition({ 10, 20, 0 });
+	cubeInstance.SetPosition({ 30, 30, 0 });
 	//Rotations use radians
-	cubeInstance.SetRotation({ 0, cvid::Radians(45), 0 });
+	cubeInstance.SetRotation({ cvid::Radians(-30), cvid::Radians(17), 0 });
 
 	//Render loop
 	while (true)
 	{
 		//Fill the canvas with some rgb value at the start of frame
-		window.Fill({0, 0, 0});
+		window.Fill({ 0, 0, 0 });
 		window.ClearDepthBuffer();
 
 		//Draw the model instance to the window's canvas
 		cvid::DrawModel(&cubeInstance, &cam, &window);
+
+		//Draw a green point directly to the canvas
+		cvid::RasterizePoint(&window, { 12, 35, 0 }, { 51, 204, 51 });
+		//Draw a red line directly to the canvas
+		cvid::RasterizeLine(&window, { 0, 63, 0 }, { 63, 0, 0 }, { 204, 0, 0 });
+		//Draw a blue triangle directly to the canvas
+		cvid::Tri verts{ {5, 5, 0}, {25, 25, 0}, {50, 10, 0} };
+		cvid::RasterizeTriangle(&window, verts, { 0, 153, 255 });
+		//Write a string directly to the canvas
+		window.PutString(20, 25, "Hello World!", { 153, 0, 153 }, { 240, 240, 240 });
 
 		//Draw the frame to the window, end the program on failure
 		if (!window.DrawFrame())
