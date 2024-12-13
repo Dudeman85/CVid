@@ -6,6 +6,17 @@
 
 namespace cvid
 {
+	//Difference between two attributes
+	inline Attributes AttribChangePerD(Attributes a, Attributes b, int d)
+	{
+		return Attributes{ 0, (a.z - b.z) / d, (a.texCoord - b.texCoord) / d };
+	}
+	//Add two attributes together
+	inline Attributes AddAttribs(Attributes a, Attributes b)
+	{
+		return Attributes{ a.x + b.x, a.z + b.z, a.texCoord + b.texCoord };
+	}
+
 	//Draw a point onto a window's framebuffer
 	void RasterizePoint(Window* window, Vector3 pt, Color color)
 	{
@@ -129,7 +140,7 @@ namespace cvid
 
 		//Can't interpolate a horizontal line
 		if (dy == 0)
-			return {b};
+			return { b };
 
 		std::vector<Attributes> results;
 		results.reserve(abs(dy));
@@ -143,14 +154,14 @@ namespace cvid
 		{
 			//If going right to left swap priority
 			int xi = 1;
-			if (dx < 0) 
+			if (dx < 0)
 			{
 				xi = -1;
 				prioritizeLeft = !prioritizeLeft;
 			}
 
 			//Calculate the change in float attributes per change in x
-			Attributes dAttrib = ChangePerD(b, a, abs(dx));
+			Attributes dAttrib = AttribChangePerD(b, a, abs(dx));
 
 			//Keep track of the error to y
 			int error = 0;
@@ -168,7 +179,7 @@ namespace cvid
 					{
 						//Push the leftmost interpolation of this y value
 						results.push_back(lAttrib);
-						lAttrib = Add(rAttrib, dAttrib);
+						lAttrib = AddAttribs(rAttrib, dAttrib);
 						lAttrib.x = rAttrib.x + xi;
 					}
 					else
@@ -182,7 +193,7 @@ namespace cvid
 				}
 
 				//Increment rightmost attributes
-				rAttrib = Add(rAttrib, dAttrib);
+				rAttrib = AddAttribs(rAttrib, dAttrib);
 				rAttrib.x += xi;
 			}
 		}
@@ -191,14 +202,14 @@ namespace cvid
 		{
 			//If slope is positive increment x, else decrement
 			int xi = 1;
-			if (dx < 0) 
+			if (dx < 0)
 			{
 				xi = -1;
 				dx = -dx;
 			}
 
 			//Calculate the change in attributes per change in y
-			Attributes dAttrib = ChangePerD(b, a, abs(dy));
+			Attributes dAttrib = AttribChangePerD(b, a, abs(dy));
 
 			//Keep track of the error to x
 			int error = 0;
@@ -207,7 +218,7 @@ namespace cvid
 			for (int i = 0; i < abs(dy); i++)
 			{
 				results.push_back(rAttrib);
-				rAttrib = Add(rAttrib, dAttrib);
+				rAttrib = AddAttribs(rAttrib, dAttrib);
 
 				//Increase error
 				error += 2 * dx;
@@ -245,8 +256,6 @@ namespace cvid
 		Attributes a0 = { std::round(tri.vertices.v0.x), 1.0 / tri.vertices.v0.z, tri.texCoords.v0 / tri.vertices.v0.z };
 		Attributes a1 = { std::round(tri.vertices.v1.x), 1.0 / tri.vertices.v1.z, tri.texCoords.v1 / tri.vertices.v1.z };
 		Attributes a2 = { std::round(tri.vertices.v2.x), 1.0 / tri.vertices.v2.z, tri.texCoords.v2 / tri.vertices.v2.z };
-
-		//RasterizeTriangleWireframe(window, tri.vertices.v0, tri.vertices.v1, tri.vertices.v2, {255, 0, 0});
 
 		//Sort the vertices in vertically descending order
 		if (p0.y < p1.y)
@@ -315,11 +324,78 @@ namespace cvid
 		}
 	}
 
-	//Draw a wireframe triangle onto a window's framebuffer
-	void RasterizeTriangleWireframe(Window* window, Vector3 v0, Vector3 v1, Vector3 v2, Color color)
+	//Draw a triangle onto a window's framebuffer entirely of one color
+	void RasterizeTriangle(Window* window, Tri verts, Color color)
 	{
-		RasterizeLine(window, v0, v1, color);
-		RasterizeLine(window, v1, v2, color);
-		RasterizeLine(window, v0, v2, color);
+		//Get the points and attributes from the tri
+		Vector2Int p0 = verts.v0;
+		Vector2Int p1 = verts.v1;
+		Vector2Int p2 = verts.v2;
+		//Correct for perspective correct interpolation
+		Attributes a0 = { std::round(verts.v0.x), 1.0 / verts.v0.z, 0 };
+		Attributes a1 = { std::round(verts.v1.x), 1.0 / verts.v1.z, 0 };
+		Attributes a2 = { std::round(verts.v2.x), 1.0 / verts.v2.z, 0 };
+
+		//Sort the vertices in vertically descending order
+		if (p0.y < p1.y)
+		{
+			SWAP(p0, p1);
+			SWAP(a0, a1);
+		}
+		if (p0.y < p2.y)
+		{
+			SWAP(p0, p2);
+			SWAP(a0, a2);
+		}
+		if (p1.y < p2.y)
+		{
+			SWAP(p1, p2);
+			SWAP(a1, a2);
+		}
+
+		//If p2 is to the left of p1 or p3, the full segment will be on the right
+		Vector2 v1 = Vector2(p1 - p0).Normalize();
+		Vector2 v2 = Vector2(p2 - p0).Normalize();
+		bool fullOnRight = v1.x < v2.x;
+
+		//Interpolate the vertex attributes for each side (x, z, texCoord)
+		std::vector<Attributes> combinedSegment = InterpolateAttributes(p2, p1, a2, a1, fullOnRight);
+		std::vector<Attributes> shortSegment = InterpolateAttributes(p1, p0, a1, a0, fullOnRight);
+		std::vector<Attributes> fullSegment = InterpolateAttributes(p2, p0, a2, a0, !fullOnRight);
+		combinedSegment.insert(combinedSegment.end(), shortSegment.begin() + 1, shortSegment.end());
+
+		//Figure out which segment is on which side
+		std::vector<Attributes>* rightSegment = &combinedSegment;
+		std::vector<Attributes>* leftSegment = &fullSegment;
+		//If the full segment is on the right side, swap the segments
+		if (fullOnRight)
+		{
+			rightSegment = &fullSegment;
+			leftSegment = &combinedSegment;
+		}
+
+		int startY = (int)std::round(p2.y);
+		//For each y coordinate in the triangle
+		for (int yi = 0; yi < fullSegment.size(); yi++)
+		{
+			//Interpolate for z positions for each horizontal scanline
+			std::vector<double> zPositions = LerpRange(leftSegment->at(yi).x, rightSegment->at(yi).x, leftSegment->at(yi).z, rightSegment->at(yi).z);
+
+			//Draw a line from the full segment to the split segment
+			int startX = leftSegment->at(yi).x;
+			for (int xi = 0; xi <= rightSegment->at(yi).x - leftSegment->at(yi).x; xi++)
+			{
+				//Attempt to draw the pixel
+				window->PutPixel(startX + xi, startY + yi, color, zPositions[xi]);
+			}
+		}
+	}
+
+	//Draw a wireframe triangle onto a window's framebuffer
+	void RasterizeTriangleWireframe(Window* window, Tri verts, Color color)
+	{
+		RasterizeLine(window, verts.v0, verts.v1, color);
+		RasterizeLine(window, verts.v1, verts.v2, color);
+		RasterizeLine(window, verts.v0, verts.v2, color);
 	}
 }
