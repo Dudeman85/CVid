@@ -13,8 +13,6 @@ Window:
 WOULD BE NICE:
 Rasterizer:
 - dithering for blending
-Window:
-- adaptive palette swapping
 Renderer:
 - allow for drawing wireframe indexed polygons
 Model:
