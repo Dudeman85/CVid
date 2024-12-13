@@ -1,4 +1,5 @@
 #include <cvid/Window.h>
+#include <cvid/Renderer.h>
 #include <cvid/Model.h>
 
 #define SWAP(a, b) {auto tmp = a; a = b; b = tmp;}
@@ -50,29 +51,34 @@ void DrawLine(cvid::Window& w, int x0, int y0, int x1, int y1)
 
 int main()
 {
+	//Make a console window with width, height, and name
 	cvid::Window window(64, 64, "CVid");
-	window.enableDepthTest = false;
 
+	//Make the camera with {x, y, z}, width, height
+	cvid::Camera cam({ 0, 0, 100 }, 64, 64);
+	//Set it as perspective with fov, near, and far
+	cam.MakePerspective(90, 1, 100);
+
+	//Load a model from file
 	cvid::Model cube("../../../resources/cube.obj");
-
+	//Create an instance of the model and change its transform
 	cvid::ModelInstance cubeInstance(&cube);
 	cubeInstance.SetScale(20);
-	cubeInstance.SetPosition({ 0, 0, 0 });
-	cubeInstance.SetRotation({ 0, cvid::Radians(0), 0 });
+	cubeInstance.SetPosition({ 10, 20, 0 });
+	//Rotations use radians
+	cubeInstance.SetRotation({ 0, cvid::Radians(45), 0 });
 
+	//Render loop
 	while (true)
 	{
-		if (GetKeyState(VK_ESCAPE) & 0x8000)
-			return 0;
-
-		window.Fill({240, 240, 240});
+		//Fill the canvas with some rgb value at the start of frame
+		window.Fill({0, 0, 0});
 		window.ClearDepthBuffer();
 
+		//Draw the model instance to the window's canvas
+		cvid::DrawModel(&cubeInstance, &cam, &window);
 
-
-		DrawLine(window, 0, 63, 32, 0);
-
-
+		//Draw the frame to the window, end the program on failure
 		if (!window.DrawFrame())
 			return 0;
 	}

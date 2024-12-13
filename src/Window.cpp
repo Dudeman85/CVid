@@ -144,12 +144,12 @@ namespace cvid
 	}
 
 	//Set a pixel on the framebuffer to some color, returns true on success
-	bool Window::PutPixel(Vector2Int pos, Color color, float z)
+	bool Window::PutPixel(Vector2Int pos, Color color, double z)
 	{
 		return PutPixel(pos.x, pos.y, color, z);
 	}
 	//Set a pixel on the framebuffer to some color, returns true on success
-	bool Window::PutPixel(uint16_t x, uint16_t y, Color color, float z)
+	bool Window::PutPixel(uint16_t x, uint16_t y, Color color, double z)
 	{
 		//Make sure the pixel is in bounds
 		if (x >= width || y >= height || z < 0)

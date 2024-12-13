@@ -46,9 +46,9 @@ namespace cvid
 		~Window();
 
 		//Set a pixel on the framebuffer to the closest rgb color
-		bool PutPixel(Vector2Int pos, Color color, float z = 0);
+		bool PutPixel(Vector2Int pos, Color color, double z = 0);
 		//Set a pixel on the framebuffer to the closest rgb color
-		bool PutPixel(uint16_t x, uint16_t y, Color color, float z = 0);
+		bool PutPixel(uint16_t x, uint16_t y, Color color, double z = 0);
 		//Put a character on the framebuffer, in this case y is half
 		bool PutChar(Vector2Int pos, CharPixel charPixel);
 		//Put a character on the framebuffer, in this case y is half
