@@ -3,9 +3,6 @@ project(CVid)
 set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-# Add the game engine
-add_subdirectory("engine")
-
 include_directories("include")
 include_directories("ext")
 
