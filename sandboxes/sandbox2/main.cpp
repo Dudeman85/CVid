@@ -19,7 +19,7 @@ int main()
 {
 	cvid::Vector2Int windowSize = cvid::MaxWindowSize();
 	cvid::Window window(windowSize.x - 10, windowSize.y - 5, "CVid");
-	window.enableDepthTest = true;
+	window.enableDepthTest = false;
 
 	cvid::Camera cam(cvid::Vector3(0, 0, 100), windowSize.x, windowSize.y);
 	float fov = 90;
