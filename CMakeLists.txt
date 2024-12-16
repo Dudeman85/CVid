@@ -16,8 +16,6 @@ target_include_directories(CVid PUBLIC
   $<INSTALL_INTERFACE:include>
 )
 
-target_link_libraries(CVid engine)
-
 add_subdirectory("sandboxes")
 add_subdirectory("app")
 

@@ -70,7 +70,7 @@ namespace cvid
 		std::vector<Vertex> vertices = model->GetBaseModel()->vertices;
 		const std::vector<Vector2>& texCoords = model->GetBaseModel()->texCoords;
 
-		//Apply transform to all vertices
+		//Apply model transform to all vertices
 		for (Vertex& vert : vertices)
 			vert.position = model->GetTransform() * Vector4(vert.position, 1.0);
 
@@ -90,17 +90,15 @@ namespace cvid
 
 		//Apply view to all vertices
 		for (Vertex& vert : vertices)
-		{
-			Vector4 v = Vector4(vert.position, 1.0);
-			//Apply the view
-			v = cam->GetView() * v;
-
-			vert.position = Vector3(v);
-		}
+			vert.position = cam->GetView() * Vector4(vert.position, 1.0);
 
 		//For each face in the model
 		for (size_t i = 0; i < model->GetBaseModel()->faces.size(); i++)
 		{
+			//Backface culling
+			if (culled[i])
+				continue;
+
 			const IndexedFace& iFace = model->GetBaseModel()->faces[i];
 			//Copy the indexed face's vertices and texture coords to it's own container
 			Face face{
@@ -136,24 +134,20 @@ namespace cvid
 
 				face.vertices = { v1, v2, v3 };
 
-				//Backface culling
-				if (!culled[i])
-				{
-					//Convert from clip space to screen space
-					Vector3 windowHalfSize(window->GetDimensions() / 2, 1);
-					face.vertices.v0 *= windowHalfSize;
-					face.vertices.v1 *= windowHalfSize;
-					face.vertices.v2 *= windowHalfSize;
-					face.vertices.v0 += windowHalfSize;
-					face.vertices.v1 += windowHalfSize;
-					face.vertices.v2 += windowHalfSize;
-					face.vertices.v0.z = v1.w;
-					face.vertices.v1.z = v2.w;
-					face.vertices.v2.z = v3.w;
+				//Convert from clip space to screen space
+				Vector3 windowHalfSize(window->GetDimensions() / 2, 1);
+				face.vertices.v0 *= windowHalfSize;
+				face.vertices.v1 *= windowHalfSize;
+				face.vertices.v2 *= windowHalfSize;
+				face.vertices.v0 += windowHalfSize;
+				face.vertices.v1 += windowHalfSize;
+				face.vertices.v2 += windowHalfSize;
+				face.vertices.v0.z = v1.w;
+				face.vertices.v1.z = v2.w;
+				face.vertices.v2.z = v3.w;
 
-					//Draw the face (triangle)
-					RasterizeTriangle(window, face, model->GetMaterial());
-				}
+				//Draw the face (triangle)
+				RasterizeTriangle(window, face, model->GetMaterial());
 			}
 		}
 	}

@@ -2,6 +2,7 @@
 #include <cvid/Renderer.h>
 #include <cvid/Model.h>
 #include <cvid/Rasterizer.h>
+#include <cvid/Camera.h>
 #include "stdio.h"
 
 #define SWAP(a, b) {auto tmp = a; a = b; b = tmp;}
@@ -61,6 +62,13 @@ int main()
 	cvid::Camera cam({ 0, 0, 100 }, 64, 64);
 	//Set it as perspective with fov, near, and far
 	cam.MakePerspective(90, 1, 100);
+
+	//Set some transforms
+	cam.SetPosition({30, 30, 50});
+	cam.SetRotation({cvid::Radians(-45)});
+
+	//Get the forward -Z vector of the camera
+	cvid::Vector3 forward = cam.GetForward();
 
 	//Load a model from file
 	cvid::Model cube("../../../resources/cube.obj");
