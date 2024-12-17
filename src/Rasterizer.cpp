@@ -294,7 +294,7 @@ namespace cvid
 		{
 			//Interpolate for z positions for each horizontal scanline
 			std::vector<double> zPositions = LerpRange(leftSegment->at(yi).x, rightSegment->at(yi).x, leftSegment->at(yi).z, rightSegment->at(yi).z);
-			//Interpolate texture coordiates if applicable
+			//Interpolate texture coordinates if applicable
 			std::vector<Vector2> texCoords;
 			if (mat) if (mat->texture)
 				texCoords = LerpRange2D(leftSegment->at(yi).x, rightSegment->at(yi).x, leftSegment->at(yi).texCoord, rightSegment->at(yi).texCoord);
