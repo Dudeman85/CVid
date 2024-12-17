@@ -26,7 +26,7 @@ int main()
 	cam.MakePerspective(fov, 1, 5000);
 	cam.Rotate(cvid::Vector3(0, cvid::Radians(0), 0));
 
-	cvid::Model cube("../../../resources/Alpheus.obj");
+	cvid::Model cube("../../../resources/Achelous.obj");
 	cvid::Texture cubeFlat("../../../resources/cubeFlat.png");
 
 	cvid::ModelInstance cubeInstance(&cube);
@@ -113,7 +113,7 @@ int main()
 		if (GetKeyState('I') & 0x8000)
 			cubeInstance.Rotate({ 0, 0, cvid::Radians(1) });
 
-		window.Fill({ 242, 242, 242 });
+		window.Fill({ 0, 0, 0 });
 		window.ClearDepthBuffer();
 
 		cvid::Material mat;
@@ -121,7 +121,7 @@ int main()
 		//cvid::RasterizeTriangle(&window, cvid::Face{ { {5, 5, 1}, {40, 5, 10}, {40, 40, 15} }}, &mat);
 
 
-		//cvid::DrawModel(&cubeInstance, &cam, &window);
+		cvid::DrawModel(&cubeInstance, &cam, &window);
 		//cvid::DrawModel(&cubeInstance2, &cam, &window);
 
 		std::cout << "Frame rendered in: " << cvid::EndTimePoint() << std::endl;
