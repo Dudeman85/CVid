@@ -19,14 +19,14 @@ int main()
 {
 	cvid::Vector2Int windowSize = {64, 64};
 	cvid::Window window(windowSize.x, windowSize.y, "CVid");
-	window.enableDepthTest = false;
+	window.enableDepthTest = true;
 
 	cvid::Camera cam(cvid::Vector3(0, 0, 100), windowSize.x, windowSize.y);
 	float fov = 90;
 	cam.MakePerspective(fov, 1, 5000);
 	cam.Rotate(cvid::Vector3(0, cvid::Radians(0), 0));
 
-	cvid::Model cube("../../../resources/cube.obj");
+	cvid::Model cube("../../../resources/Achelous.obj");
 	cvid::Texture cubeFlat("../../../resources/cubeFlat.png");
 
 	cvid::ModelInstance cubeInstance(&cube);
