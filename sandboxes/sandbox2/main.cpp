@@ -113,8 +113,6 @@ int main()
 		if (GetKeyState('I') & 0x8000)
 			cubeInstance.Rotate({ 0, 0, cvid::Radians(1) });
 
-		std::cout << cubeInstance.GetPosition().ToString() << std::endl;
-
 		window.Fill({ 0, 0, 0 });
 		window.ClearDepthBuffer();
 
