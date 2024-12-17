@@ -91,7 +91,7 @@ namespace cvid
 		//Apply view to all vertices
 		for (Vertex& vert : vertices)
 			vert.position = cam->GetView() * Vector4(vert.position, 1.0);
-
+		
 		//For each face in the model
 		for (size_t i = 0; i < model->GetBaseModel()->faces.size(); i++)
 		{
