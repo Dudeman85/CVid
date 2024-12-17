@@ -158,8 +158,8 @@ namespace cvid
 		//Make sure there is not already a closer pixel
 		if (enableDepthTest)
 		{
-			//Basically smaller z means further away, +0.01 prevents edge fighting
-			if (z < depthBuffer[y * width + x] + 0.01)
+			//Basically smaller z means further away
+			if (z < depthBuffer[y * width + x])
 				return false;
 			depthBuffer[y * width + x] = z;
 		}
@@ -231,14 +231,14 @@ namespace cvid
 		return true;
 	}
 
-	//Clear the depthbuffer, setting everything to 0
+	//Clear the depthbuffer, setting everything to -1
 	bool Window::ClearDepthBuffer()
 	{
 		for (size_t y = 0; y < height; y++)
 		{
 			for (size_t x = 0; x < width; x++)
 			{
-				depthBuffer[y * width + x] = 0;
+				depthBuffer[y * width + x] = -1;
 			}
 		}
 		return true;

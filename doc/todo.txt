@@ -1,8 +1,8 @@
 REQUIRED:
 Rasterizer:
 - sprite rendering
+- Fix edge fighting
 Window:
-- Make a standard window with win32
 - Fix pipe buffer issues
 - buffer issue causes pipe disconnect when sending too much data
 - handle window events
