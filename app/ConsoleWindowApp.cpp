@@ -155,13 +155,13 @@ int main(int argc, char* argv[])
 
 					//Add the proper vts to the displayFrame
 					//Format: \x1b38;2;<r>;<g>;<b>;m
-					frameString.append(std::format("\x1b[38;2;{};{};{}m", thisPixel.foregroundColor.r, thisPixel.foregroundColor.g, thisPixel.foregroundColor.b));
-					frameString.append(std::format("\x1b[48;2;{};{};{}m{}", thisPixel.backgroundColor.r, thisPixel.backgroundColor.g, thisPixel.backgroundColor.b, thisPixel.character));
+					frameString.append(std::format("\x1b[38;2;{};{};{}m", thisPixel.fg.r, thisPixel.fg.g, thisPixel.fg.b));
+					frameString.append(std::format("\x1b[48;2;{};{};{}m{}", thisPixel.bg.r, thisPixel.bg.g, thisPixel.bg.b, thisPixel.character));
 				}
 			}
 
 			//Move cursor to 0, 0 and print frame
-			std::cout << "\x1b[0;0f" << frameString;
+			std::cout << "\x1b[0;0f" << frameString << "e";
 
 			break;
 		}
