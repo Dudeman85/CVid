@@ -56,7 +56,7 @@ void DrawLine(cvid::Window& w, int x0, int y0, int x1, int y1)
 int main()
 {
 	//Make a console window with width, height, and name
-	cvid::Window window(64, 64, "CVid");
+	cvid::Window window(160, 90, "CVid");
 	window.enableDepthTest = false;
 
 	//Make the camera with {x, y, z}, width, height
@@ -84,9 +84,19 @@ int main()
 	while (true)
 	{
 		//Fill the canvas with some rgb value at the start of frame
-		window.Fill({ 0, 0, 0 });
+		window.Fill({ 242, 242, 242 });
 		window.ClearDepthBuffer();
+		/*
+		DrawLine(window, 10, 10, 80, 80);
+		DrawLine(window, 10, 10, 10, 80);
+		DrawLine(window, 10, 10, 80, 10);
+		DrawLine(window, 96, 70, 110, 18);
+		DrawLine(window, 65, 30, 130, 50);
+		*/
 
+		cvid::RasterizeTriangleWireframe(&window, { {10, 10, 1}, {18, 45, 1}, {35, 20, 1} }, {0, 0, 0});
+
+		/*
 		//Draw the model instance to the window's canvas
 		cvid::DrawModel(&cubeInstance, &cam, &window);
 
@@ -99,6 +109,7 @@ int main()
 		cvid::RasterizeTriangle(&window, verts, { 0, 153, 255 });
 		//Write a string directly to the canvas
 		window.PutString(20, 25, "Hello World!", { 153, 0, 153 }, { 240, 240, 240 });
+		*/
 
 		//Draw the frame to the window, end the program on failure
 		if (!window.DrawFrame())
