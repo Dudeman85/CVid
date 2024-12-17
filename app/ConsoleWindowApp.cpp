@@ -144,7 +144,7 @@ int main(int argc, char* argv[])
 			//Print an entire frame of data
 			cvid::CharPixel* pixelData = (cvid::CharPixel*)(buffer + 1);
 			std::string frameString;
-			frameString.reserve((size_t)10 * width * (height / 2));
+			frameString.reserve((size_t)29 * width * (height / 2));
 
 			//For every pixel in the framebuffer
 			for (size_t y = 0; y < height / 2; y++)

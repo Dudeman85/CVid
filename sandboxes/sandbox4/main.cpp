@@ -51,7 +51,8 @@ void DrawLine(cvid::Window& w, int x0, int y0, int x1, int y1)
 		}
 	}
 }
-
+#include <iostream>
+#include <Windows.h>
 int main()
 {
 	//Make a console window with width, height, and name
