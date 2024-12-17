@@ -28,9 +28,9 @@ namespace cvid
 	struct CharPixel
 	{
 		//Top pixel color
-		Color foregroundColor;
+		Color fg;
 		//Bottom pixel color
-		Color backgroundColor;
+		Color bg;
 		char character = (char)223;
 	};
 
@@ -42,7 +42,7 @@ namespace cvid
 	{
 	public:
 		//Create a new console window with dimensions in console pixels
-		Window(uint16_t width, uint16_t height, std::string name);
+		Window(uint16_t width, uint16_t height, std::string name, bool newProcess = false);
 		~Window();
 
 		//Set a pixel on the framebuffer to the closest rgb color
@@ -74,7 +74,7 @@ namespace cvid
 		//Return true if the window process is still active, optionally gives back exit code
 		bool IsAlive(DWORD* exitCode = nullptr);
 		//Get the dimensions of this window. Y is in pixel coordinates
-		Vector2Int GetDimensions();
+		Vector2Int GetSize();
 
 		//Function to call when the window closes
 		std::function<void(Window*)> onClose;
@@ -82,6 +82,14 @@ namespace cvid
 		bool enableDepthTest = true;
 
 	private:
+		//Create this window as a new process
+		void CreateAsNewProcess(std::string name);
+		//Create this window using the main application's console
+		void CreateAsMain(std::string name);
+		
+		//Apply the properties to main console
+		void ApplyPropertiesToMain(WindowProperties properties);
+
 		//Bitmap of each character pixel for the window
 		//Half the screen height and upside down, accessed [(height - 1 - y) / 2 * width + x] 
 		CharPixel* frameBuffer;
@@ -95,11 +103,14 @@ namespace cvid
 		uint16_t width;
 		uint16_t height;
 		bool alive = true;
+		//Is this window it's own process or the console of the parent application
+		bool seperateProcess;
 
 		//Maximum window dimensions provided by windows
 		uint16_t maxWidth;
 		uint16_t maxHeight;
 
+		//PROCESS SPECIFIC
 		//Pipes to send data to the window process
 		std::string outPipeName;
 		std::string inPipeName;

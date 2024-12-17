@@ -246,9 +246,9 @@ namespace cvid
 		Vector2Int p1 = tri.vertices.v1;
 		Vector2Int p2 = tri.vertices.v2;
 		//Correct for perspective correct interpolation
-		Attributes a0 = { std::round(tri.vertices.v0.x), 1.0 / tri.vertices.v0.z, tri.texCoords.v0 / tri.vertices.v0.z };
-		Attributes a1 = { std::round(tri.vertices.v1.x), 1.0 / tri.vertices.v1.z, tri.texCoords.v1 / tri.vertices.v1.z };
-		Attributes a2 = { std::round(tri.vertices.v2.x), 1.0 / tri.vertices.v2.z, tri.texCoords.v2 / tri.vertices.v2.z };
+		Attributes a0 = { std::lroundf(tri.vertices.v0.x), 1.0 / tri.vertices.v0.z, tri.texCoords.v0 / tri.vertices.v0.z };
+		Attributes a1 = { std::lroundf(tri.vertices.v1.x), 1.0 / tri.vertices.v1.z, tri.texCoords.v1 / tri.vertices.v1.z };
+		Attributes a2 = { std::lroundf(tri.vertices.v2.x), 1.0 / tri.vertices.v2.z, tri.texCoords.v2 / tri.vertices.v2.z };
 
 		//Sort the vertices in vertically descending order
 		if (p0.y < p1.y)
@@ -325,9 +325,9 @@ namespace cvid
 		Vector2Int p1 = verts.v1;
 		Vector2Int p2 = verts.v2;
 		//Correct for perspective correct interpolation
-		Attributes a0 = { std::round(verts.v0.x), 1.0 / verts.v0.z, 0 };
-		Attributes a1 = { std::round(verts.v1.x), 1.0 / verts.v1.z, 0 };
-		Attributes a2 = { std::round(verts.v2.x), 1.0 / verts.v2.z, 0 };
+		Attributes a0 = { std::lroundf(verts.v0.x), 1.0 / verts.v0.z, 0 };
+		Attributes a1 = { std::lroundf(verts.v1.x), 1.0 / verts.v1.z, 0 };
+		Attributes a2 = { std::lroundf(verts.v2.x), 1.0 / verts.v2.z, 0 };
 
 		//Sort the vertices in vertically descending order
 		if (p0.y < p1.y)

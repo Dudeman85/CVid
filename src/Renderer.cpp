@@ -135,7 +135,7 @@ namespace cvid
 				face.vertices = { v1, v2, v3 };
 
 				//Convert from clip space to screen space
-				Vector3 windowHalfSize(window->GetDimensions() / 2, 1);
+				Vector3 windowHalfSize(window->GetSize() / 2, 1);
 				face.vertices.v0 *= windowHalfSize;
 				face.vertices.v1 *= windowHalfSize;
 				face.vertices.v2 *= windowHalfSize;

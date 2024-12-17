@@ -11,7 +11,7 @@ namespace cvid
 	};
 
 	//Create a new console window
-	Window::Window(uint16_t width, uint16_t height, std::string name)
+	Window::Window(uint16_t width, uint16_t height, std::string name, bool newProcess)
 	{
 		//Round height to upper multiple of 2
 		height += height % 2;
@@ -19,15 +19,44 @@ namespace cvid
 		this->width = width;
 		this->height = height;
 		this->name = name;
-		HANDLE console = GetStdHandle(STD_OUTPUT_HANDLE);
-		maxWidth = GetLargestConsoleWindowSize(console).X;
-		maxHeight = GetLargestConsoleWindowSize(console).Y * 2;
+		this->seperateProcess = newProcess;
+		numWindowsCreated++;
 
 		//Create the frame and depth buffers
 		frameBuffer = new CharPixel[(size_t)width * height / 2];
 		depthBuffer = new double[(size_t)width * height];
 		ClearDepthBuffer();
 
+		//Create a new console window process if requested, otherwise usurp the main console
+		if (newProcess)
+			CreateAsNewProcess(name);
+		else
+			CreateAsMain(name);
+
+		//Set the properties of the Window
+		WindowProperties properties{ width, height };
+		SetProperties(properties);
+	}
+
+	//Create this window using the main application's console
+	void Window::CreateAsMain(std::string name)
+	{
+		//Get the console handle
+		HANDLE consoleOut = GetStdHandle(STD_OUTPUT_HANDLE);
+		HANDLE consoleIn = GetStdHandle(STD_INPUT_HANDLE);
+		//Enable virtual terminal processing
+		SetConsoleMode(consoleOut, ENABLE_VIRTUAL_TERMINAL_PROCESSING | ENABLE_PROCESSED_OUTPUT);
+		//Disable quick edit
+		DWORD mode = 0;
+		GetConsoleMode(consoleIn, &mode);
+		SetConsoleMode(consoleIn, mode & ~ENABLE_QUICK_EDIT_MODE);
+		//Hide the cursor
+		std::cout << "\x1b[?25l";
+	}
+
+	//Create this window as a new process
+	void Window::CreateAsNewProcess(std::string name)
+	{
 		//Create the outbound pipe to the new console process
 		unsigned int pid = GetCurrentProcessId();
 		std::string genericPipeName = std::format("\\\\.\\pipe\\process{}window{}", pid, numWindowsCreated);
@@ -130,12 +159,6 @@ namespace cvid
 			throw std::runtime_error("Failed to connect pipe");
 			return;
 		}
-
-		//Set the properties of the Window
-		WindowProperties properties{ width, height };
-		SetProperties(properties);
-
-		numWindowsCreated++;
 	}
 
 	Window::~Window()
@@ -172,9 +195,9 @@ namespace cvid
 		thisPixel.character = (char)223;
 		//Top or bottom pixel
 		if (y % 2 == 0)
-			thisPixel.backgroundColor = color;
+			thisPixel.bg = color;
 		else
-			thisPixel.foregroundColor = color;
+			thisPixel.fg = color;
 
 		return true;
 	}
@@ -210,7 +233,7 @@ namespace cvid
 		//For each character
 		for (size_t i = 0; i < string.size(); i++)
 		{
-			CharPixel c = {fg, bg, string[i]};
+			CharPixel c = { fg, bg, string[i] };
 			PutChar(x + i, y, c);
 		}
 
@@ -258,15 +281,24 @@ namespace cvid
 	bool Window::SetProperties(WindowProperties properties)
 	{
 		//Make sure the window is not sized too big
-		if (properties.width > maxWidth || properties.height > maxHeight)
+		Vector2Int maxSize = MaxWindowSize();
+		if (properties.width > maxSize.x || properties.height > maxSize.y)
 		{
 			LogWarning("CVid warning in Window: Window dimensions too large, maximum is " + std::to_string(maxWidth) + ", " + std::to_string(maxHeight));
 			return false;
 		}
 
 		//Send it to the console app
-		if (!SendData(&properties, sizeof(properties), DataType::Properties))
-			return false;
+		if (seperateProcess)
+		{
+			if (!SendData(&properties, sizeof(properties), DataType::Properties))
+				return false;
+		}
+		else
+		{
+			//Apply them straight to the main process console
+			ApplyPropertiesToMain(properties);
+		}
 
 		//Round height to upper multiple of 2
 		properties.height += properties.height % 2;
@@ -283,6 +315,27 @@ namespace cvid
 		return true;
 	}
 
+	//Apply the properties to main console
+	void Window::ApplyPropertiesToMain(WindowProperties properties)
+	{
+		HANDLE consoleOut = GetStdHandle(STD_OUTPUT_HANDLE);
+		//Resize the console to fit the frame
+		SMALL_RECT consoleSize{ 0, 0, properties.width - 1 , (short)ceil((float)properties.height / 2) - 1 };
+		SMALL_RECT minSize{ 0, 0, 1, 1 };
+		SetConsoleWindowInfo(consoleOut, true, &minSize);
+		if (!SetConsoleScreenBufferSize(consoleOut, { (short)properties.width, (short)ceil((float)properties.height / 2) }))
+		{
+			cvid::LogWarning("Error, code " + std::to_string(GetLastError()));
+			//TODO: Handle error
+		}
+		//SetConsoleWindowInfo has to be called before and after SetConsoleScreenBufferSize othewise Windows has a fit
+		if (!SetConsoleWindowInfo(consoleOut, true, &consoleSize))
+		{
+			cvid::LogWarning("Error, code " + std::to_string(GetLastError()));
+			//TODO: Handle error
+		}
+	}
+
 	//Draw the current framebuffer
 	bool Window::DrawFrame()
 	{
@@ -290,12 +343,41 @@ namespace cvid
 
 		const size_t frameSize = (size_t)width * (height / 2);
 
-		return SendData(frameBuffer, frameSize * sizeof(CharPixel), DataType::Frame);
+		//Send to process if seperate
+		if (seperateProcess)
+			return SendData(frameBuffer, frameSize * sizeof(CharPixel), DataType::Frame);
+		//Draw the frame directly
+		else
+		{
+			std::string frameString;
+			frameString.reserve((size_t)29 * width * (height / 2));
+
+			//For every pixel in the framebuffer
+			for (size_t y = 0; y < height / 2; y++)
+			{
+				for (size_t x = 0; x < width; x++)
+				{
+					cvid::CharPixel& thisPixel = frameBuffer[y * width + x];
+
+					//Add the proper vts to the displayFrame
+					//Format: \x1b38;2;<r>;<g>;<b>;m
+					frameString.append(std::format("\x1b[38;2;{};{};{}m", thisPixel.fg.r, thisPixel.fg.g, thisPixel.fg.b));
+					frameString.append(std::format("\x1b[48;2;{};{};{}m{}", thisPixel.bg.r, thisPixel.bg.g, thisPixel.bg.b, thisPixel.character));
+				}
+			}
+
+			//Move cursor to 0, 0 and print frame
+			std::cout << "\x1b[0;0f" << frameString;
+		}
 	}
 
 	//Send data to the window process
 	bool Window::SendData(const void* data, size_t amount, DataType type, bool block)
 	{
+		//Doesnt work with main window yet
+		if (!seperateProcess)
+			return false;
+
 		if (!alive)
 			return false;
 
@@ -350,7 +432,7 @@ namespace cvid
 	//Closes the window process
 	void Window::CloseWindow()
 	{
-		if (alive)
+		if (alive && seperateProcess)
 		{
 			//Close all handles.
 			CloseHandle(processInfo.hProcess);
@@ -371,7 +453,7 @@ namespace cvid
 	//Return true if the window process is still active
 	bool Window::IsAlive(DWORD* exitCode)
 	{
-		if (alive)
+		if (alive && seperateProcess)
 		{
 			DWORD code;
 			GetExitCodeProcess(processInfo.hProcess, &code);
@@ -388,7 +470,7 @@ namespace cvid
 	}
 
 	//Get the dimensions of this window. Y is in pixel coordinates
-	Vector2Int Window::GetDimensions()
+	Vector2Int Window::GetSize()
 	{
 		return Vector2Int(width, height);
 	}

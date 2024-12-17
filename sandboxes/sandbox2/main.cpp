@@ -17,8 +17,8 @@
 
 int main()
 {
-	cvid::Vector2Int windowSize = {64, 64};
-	cvid::Window window(windowSize.x, windowSize.y, "CVid");
+	cvid::Vector2Int windowSize = {160, 90};
+	cvid::Window window(windowSize.x, windowSize.y, "CVid", true);
 	window.enableDepthTest = true;
 
 	cvid::Camera cam(cvid::Vector3(0, 0, 100), windowSize.x, windowSize.y);
@@ -26,7 +26,7 @@ int main()
 	cam.MakePerspective(fov, 1, 5000);
 	cam.Rotate(cvid::Vector3(0, cvid::Radians(0), 0));
 
-	cvid::Model cube("../../../resources/Achelous.obj");
+	cvid::Model cube("../../../resources/Alpheus.obj");
 	cvid::Texture cubeFlat("../../../resources/cubeFlat.png");
 
 	cvid::ModelInstance cubeInstance(&cube);
@@ -113,7 +113,7 @@ int main()
 		if (GetKeyState('I') & 0x8000)
 			cubeInstance.Rotate({ 0, 0, cvid::Radians(1) });
 
-		window.Fill({ 0, 0, 0 });
+		window.Fill({ 242, 242, 242 });
 		window.ClearDepthBuffer();
 
 		cvid::Material mat;
@@ -121,10 +121,10 @@ int main()
 		//cvid::RasterizeTriangle(&window, cvid::Face{ { {5, 5, 1}, {40, 5, 10}, {40, 40, 15} }}, &mat);
 
 
-		cvid::DrawModel(&cubeInstance, &cam, &window);
+		//cvid::DrawModel(&cubeInstance, &cam, &window);
 		//cvid::DrawModel(&cubeInstance2, &cam, &window);
 
-		//std::cout << "Frame rendered in: " << cvid::EndTimePoint() << std::endl;
+		std::cout << "Frame rendered in: " << cvid::EndTimePoint() << std::endl;
 
 		if (!window.DrawFrame())
 			return 0;
@@ -132,7 +132,7 @@ int main()
 		//For some reason this stops the window from freezing
 		window.SendData("\x1b[0;0H", 7, cvid::DataType::String);
 
-		//std::cout << "Window responded in: " << cvid::EndTimePoint() << std::endl;
+		std::cout << "Window responded in: " << cvid::EndTimePoint() << std::endl;
 	}
 
 	return 0;
