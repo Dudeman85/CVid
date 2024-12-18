@@ -1,6 +1,5 @@
 REQUIRED:
 Rasterizer:
-- sprite rendering
 - Fix edge fighting
 Window:
 - Fix pipe buffer issues
@@ -12,6 +11,7 @@ Window:
 
 WOULD BE NICE:
 Rasterizer:
+- shading
 - dithering for blending
 Renderer:
 - allow for drawing wireframe indexed polygons
