@@ -94,7 +94,7 @@ int main()
 		DrawLine(window, 65, 30, 130, 50);
 		*/
 
-		cvid::RasterizeTriangleWireframe(&window, { {10, 10, 1}, {18, 45, 1}, {35, 20, 1} }, {0, 0, 0});
+		cvid::RasterizeTriangle(&window, { {10, 25, 1}, {14, 65, 1}, {35, 20, 1} }, {0, 0, 0});
 
 		/*
 		//Draw the model instance to the window's canvas
