@@ -200,14 +200,14 @@ namespace cvid
 	{
 		//Precalculate the angles of the 4 planes
 		float angle = Radians(fov / 2);
-		float horizontalAngle = angle * aspectRatio;
+		float horizontalAngle = atan(angle) * aspectRatio;
 
 		//Near is always the same for now atleast
 		nearClip = Vector3(0, 0, -1);
 		//These are calculated as normal vectors facing into the clip space
-		leftClip = Vector3(cos(horizontalAngle), 0, -sin(horizontalAngle));
-		rightClip = Vector3(-cos(horizontalAngle), 0, -sin(horizontalAngle));
 		topClip = Vector3(0, -cos(angle), -sin(angle));
 		bottomClip = Vector3(0, cos(angle), -sin(angle));
+		leftClip = Vector3(cos(horizontalAngle), 0, -sin(horizontalAngle));
+		rightClip = Vector3(-cos(horizontalAngle), 0, -sin(horizontalAngle));
 	}
 }
