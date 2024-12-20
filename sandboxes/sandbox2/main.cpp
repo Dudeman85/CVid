@@ -26,7 +26,7 @@ int main()
 	cam.MakePerspective(fov, 1, 5000);
 	cam.Rotate(cvid::Vector3(0, cvid::Radians(0), 0));
 
-	cvid::Model cube("../../../resources/cube.obj");
+	cvid::Model cube("../../../resources/Achelous.obj");
 	cvid::Texture cubeFlat("../../../resources/cubeFlat.png");
 
 	cvid::ModelInstance cubeInstance(&cube);
@@ -113,7 +113,7 @@ int main()
 		if (GetKeyState('I') & 0x8000)
 			cubeInstance.Rotate({ 0, 0, cvid::Radians(1) });
 
-		window.Fill({ 242, 242, 242 });
+		window.Fill({ 0, 0, 0 });
 		window.ClearDepthBuffer();
 
 		cvid::Material mat;
