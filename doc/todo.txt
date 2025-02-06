@@ -1,19 +1,22 @@
 REQUIRED:
+Demo:
+- Implement mouse look
+- Create a 3D scene in Blender
+- Add movement boundaries
+
+WOULD BE NICE:
 Rasterizer:
+- shading
+- dithering for blending
 - Fix edge fighting
+Renderer:
+- allow for drawing wireframe indexed polygons
+- multithreading optimization
+Model:
+- Add option to not triangulate
 Window:
 - Fix pipe buffer issues
 - buffer issue causes pipe disconnect when sending too much data
 - handle window events
 - weird bug with sending data to window at low speeds
 - window size change doesnt always work
-- Fix massive lag caused by window
-
-WOULD BE NICE:
-Rasterizer:
-- shading
-- dithering for blending
-Renderer:
-- allow for drawing wireframe indexed polygons
-Model:
-- Add option to not triangulate
