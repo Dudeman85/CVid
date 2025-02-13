@@ -49,7 +49,7 @@ namespace cvid
 		//Disable quick edit
 		DWORD mode = 0;
 		GetConsoleMode(consoleIn, &mode);
-		SetConsoleMode(consoleIn, mode & ~ENABLE_QUICK_EDIT_MODE);
+		SetConsoleMode(consoleIn, (mode & ~ENABLE_QUICK_EDIT_MODE) | ENABLE_WINDOW_INPUT | ENABLE_MOUSE_INPUT);
 		//Hide the cursor
 		std::cout << "\x1b[?25l";
 	}
