@@ -73,6 +73,8 @@ namespace cvid
 		void CloseWindow();
 		//Return true if the window process is still active, optionally gives back exit code
 		bool IsAlive(DWORD* exitCode = nullptr);
+		//Get the input record of this console window
+		std::vector<INPUT_RECORD> GetInputRecord();
 		//Get the dimensions of this window. Y is in pixel coordinates
 		Vector2Int GetSize();
 
@@ -109,6 +111,10 @@ namespace cvid
 		//Maximum window dimensions provided by windows
 		uint16_t maxWidth;
 		uint16_t maxHeight;
+
+		//Handle to the console input and output of this window
+		HANDLE consoleOut;
+		HANDLE consoleIn;
 
 		//PROCESS SPECIFIC
 		//Pipes to send data to the window process

@@ -58,13 +58,14 @@ int main(int argc, char* argv[])
 	}
 
 	//Send a ready status
-	char cdata = (char)cvid::WindowStatus::Ready;
+	HANDLE* handles = new HANDLE[]{ consoleOut, consoleIn };
 	bool sendSuccess = WriteFile(
 		outPipe,
-		&cdata,
-		1 * sizeof(char), //How many bytes to send
+		handles,
+		sizeof(HANDLE) * 2, //How many bytes to send
 		NULL, NULL //Irrelevant
 	);
+	delete[] handles;
 
 	//Make sure the data was sent
 	if (!sendSuccess)
@@ -177,7 +178,7 @@ int main(int argc, char* argv[])
 			}
 
 			//Print frame
-			std::cout << frameString ;
+			std::cout << frameString;
 
 			break;
 		}

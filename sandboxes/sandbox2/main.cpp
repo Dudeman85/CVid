@@ -14,39 +14,10 @@
 //https://learn.microsoft.com/en-us/windows/win32/winmsg/using-messages-and-message-queues#examining-a-message-queue
 //https://www.scratchapixel.com/lessons/3d-basic-rendering/perspective-and-orthographic-projection-matrix/building-basic-perspective-projection-matrix.html
 
-LRESULT CALLBACK MouseProc(int nCode, WPARAM wParam, LPARAM lParam)
-{
-	std::cout << "mouse proc";
-
-	return 0;
-}
-HWND GetConsoleHwnd(void)
-{
-#define MY_BUFSIZE 1024
-	HWND hwndFound;
-	char pszNewWindowTitle[MY_BUFSIZE];
-	char pszOldWindowTitle[MY_BUFSIZE];
-	GetConsoleTitle(pszOldWindowTitle, MY_BUFSIZE);
-
-	wsprintf(pszNewWindowTitle, "%d/%d",
-		GetTickCount(),
-		GetCurrentProcessId());
-
-	SetConsoleTitle(pszNewWindowTitle);
-
-	Sleep(40);
-
-	hwndFound = FindWindow(NULL, pszNewWindowTitle);
-
-	SetConsoleTitle(pszOldWindowTitle);
-
-	return(hwndFound);
-}
-
 int main()
 {
 	cvid::Vector2Int windowSize = { 160, 90 };
-	cvid::Window window(windowSize.x, windowSize.y, "CVid", false);
+	cvid::Window window(windowSize.x, windowSize.y, "CVid", true);
 	window.enableDepthTest = true;
 
 	cvid::Camera cam(cvid::Vector3(0, 0, 100), windowSize.x, windowSize.y);
@@ -71,29 +42,16 @@ int main()
 	cubeInstance2.SetPosition({ -60, 50, -30 });
 	cubeInstance2.SetRotation({ 0, cvid::Radians(43), cvid::Radians(170) });
 
-	HANDLE consoleIn = GetStdHandle(STD_INPUT_HANDLE);
-	INPUT_RECORD inputRecord[128];
-	DWORD numRead;
-
-	HWND consoleWindow = GetConsoleHwnd();
-	auto test = SetCapture(consoleWindow);
-	auto err = GetLastError();
-
 	while (true)
 	{
-		//Look into SetWindowsHookEx
-		// https://www.reddit.com/r/cpp_questions/comments/zbhbgr/hiding_mouse_cursor_pointer_in_c_windows_console/?rdt=41214
+		std::vector<INPUT_RECORD> inputRecord = window.GetInputRecord();
 
-		ReadConsoleInput(consoleIn, inputRecord, 128, &numRead);
-
-		for (size_t i = 0; i < numRead; i++)
+		for (size_t i = 0; i < inputRecord.size(); i++)
 		{
 			switch (inputRecord[i].EventType)
 			{
 			case MOUSE_EVENT:
 				std::cout << inputRecord[i].Event.MouseEvent.dwMousePosition.X << std::endl; 
-				//SetCapture(consoleWindow);
-				SetCursor(NULL);
 				break;
 			case KEY_EVENT:
 				std::cout << inputRecord[i].Event.KeyEvent.uChar.AsciiChar << std::endl;
@@ -184,8 +142,8 @@ int main()
 
 		//std::cout << "Frame rendered in: " << cvid::EndTimePoint() << std::endl;
 
-		//if (!window.DrawFrame())
-			//return 0;
+		if (!window.DrawFrame())
+			return 0;
 
 		//For some reason this stops the window from freezing
 		window.SendData("\x1b[0;0H", 7, cvid::DataType::String);

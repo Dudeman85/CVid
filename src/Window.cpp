@@ -42,8 +42,8 @@ namespace cvid
 	void Window::CreateAsMain(std::string name)
 	{
 		//Get the console handle
-		HANDLE consoleOut = GetStdHandle(STD_OUTPUT_HANDLE);
-		HANDLE consoleIn = GetStdHandle(STD_INPUT_HANDLE);
+		consoleOut = GetStdHandle(STD_OUTPUT_HANDLE);
+		consoleIn = GetStdHandle(STD_INPUT_HANDLE);
 		//Enable virtual terminal processing
 		SetConsoleMode(consoleOut, ENABLE_VIRTUAL_TERMINAL_PROCESSING | ENABLE_PROCESSED_OUTPUT);
 		//Disable quick edit
@@ -159,6 +159,32 @@ namespace cvid
 			throw std::runtime_error("Failed to connect pipe");
 			return;
 		}
+
+		//Read the console handles from the pipe
+		DWORD numBytesRead = 0; 
+		HANDLE* buffer = new HANDLE[2];
+		bool readPipeSuccess = ReadFile(
+			inPipe,
+			buffer, //The destination for the data from the pipe
+			sizeof(HANDLE) * 2, //Attempt to read this many bytes
+			&numBytesRead,
+			NULL //Not using overlapped IO
+		);
+
+		//Make sure the read succeeded
+		if (!readPipeSuccess || numBytesRead == 0)
+		{
+			//If the pipe fails, kill the process
+			cvid::LogWarning("CVid error in create window process: Failed to read from pipe, code " + std::to_string(GetLastError()));
+			throw std::runtime_error("Failed to read from pipe");
+			return;
+		}
+
+		consoleOut = buffer[0];
+		consoleIn = buffer[1];
+		delete[] buffer;
+
+		std::cout << "1";
 	}
 
 	Window::~Window()
@@ -288,10 +314,12 @@ namespace cvid
 			return false;
 		}
 
+		std::cout << "4";
+
 		//Send it to the console app
 		if (seperateProcess)
 		{
-			if (!SendData(&properties, sizeof(properties), DataType::Properties))
+			if (!SendData(&properties, sizeof(properties), DataType::Properties, false))
 				return false;
 		}
 		else
@@ -299,6 +327,8 @@ namespace cvid
 			//Apply them straight to the main process console
 			ApplyPropertiesToMain(properties);
 		}
+
+		std::cout << "5";
 
 		//Round height to upper multiple of 2
 		properties.height += properties.height % 2;
@@ -318,7 +348,6 @@ namespace cvid
 	//Apply the properties to main console
 	void Window::ApplyPropertiesToMain(WindowProperties properties)
 	{
-		HANDLE consoleOut = GetStdHandle(STD_OUTPUT_HANDLE);
 		//Resize the console to fit the frame
 		SMALL_RECT consoleSize{ 0, 0, properties.width - 1 , (short)ceil((float)properties.height / 2) - 1 };
 		SMALL_RECT minSize{ 0, 0, 1, 1 };
@@ -467,6 +496,26 @@ namespace cvid
 		}
 
 		return alive;
+	}
+
+	//Get the input record of this console window
+	std::vector<INPUT_RECORD> Window::GetInputRecord()
+	{
+		//Get the input from console
+		INPUT_RECORD inputRecord[128];
+		DWORD numRead;
+		ReadConsoleInput(consoleIn, inputRecord, 128, &numRead);
+		std::cout << GetLastError();
+
+		//Put it in a vector for ease of use
+		std::vector<INPUT_RECORD> recordVec;
+		recordVec.reserve(numRead);
+		for (size_t i = 0; i < numRead; i++)
+		{
+			recordVec.push_back(inputRecord[i]);
+		}
+
+		return recordVec;
 	}
 
 	//Get the dimensions of this window. Y is in pixel coordinates

@@ -1,8 +1,7 @@
 REQUIRED:
 Demo:
-- Implement mouse look
-- Create a 3D scene in Blender
-- Add movement boundaries
+- Implement object rotation with click and drag mouse
+- Implement a object slideshow
 
 WOULD BE NICE:
 Rasterizer:
