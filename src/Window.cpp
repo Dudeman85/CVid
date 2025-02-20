@@ -159,32 +159,6 @@ namespace cvid
 			throw std::runtime_error("Failed to connect pipe");
 			return;
 		}
-
-		//Read the console handles from the pipe
-		DWORD numBytesRead = 0; 
-		HANDLE* buffer = new HANDLE[2];
-		bool readPipeSuccess = ReadFile(
-			inPipe,
-			buffer, //The destination for the data from the pipe
-			sizeof(HANDLE) * 2, //Attempt to read this many bytes
-			&numBytesRead,
-			NULL //Not using overlapped IO
-		);
-
-		//Make sure the read succeeded
-		if (!readPipeSuccess || numBytesRead == 0)
-		{
-			//If the pipe fails, kill the process
-			cvid::LogWarning("CVid error in create window process: Failed to read from pipe, code " + std::to_string(GetLastError()));
-			throw std::runtime_error("Failed to read from pipe");
-			return;
-		}
-
-		consoleOut = buffer[0];
-		consoleIn = buffer[1];
-		delete[] buffer;
-
-		std::cout << "1";
 	}
 
 	Window::~Window()
@@ -314,12 +288,10 @@ namespace cvid
 			return false;
 		}
 
-		std::cout << "4";
-
 		//Send it to the console app
 		if (seperateProcess)
 		{
-			if (!SendData(&properties, sizeof(properties), DataType::Properties, false))
+			if (!SendData(&properties, sizeof(properties), DataType::Properties))
 				return false;
 		}
 		else
@@ -327,8 +299,6 @@ namespace cvid
 			//Apply them straight to the main process console
 			ApplyPropertiesToMain(properties);
 		}
-
-		std::cout << "5";
 
 		//Round height to upper multiple of 2
 		properties.height += properties.height % 2;
@@ -505,7 +475,6 @@ namespace cvid
 		INPUT_RECORD inputRecord[128];
 		DWORD numRead;
 		ReadConsoleInput(consoleIn, inputRecord, 128, &numRead);
-		std::cout << GetLastError();
 
 		//Put it in a vector for ease of use
 		std::vector<INPUT_RECORD> recordVec;

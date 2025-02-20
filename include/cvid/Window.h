@@ -19,10 +19,8 @@ namespace cvid
 		uint16_t height;
 	};
 
-	//Status message from the window process
-	enum class WindowStatus : uint8_t { Ready = 1 };
 	//Is the data a frame string or properties struct
-	enum class DataType : uint8_t { String = 1, Properties = 2, Frame = 3 };
+	enum class DataType : uint8_t { String = 1, Properties = 2, Frame = 3, Ready = 4 };
 
 	//Ascii representation of two vertically stacked pixels
 	struct CharPixel
