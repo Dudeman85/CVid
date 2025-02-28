@@ -14,6 +14,11 @@
 //https://learn.microsoft.com/en-us/windows/win32/winmsg/using-messages-and-message-queues#examining-a-message-queue
 //https://www.scratchapixel.com/lessons/3d-basic-rendering/perspective-and-orthographic-projection-matrix/building-basic-perspective-projection-matrix.html
 
+cvid::Vector2Int GetMouseDelta()
+{
+	return {};
+}
+
 int main()
 {
 	cvid::Vector2Int windowSize = { 160, 90 };
@@ -42,29 +47,57 @@ int main()
 	cubeInstance2.SetPosition({ -60, 50, -30 });
 	cubeInstance2.SetRotation({ 0, cvid::Radians(43), cvid::Radians(170) });
 
+	POINT currentPos;
+	POINT lastPos;
+	bool lcDown = false;
+	const float rotationSpeed = 0.01;
 	while (true)
 	{
-		std::vector<INPUT_RECORD> inputRecord = window.GetInputRecord();
-
-		for (size_t i = 0; i < inputRecord.size(); i++)
-		{
-			switch (inputRecord[i].EventType)
-			{
-			case MOUSE_EVENT:
-				std::cout << inputRecord[i].Event.MouseEvent.dwMousePosition.X << std::endl; 
-				break;
-			case KEY_EVENT:
-				std::cout << inputRecord[i].Event.KeyEvent.uChar.AsciiChar << std::endl;
-				break;
-			default:
-				break;
-			}
-		}
-
 		cvid::StartTimePoint();
 
 		if (GetKeyState(VK_ESCAPE) & 0x8000)
 			return 0;
+				
+		//On left click
+		if (GetKeyState(VK_LBUTTON) & 0x8000)
+		{
+			if (!lcDown)
+			{
+				GetCursorPos(&currentPos);
+				lastPos = currentPos;
+				lcDown = true;
+			}
+		}
+		else 
+		{
+			lcDown = false;
+		}
+		//Update cursor delta
+		if (lcDown)
+		{
+			lastPos = currentPos;
+			GetCursorPos(&currentPos);
+
+			double dx = currentPos.x - lastPos.x;
+			double dy = currentPos.y - lastPos.y;
+
+			cubeInstance.Rotate({ 0, dx * rotationSpeed, 0 });
+			cubeInstance.Rotate({ dy * rotationSpeed, 0, 0 });
+
+			//std::cout << " dX: " << dx << " dY: " << dy << std::endl;
+		}
+
+		auto ir = window.GetInputRecord();
+		for (auto& input : ir) 
+		{
+			if (input.EventType == MOUSE_EVENT)
+			{
+				if (input.Event.MouseEvent.dwEventFlags = MOUSE_WHEELED)
+				{
+					std::cout << "mouse wheel: " << input.Event.MouseEvent.dwEventFlags;
+				}
+			}
+		}
 
 		//Camera movement
 		float moveSpeed = 1;
@@ -115,7 +148,6 @@ int main()
 		if (GetKeyState(VK_NUMPAD2) & 0x8000)
 			cam.SetFOV(--fov);
 
-
 		if (GetKeyState('U') & 0x8000)
 			cubeInstance.Rotate({ cvid::Radians(1), 0, 0 });
 		if (GetKeyState('J') & 0x8000)
@@ -128,6 +160,7 @@ int main()
 			cubeInstance.Rotate({ 0, 0, -cvid::Radians(1) });
 		if (GetKeyState('I') & 0x8000)
 			cubeInstance.Rotate({ 0, 0, cvid::Radians(1) });
+
 
 		window.Fill({ 0, 0, 0 });
 		window.ClearDepthBuffer();
