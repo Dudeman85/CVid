@@ -22,7 +22,7 @@ cvid::Vector2Int GetMouseDelta()
 int main()
 {
 	cvid::Vector2Int windowSize = { 160, 90 };
-	cvid::Window window(windowSize.x, windowSize.y, "CVid", true);
+	cvid::Window window(windowSize.x, windowSize.y, "CVid", false);
 	window.enableDepthTest = true;
 
 	cvid::Camera cam(cvid::Vector3(0, 0, 100), windowSize.x, windowSize.y);
@@ -50,7 +50,11 @@ int main()
 	POINT currentPos;
 	POINT lastPos;
 	bool lcDown = false;
+
+	//Camera movement
 	const float rotationSpeed = 0.01;
+	const float scrollSpeed = 10;
+
 	while (true)
 	{
 		cvid::StartTimePoint();
@@ -81,25 +85,35 @@ int main()
 			double dx = currentPos.x - lastPos.x;
 			double dy = currentPos.y - lastPos.y;
 
+			//Rotate model by mouse delta
+			//TODO: fix to rotate around world axis
 			cubeInstance.Rotate({ 0, dx * rotationSpeed, 0 });
 			cubeInstance.Rotate({ dy * rotationSpeed, 0, 0 });
-
-			//std::cout << " dX: " << dx << " dY: " << dy << std::endl;
 		}
 
-		auto ir = window.GetInputRecord();
-		for (auto& input : ir) 
+		//Get the console input record for scroll wheel
+		std::vector<INPUT_RECORD> ir = window.GetInputRecord();
+		for (INPUT_RECORD& input : ir) 
 		{
 			if (input.EventType == MOUSE_EVENT)
 			{
-				if (input.Event.MouseEvent.dwEventFlags = MOUSE_WHEELED)
+				if (input.Event.MouseEvent.dwEventFlags == MOUSE_WHEELED)
 				{
-					std::cout << "mouse wheel: " << input.Event.MouseEvent.dwEventFlags;
+					short scrollAmount = HIWORD(input.Event.MouseEvent.dwButtonState);
+					if (scrollAmount > 0)
+					{
+						//Move towards when scrolling forward
+						cam.Translate(cam.GetForward() * scrollSpeed);
+					}
+					else 
+					{
+						//Move away when scrolling backwards
+						cam.Translate(cam.GetForward() * -scrollSpeed);
+					}
 				}
 			}
 		}
 
-		//Camera movement
 		float moveSpeed = 1;
 		//W forward
 		if (GetKeyState(87) & 0x8000)
