@@ -93,6 +93,8 @@ namespace cvid
 
 		//Get the rough bounding sphere of this model in world space
 		Sphere GetBoundingSphere();
+		//Manually set the transform matrix
+		void SetTransform(const Matrix4& mat);
 		//Get the transform matrix
 		const Matrix4& GetTransform();
 

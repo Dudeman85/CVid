@@ -75,7 +75,7 @@ inline bool is_nearly_equal(T1 x, T2 y, T3 eps = 0) {
   else if (yy == 0)
     return is_scalar_zero(xx, ee);
   else
-    return is_scalar_zero((xx - yy) / std::min(xx, yy), ee);
+    return is_scalar_zero((xx - yy) / min(xx, yy), ee);
 }
 
 } // end namespace quaternion

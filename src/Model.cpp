@@ -254,8 +254,7 @@ namespace cvid
 	{
 		transform = cvid::Matrix4::Identity();
 		transform = transform.Scale(scale);
-		//transform = transform.Rotate(rotation);
-		transform = transform * rotationMatrix;
+		transform = transform.Rotate(rotation);
 		transform = transform.Translate(position);
 
 		staleTransform = false;
@@ -267,6 +266,12 @@ namespace cvid
 		if (staleBounds > 0)
 			RecalculateBounds();
 		return boundingSphere;
+	}
+	//Manually set the transform matrix
+	void ModelInstance::SetTransform(const Matrix4& mat)
+	{
+		transform = mat;
+		staleTransform = false;
 	}
 	//Get the transform matrix
 	const Matrix4& ModelInstance::GetTransform()
