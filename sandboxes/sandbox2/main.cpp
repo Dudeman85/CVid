@@ -8,6 +8,7 @@
 #include <cvid/Matrix.h>
 #include <cvid/Math.h>
 #include <cvid/Rasterizer.h>
+#include <quaternion.h>
 
 //https://gabrielgambetta.com/computer-graphics-from-scratch/
 //https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-defwindowproca
@@ -30,7 +31,7 @@ int main()
 	cam.MakePerspective(fov, 1, 5000);
 	cam.Rotate(cvid::Vector3(0, cvid::Radians(0), 0));
 
-	cvid::Model cube("../../../resources/Achelous.obj");
+	cvid::Model cube("../../../resources/cube.obj");
 	cvid::Texture cubeFlat("../../../resources/cubeFlat.png");
 
 	cvid::ModelInstance cubeInstance(&cube);
@@ -55,13 +56,15 @@ int main()
 	const float rotationSpeed = 0.01;
 	const float scrollSpeed = 10;
 
+	size_t frame = 0;
+
 	while (true)
 	{
 		cvid::StartTimePoint();
 
 		if (GetKeyState(VK_ESCAPE) & 0x8000)
 			return 0;
-				
+
 		//On left click
 		if (GetKeyState(VK_LBUTTON) & 0x8000)
 		{
@@ -72,7 +75,7 @@ int main()
 				lcDown = true;
 			}
 		}
-		else 
+		else
 		{
 			lcDown = false;
 		}
@@ -85,15 +88,46 @@ int main()
 			double dx = currentPos.x - lastPos.x;
 			double dy = currentPos.y - lastPos.y;
 
-			//Rotate model by mouse delta
-			//TODO: fix to rotate around world axis
-			cubeInstance.Rotate({ 0, dx * rotationSpeed, 0 });
-			cubeInstance.Rotate({ dy * rotationSpeed, 0, 0 });
+			if (dx != 0 || dy != 0)
+			{
+				//Rotate model by mouse delta
+				//TODO: fix to rotate around world axis
+				//https://www.3dgep.com/understanding-quaternions/
+				//https://en.wikipedia.org/wiki/Rotation_matrix
+				cubeInstance.Rotate({ dy * rotationSpeed, dx * rotationSpeed, 0 });
+
+				cvid::Matrix4 rot = cvid::Matrix4::Identity();
+				rot = rot.RotateY(dx * rotationSpeed);
+				rot = rot.RotateX(dy * rotationSpeed);
+
+				quaternion::Quaternion<float> quat();
+
+				/*
+				cvid::Vector4 ax = { 1, 0, 0, 0 };
+				ax = cvid::Matrix4::Identity().RotateY(dx * rotationSpeed) * ax;
+				cvid::Vector3 axis = cvid::Vector3(ax).Normalize();
+
+				float angle = dy * rotationSpeed;
+				auto mat = cvid::Matrix4::Identity();
+				mat[0][0] = axis.x * axis.x * (1 - cos(angle)) + cos(angle);
+				mat[1][0] = axis.x * axis.y * (1 - cos(angle)) - axis.z * sin(angle);
+				mat[2][0] = axis.x * axis.z * (1 - cos(angle)) + axis.y * sin(angle);
+				mat[0][1] = axis.x * axis.y * (1 - cos(angle)) + axis.z * sin(angle);
+				mat[1][1] = axis.y * axis.y * (1 - cos(angle)) + cos(angle);
+				mat[2][1] = axis.y * axis.z * (1 - cos(angle)) - axis.x * sin(angle);
+				mat[0][2] = axis.x * axis.z * (1 - cos(angle)) - axis.y * sin(angle);
+				mat[1][2] = axis.y * axis.z * (1 - cos(angle)) - axis.x * sin(angle);
+				mat[2][2] = axis.z * axis.z * (1 - cos(angle)) + cos(angle);
+				//rot = mat * rot;
+				*/
+
+				//cubeInstance.rotationMatrix = cubeInstance.rotationMatrix * rot;
+			}
 		}
 
 		//Get the console input record for scroll wheel
 		std::vector<INPUT_RECORD> ir = window.GetInputRecord();
-		for (INPUT_RECORD& input : ir) 
+		for (INPUT_RECORD& input : ir)
 		{
 			if (input.EventType == MOUSE_EVENT)
 			{
@@ -105,7 +139,7 @@ int main()
 						//Move towards when scrolling forward
 						cam.Translate(cam.GetForward() * scrollSpeed);
 					}
-					else 
+					else
 					{
 						//Move away when scrolling backwards
 						cam.Translate(cam.GetForward() * -scrollSpeed);
@@ -188,6 +222,8 @@ int main()
 		//cvid::DrawModel(&cubeInstance2, &cam, &window);
 
 		//std::cout << "Frame rendered in: " << cvid::EndTimePoint() << std::endl;
+
+		window.PutString(0, 0, std::to_string(frame++));
 
 		if (!window.DrawFrame())
 			return 0;

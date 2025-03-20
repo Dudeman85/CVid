@@ -54,7 +54,7 @@ namespace cvid
 		std::string folder = path.substr(0, path.find_last_of("/\\") + 1);
 
 		//Load the texture if applicable
-		if(!mat.diffuse_texname.empty())
+		if (!mat.diffuse_texname.empty())
 			material.texture = std::make_shared<Texture>(Texture(folder + mat.diffuse_texname));
 
 		//Copy the attrib vertices to custom vertices
@@ -143,7 +143,7 @@ namespace cvid
 	}
 
 	//Set the material this intance will use
-	void ModelInstance::SetMaterial(Material* mat) 
+	void ModelInstance::SetMaterial(Material* mat)
 	{
 		material = mat;
 	}
@@ -254,7 +254,8 @@ namespace cvid
 	{
 		transform = cvid::Matrix4::Identity();
 		transform = transform.Scale(scale);
-		transform = transform.Rotate(rotation);
+		//transform = transform.Rotate(rotation);
+		transform = transform * rotationMatrix;
 		transform = transform.Translate(position);
 
 		staleTransform = false;

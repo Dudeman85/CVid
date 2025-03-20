@@ -96,6 +96,8 @@ namespace cvid
 		//Get the transform matrix
 		const Matrix4& GetTransform();
 
+		Matrix4 rotationMatrix = Matrix4::Identity();
+
 	private:
 		Model* model;
 		Material* material;
