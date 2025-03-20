@@ -15,48 +15,36 @@
 //https://learn.microsoft.com/en-us/windows/win32/winmsg/using-messages-and-message-queues#examining-a-message-queue
 //https://www.scratchapixel.com/lessons/3d-basic-rendering/perspective-and-orthographic-projection-matrix/building-basic-perspective-projection-matrix.html
 
-cvid::Vector2Int GetMouseDelta()
-{
-	return {};
-}
-
 int main()
 {
+	//Make window
 	cvid::Vector2Int windowSize = { 160, 90 };
 	cvid::Window window(windowSize.x, windowSize.y, "CVid", false);
 	window.enableDepthTest = true;
 
+	//Make camera
 	cvid::Camera cam(cvid::Vector3(0, 0, 100), windowSize.x, windowSize.y);
 	float fov = 90;
 	cam.MakePerspective(fov, 1, 5000);
 	cam.Rotate(cvid::Vector3(0, cvid::Radians(0), 0));
 
-	cvid::Model cube("../../../resources/cube.obj");
-	cvid::Texture cubeFlat("../../../resources/cubeFlat.png");
+	//Load models
+	cvid::Model cube("../../../resources/Achelous.obj");
 
-	cvid::ModelInstance cubeInstance(&cube);
-	cvid::Material mat;
-	mat.diffuseColor = { 25, 250, 2 };
-	//mat.texture = std::make_shared<cvid::Texture>(cubeFlat);
-	//cubeInstance.SetMaterial(&mat);
-	cubeInstance.SetScale(20);
-	cubeInstance.SetPosition({ 0, 0, 0 });
-	cubeInstance.SetRotation({ 0, cvid::Radians(0), 0 });
+	//Make the renderable instance
+	cvid::ModelInstance modelInstance(&cube);
+	modelInstance.SetScale(20);
+	modelInstance.SetPosition({ 0, 0, 0 });
+	//Use a quaternion here to store cube rotation since it's not properly implemented in engine yet
+	quaternion::Quaternion<double> modelRotationQuat = quaternion::from_euler(std::array{ 0, 0, 0 });
 
-	cvid::ModelInstance cubeInstance2(&cube);
-	cubeInstance2.SetScale(10);
-	cubeInstance2.SetPosition({ -60, 50, -30 });
-	cubeInstance2.SetRotation({ 0, cvid::Radians(43), cvid::Radians(170) });
-
-	POINT currentPos;
-	POINT lastPos;
-	bool lcDown = false;
-
-	//Camera movement
+	//Control speed
 	const float rotationSpeed = 0.01;
 	const float scrollSpeed = 10;
 
-	size_t frame = 0;
+	POINT currentCursorPos;
+	POINT lastCursorPos;
+	bool lcDown = false;
 
 	while (true)
 	{
@@ -70,8 +58,8 @@ int main()
 		{
 			if (!lcDown)
 			{
-				GetCursorPos(&currentPos);
-				lastPos = currentPos;
+				GetCursorPos(&currentCursorPos);
+				lastCursorPos = currentCursorPos;
 				lcDown = true;
 			}
 		}
@@ -82,50 +70,45 @@ int main()
 		//Update cursor delta
 		if (lcDown)
 		{
-			lastPos = currentPos;
-			GetCursorPos(&currentPos);
+			lastCursorPos = currentCursorPos;
+			GetCursorPos(&currentCursorPos);
 
-			double dx = currentPos.x - lastPos.x;
-			double dy = currentPos.y - lastPos.y;
+			double dx = currentCursorPos.x - lastCursorPos.x;
+			double dy = currentCursorPos.y - lastCursorPos.y;
 
+			//Rotate model by mouse delta
 			if (dx != 0 || dy != 0)
 			{
-				//Rotate model by mouse delta
-				//TODO: fix to rotate around world axis
-				//https://www.3dgep.com/understanding-quaternions/
-				//https://en.wikipedia.org/wiki/Rotation_matrix
-				cubeInstance.Rotate({ dy * rotationSpeed, dx * rotationSpeed, 0 });
+				//Manually create the transform matrix using a quaternion rotation
+				cvid::Matrix4 transform = cvid::Matrix4::Identity();
+				transform = transform.Scale(modelInstance.GetScale());
 
-				cvid::Matrix4 rot = cvid::Matrix4::Identity();
-				rot = rot.RotateY(dx * rotationSpeed);
-				rot = rot.RotateX(dy * rotationSpeed);
+				//Rotate using quaternions
+				dx *= -rotationSpeed / 2;
+				dy *= -rotationSpeed / 2;
+				modelRotationQuat *= quaternion::Quaternion(cos(dx), 0.0, sin(dx), 0.0);
+				modelRotationQuat *= quaternion::Quaternion(cos(dy), sin(dy), 0.0, 0.0);
 
-				quaternion::Quaternion<float> quat();
+				//Convert from quaternion to cvid matrix
+				auto mat = quaternion::to_rotation_matrix(modelRotationQuat);
+				cvid::Matrix4 rotation = cvid::Matrix4::Identity();
+				for (size_t i = 0; i < mat.size(); i++)
+				{
+					for (size_t j = 0; j < mat[0].size(); j++)
+					{
+						rotation[i][j] = mat[i][j];
+					}
+				}
+				transform = transform * rotation;
 
-				/*
-				cvid::Vector4 ax = { 1, 0, 0, 0 };
-				ax = cvid::Matrix4::Identity().RotateY(dx * rotationSpeed) * ax;
-				cvid::Vector3 axis = cvid::Vector3(ax).Normalize();
+				transform = transform.Translate(modelInstance.GetPosition());
 
-				float angle = dy * rotationSpeed;
-				auto mat = cvid::Matrix4::Identity();
-				mat[0][0] = axis.x * axis.x * (1 - cos(angle)) + cos(angle);
-				mat[1][0] = axis.x * axis.y * (1 - cos(angle)) - axis.z * sin(angle);
-				mat[2][0] = axis.x * axis.z * (1 - cos(angle)) + axis.y * sin(angle);
-				mat[0][1] = axis.x * axis.y * (1 - cos(angle)) + axis.z * sin(angle);
-				mat[1][1] = axis.y * axis.y * (1 - cos(angle)) + cos(angle);
-				mat[2][1] = axis.y * axis.z * (1 - cos(angle)) - axis.x * sin(angle);
-				mat[0][2] = axis.x * axis.z * (1 - cos(angle)) - axis.y * sin(angle);
-				mat[1][2] = axis.y * axis.z * (1 - cos(angle)) - axis.x * sin(angle);
-				mat[2][2] = axis.z * axis.z * (1 - cos(angle)) + cos(angle);
-				//rot = mat * rot;
-				*/
-
-				//cubeInstance.rotationMatrix = cubeInstance.rotationMatrix * rot;
+				modelInstance.SetTransform(transform);
 			}
 		}
 
 		//Get the console input record for scroll wheel
+		//Does not work in seperate window
 		std::vector<INPUT_RECORD> ir = window.GetInputRecord();
 		for (INPUT_RECORD& input : ir)
 		{
@@ -196,34 +179,14 @@ int main()
 		if (GetKeyState(VK_NUMPAD2) & 0x8000)
 			cam.SetFOV(--fov);
 
-		if (GetKeyState('U') & 0x8000)
-			cubeInstance.Rotate({ cvid::Radians(1), 0, 0 });
-		if (GetKeyState('J') & 0x8000)
-			cubeInstance.Rotate({ -cvid::Radians(1), 0, 0 });
-		if (GetKeyState('H') & 0x8000)
-			cubeInstance.Rotate({ 0, -cvid::Radians(1), 0 });
-		if (GetKeyState('K') & 0x8000)
-			cubeInstance.Rotate({ 0, cvid::Radians(1), 0 });
-		if (GetKeyState('Y') & 0x8000)
-			cubeInstance.Rotate({ 0, 0, -cvid::Radians(1) });
-		if (GetKeyState('I') & 0x8000)
-			cubeInstance.Rotate({ 0, 0, cvid::Radians(1) });
-
 
 		window.Fill({ 0, 0, 0 });
 		window.ClearDepthBuffer();
 
-		cvid::Material mat;
-		mat.diffuseColor = { 25, 250, 2 };
-		//cvid::RasterizeTriangle(&window, cvid::Face{ { {5, 5, 1}, {40, 5, 10}, {40, 40, 15} }}, &mat);
 
-
-		cvid::DrawModel(&cubeInstance, &cam, &window);
-		//cvid::DrawModel(&cubeInstance2, &cam, &window);
+		cvid::DrawModel(&modelInstance, &cam, &window);
 
 		//std::cout << "Frame rendered in: " << cvid::EndTimePoint() << std::endl;
-
-		window.PutString(0, 0, std::to_string(frame++));
 
 		if (!window.DrawFrame())
 			return 0;

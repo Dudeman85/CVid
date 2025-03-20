@@ -736,7 +736,7 @@ inline Quaternion<T> from_euler(const std::array<T, 3>& x) {
  * TODO: provide lexicographic order on quaternions?
  */
 template <typename T>
-struct hash : public std::unary_function<Quaternion<T>, size_t> {
+struct hash{
 
   inline size_t operator()(const Quaternion<T>& x) const {
 
@@ -769,7 +769,7 @@ struct hash : public std::unary_function<Quaternion<T>, size_t> {
  * with the field structure.
  */
 template <typename T>
-struct lexicographic_order : std::binary_function<Quaternion<T>, Quaternion<T>, bool> {
+struct lexicographic_order {
   inline constexpr bool operator()(const Quaternion<T>& x, const Quaternion<T>& y) const {
     return x.a() < y.a()
     || (x.a() == y.a() && x.b() < y.b())
@@ -828,8 +828,8 @@ inline T norm_lk(const Quaternion<T>& x, T1 k) {
 // norm sup = max norm = norm inf
 template<typename T>
 inline T norm_sup(const Quaternion<T>& x) {
-  return std::max(std::max(std::abs(x.a()), std::abs(x.b())),
-                  std::max(std::abs(x.c()), std::abs(x.d())));
+  return max(max(std::abs(x.a()), std::abs(x.b())),
+                  max(std::abs(x.c()), std::abs(x.d())));
 }
 
 /**
