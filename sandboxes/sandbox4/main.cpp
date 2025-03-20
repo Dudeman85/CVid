@@ -4,57 +4,12 @@
 #include <cvid/Rasterizer.h>
 #include <cvid/Camera.h>
 #include "stdio.h"
-
-#define SWAP(a, b) {auto tmp = a; a = b; b = tmp;}
-
-void DrawLineBad(cvid::Window& w, int x0, int y0, int x1, int y1)
-{
-	float m = (float)(y1 - y0) / (x1 - x0);
-	float y = y0;
-	for (size_t x = x0; x <= x1; x++)
-	{
-		w.PutPixel(x, std::round(y), { 0, 0, 0 });
-		y += m;
-	}
-}
-
-void DrawLine(cvid::Window& w, int x0, int y0, int x1, int y1)
-{
-	if (abs(x1 - x0) > abs(y1 - y0))
-	{
-		if (x0 > x1)
-		{
-			SWAP(x0, x1);
-			SWAP(y0, y1);
-		}
-		float m = (float)(y1 - y0) / (x1 - x0);
-		float y = y0;
-		for (size_t x = x0; x <= x1; x++)
-		{
-			w.PutPixel(x, std::round(y), { 0, 0, 0 });
-			y += m;
-		}
-	}
-	else
-	{
-		if (y0 > y1)
-		{
-			SWAP(x0, x1);
-			SWAP(y0, y1);
-		}
-		float m = (float)(x1 - x0) / (y1 - y0);
-		float x = x0;
-		for (size_t y = y0; y <= y1; y++)
-		{
-			w.PutPixel(x, std::round(y), { 0, 0, 0 });
-			x += m;
-		}
-	}
-}
 #include <iostream>
 #include <Windows.h>
+
 int main()
 {
+	/*
 	//Make a console window with width, height, and name
 	cvid::Window window(160, 90, "CVid");
 	window.enableDepthTest = false;
@@ -63,58 +18,17 @@ int main()
 	cvid::Camera cam({ 0, 0, 100 }, 64, 64);
 	//Set it as perspective with fov, near, and far
 	cam.MakePerspective(90, 1, 100);
+	*/
 
-	//Set some transforms
-	cam.SetPosition({30, 30, 50});
-	cam.SetRotation({cvid::Radians(-45)});
+	char buff[200];
+	GetConsoleOriginalTitle(buff, 200);
 
-	//Get the forward -Z vector of the camera
-	cvid::Vector3 forward = cam.GetForward();
-
-	//Load a model from file
-	cvid::Model cube("../../../resources/cube.obj");
-	//Create an instance of the model and change its transform
-	cvid::ModelInstance cubeInstance(&cube);
-	cubeInstance.SetScale(20);
-	cubeInstance.SetPosition({ 30, 30, 0 });
-	//Rotations use radians
-	cubeInstance.SetRotation({ cvid::Radians(-30), cvid::Radians(17), 0 });
-
-	//Render loop
-	while (true)
+	while (true) 
 	{
-		//Fill the canvas with some rgb value at the start of frame
-		window.Fill({ 242, 242, 242 });
-		window.ClearDepthBuffer();
-		/*
-		DrawLine(window, 10, 10, 80, 80);
-		DrawLine(window, 10, 10, 10, 80);
-		DrawLine(window, 10, 10, 80, 10);
-		DrawLine(window, 96, 70, 110, 18);
-		DrawLine(window, 65, 30, 130, 50);
-		*/
-
-		cvid::RasterizeTriangle(&window, { {10, 25, 1}, {14, 65, 1}, {35, 20, 1} }, {0, 0, 0});
-
-		/*
-		//Draw the model instance to the window's canvas
-		cvid::DrawModel(&cubeInstance, &cam, &window);
-
-		//Draw a green point directly to the canvas
-		cvid::RasterizePoint(&window, { 12, 35, 0 }, { 51, 204, 51 });
-		//Draw a red line directly to the canvas
-		cvid::RasterizeLine(&window, { 0, 63, 0 }, { 63, 0, 0 }, { 204, 0, 0 });
-		//Draw a blue triangle directly to the canvas
-		cvid::Tri verts{ {5, 5, 0}, {25, 25, 0}, {50, 10, 0} };
-		cvid::RasterizeTriangle(&window, verts, { 0, 153, 255 });
-		//Write a string directly to the canvas
-		window.PutString(20, 25, "Hello World!", { 153, 0, 153 }, { 240, 240, 240 });
-		*/
-
-		//Draw the frame to the window, end the program on failure
-		if (!window.DrawFrame())
-			return 0;
+		std::cout << (GetKeyState(VK_NUMPAD8) & 0x8000) << std::endl;
 	}
+
+	system("pause");
 
 	return 0;
 }

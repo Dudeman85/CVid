@@ -324,14 +324,14 @@ namespace cvid
 		SetConsoleWindowInfo(consoleOut, true, &minSize);
 		if (!SetConsoleScreenBufferSize(consoleOut, { (short)properties.width, (short)ceil((float)properties.height / 2) }))
 		{
-			cvid::LogWarning("Error, code " + std::to_string(GetLastError()));
-			//TODO: Handle error
+			cvid::LogError("CVid error in Window: Failed to set console screen buffer size. Code " + std::to_string(GetLastError()));
+			throw "Failed to set console screen buffer size";
 		}
 		//SetConsoleWindowInfo has to be called before and after SetConsoleScreenBufferSize othewise Windows has a fit
 		if (!SetConsoleWindowInfo(consoleOut, true, &consoleSize))
 		{
-			cvid::LogWarning("Error, code " + std::to_string(GetLastError()));
-			//TODO: Handle error
+			cvid::LogError("CVid error in Window: Failed to set console size. Code " + std::to_string(GetLastError()));
+			throw "Failed to set console screen buffer size";
 		}
 	}
 
@@ -354,6 +354,9 @@ namespace cvid
 			//For every pixel in the framebuffer
 			for (size_t y = 0; y < height / 2; y++)
 			{
+				//Windows 11 broke scrolling, so do we it here. Also for some reason it starts from 1
+				frameString.append(std::format("\x1b[{};0f", y+1));
+				
 				for (size_t x = 0; x < width; x++)
 				{
 					cvid::CharPixel& thisPixel = frameBuffer[y * width + x];
@@ -366,7 +369,7 @@ namespace cvid
 			}
 
 			//Move cursor to 0, 0 and print frame
-			std::cout << "\x1b[0;0f" << frameString;
+			std::cout << frameString;
 		}
 	}
 
