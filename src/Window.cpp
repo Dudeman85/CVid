@@ -50,6 +50,8 @@ namespace cvid
 		DWORD mode = 0;
 		GetConsoleMode(consoleIn, &mode);
 		SetConsoleMode(consoleIn, (mode & ~ENABLE_QUICK_EDIT_MODE) | ENABLE_WINDOW_INPUT | ENABLE_MOUSE_INPUT);
+		//Rename window
+		SetConsoleTitle(name.c_str());
 		//Hide the cursor
 		std::cout << "\x1b[?25l";
 	}
@@ -496,7 +498,8 @@ namespace cvid
 		//Get the input from console
 		INPUT_RECORD inputRecord[128];
 		DWORD numRead;
-		ReadConsoleInput(consoleIn, inputRecord, 128, &numRead);
+		PeekConsoleInput(consoleIn, inputRecord, 128, &numRead);
+		FlushConsoleInputBuffer(consoleIn);
 
 		//Put it in a vector for ease of use
 		std::vector<INPUT_RECORD> recordVec;
