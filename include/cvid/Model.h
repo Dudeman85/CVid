@@ -32,6 +32,10 @@ namespace cvid
 	public:
 		Model(std::string path);
 
+		//Name of the model file with .obj
+		std::string name;
+		//Folder where the model was loaded from
+		std::string folder;
 		//Every face in the model, contains indices to vertices and texCoords vectors
 		std::vector<IndexedFace> faces;
 		//Vertices are shared for the whole model
