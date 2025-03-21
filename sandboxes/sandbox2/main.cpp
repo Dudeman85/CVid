@@ -19,7 +19,8 @@ int main()
 {
 	//Control speed
 	const float rotationSpeed = 0.01;
-	const float scrollSpeed = 10;
+	const float minScrollSpeed = 2;
+	const float maxScrollSpeed = 40;
 	//Zoom parameters
 	const float minZoom = 0;
 	const float maxZoom = 700;
@@ -28,6 +29,9 @@ int main()
 	const float maxSpawn = 1500;
 	const float minSpeed = 1000;
 	const float maxSpeed = 4000;
+	const float transitionDelay = 0.5;
+	double transitionTimer = 0;
+	double transitionDir = 0;
 
 	//Cursor data
 	POINT currentCursorPos;
@@ -35,14 +39,16 @@ int main()
 	HWND hWnd = GetConsoleWindow();
 	bool clickedInWindow = false;
 
-	//Timers
+	//Performance data
 	double deltaTime = 0;
-	double avgDt = 0;
 	double timeSinceLastAvg = 0;
-	std::vector<double> previousDts;
-	const float transitionDelay = 0.5;
-	double transitionTimer = 0;
-	double transitionDir = 0;
+	double framesSinceLastAvg = 0;
+	double diagDt = 0;
+	double avgDt = 0;
+	double windowLatency = 0;
+	double avgLatency = 0;
+	double renderTime = 0;
+	double avgRender = 0;
 
 
 	//Make window
@@ -51,7 +57,7 @@ int main()
 	window.enableDepthTest = true;
 
 	//Make camera
-	cvid::Camera cam(cvid::Vector3(0, -10, 150), windowSize.x, windowSize.y);
+	cvid::Camera cam(cvid::Vector3(0, -5, 150), windowSize.x, windowSize.y);
 	float fov = 90;
 	cam.MakePerspective(fov, 1, 5000);
 	cam.Rotate(cvid::Vector3(0, cvid::Radians(0), 0));
@@ -156,7 +162,7 @@ int main()
 							if (cam.GetPosition().z > minZoom)
 							{
 								//Move towards when scrolling forward
-								cam.Translate(cam.GetForward() * scrollSpeed);
+								cam.Translate(cam.GetForward() * std::lerp(minScrollSpeed, maxScrollSpeed, cam.GetPosition().z / maxZoom));
 							}
 						}
 						else
@@ -164,7 +170,7 @@ int main()
 							if (cam.GetPosition().z < maxZoom)
 							{
 								//Move away when scrolling backwards
-								cam.Translate(cam.GetForward() * -scrollSpeed);
+								cam.Translate(cam.GetForward() * -std::lerp(minScrollSpeed, maxScrollSpeed, cam.GetPosition().z / maxZoom));
 							}
 						}
 					}
@@ -246,29 +252,41 @@ int main()
 		cvid::Vector2Int namePos = { windowSize.x / 2 - (int)name.size() / 2, windowSize.y / 2 - 2 };
 		window.PutString(namePos, name);
 
-		//Update the average fps 5 times a second
+		//Update the info texts 5 times a second
 		if (timeSinceLastAvg > 0.2)
 		{
+			diagDt = avgDt / framesSinceLastAvg;
+			renderTime = avgRender / framesSinceLastAvg;
+			windowLatency = avgLatency / framesSinceLastAvg;
+			avgRender = 0;
+			avgLatency = 0;
 			avgDt = 0;
-			for (double dt : previousDts)
-				avgDt += dt;
-			avgDt /= previousDts.size();
-			previousDts.clear();
+			framesSinceLastAvg = 0;
 			timeSinceLastAvg = 0;
 		}
 		timeSinceLastAvg += deltaTime;
-		std::string fps = std::format("{} fps", std::floor(1 / avgDt));
-		cvid::Vector2Int fpsPos = { windowSize.x - (int)fps.size() - 2, 1 };
-		window.PutString(fpsPos, fps);
+		std::string fps = std::format("{} fps", std::floor(1 / diagDt));
+		std::string render = std::format("Render: {} ms", std::floor(renderTime * 1000));
+		std::string latency = std::format("Window: {} ms", std::floor(windowLatency * 1000));
+		cvid::Vector2Int infoPos = { windowSize.x - (int)fps.size() - 2, 1 };
+		window.PutString(infoPos + cvid::Vector2Int(-8, 0), render);
+		window.PutString(infoPos + cvid::Vector2Int(-8, 1), latency);
+		window.PutString(infoPos + cvid::Vector2Int(0, 2), fps);
+
+		double renderDone = cvid::EndTimePoint();
+		avgRender += renderDone;
 
 		if (!window.DrawFrame())
 			return 0;
-
 		//For some reason this stops the window from freezing
 		window.SendData("\x1b[0;0H", 7, cvid::DataType::String);
 
+		double response = cvid::EndTimePoint();
+		avgLatency += response - renderDone;
+
 		deltaTime = cvid::EndTimePoint();
-		previousDts.push_back(deltaTime);
+		avgDt += deltaTime;
+		framesSinceLastAvg++;
 	}
 
 	return 0;
