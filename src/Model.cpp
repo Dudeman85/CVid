@@ -51,7 +51,8 @@ namespace cvid
 		material.diffuseColor = Color(mat.diffuse[0] * 255, mat.diffuse[1] * 255, mat.diffuse[2] * 255, 255);
 
 		//Get the base folder
-		std::string folder = path.substr(0, path.find_last_of("/\\") + 1);
+		folder = path.substr(0, path.find_last_of("/\\") + 1);
+		name = path.substr(path.find_last_of("/\\") + 1, path.size());
 
 		//Load the texture if applicable
 		if (!mat.diffuse_texname.empty())

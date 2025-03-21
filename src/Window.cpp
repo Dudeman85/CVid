@@ -213,7 +213,7 @@ namespace cvid
 		//Make sure the pixel is in bounds
 		if (x >= width || y >= height / 2)
 		{
-			LogWarning("CVid warning in PutPixel: Position out of range");
+			LogWarning("CVid warning in PutChar: Position out of range");
 			return false;
 		}
 

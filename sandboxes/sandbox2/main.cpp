@@ -1,6 +1,7 @@
 #include <format>
 #include <thread>
 #include <chrono>
+#include <filesystem>
 #include <cvid/Window.h>
 #include <cvid/Helpers.h>
 #include <cvid/Renderer.h>
@@ -28,13 +29,21 @@ int main()
 	cam.MakePerspective(fov, 1, 5000);
 	cam.Rotate(cvid::Vector3(0, cvid::Radians(0), 0));
 
-	//Load models
-	cvid::Model cube("../../../resources/Achelous.obj");
+	//Load all models in resources folder
+	std::vector<cvid::Model> models;
+	for (auto& p : std::filesystem::recursive_directory_iterator("../../../resources/"))
+	{
+		if (p.path().string().ends_with(".obj"))
+		{
+			models.push_back(cvid::Model(p.path().string()));
+		}
+	}
+	int currentModel = 0;
 
 	//Make the renderable instance
-	cvid::ModelInstance modelInstance(&cube);
-	modelInstance.SetScale(20);
-	modelInstance.SetPosition({ 0, 0, 0 });
+	cvid::ModelInstance displayModel(&models[0]);
+	displayModel.SetScale(20);
+	displayModel.SetPosition({ 0, 0, 0 });
 	//Use a quaternion here to store cube rotation since it's not properly implemented in engine yet
 	quaternion::Quaternion<double> modelRotationQuat = quaternion::from_euler(std::array{ 0, 0, 0 });
 
@@ -42,9 +51,12 @@ int main()
 	const float rotationSpeed = 0.01;
 	const float scrollSpeed = 10;
 
+	double deltaTime = 0;
 	POINT currentCursorPos;
 	POINT lastCursorPos;
 	bool lcDown = false;
+	const float transitionDelay = 1;
+	float transitionTimer = 0;
 
 	while (true)
 	{
@@ -81,7 +93,7 @@ int main()
 			{
 				//Manually create the transform matrix using a quaternion rotation
 				cvid::Matrix4 transform = cvid::Matrix4::Identity();
-				transform = transform.Scale(modelInstance.GetScale());
+				transform = transform.Scale(displayModel.GetScale());
 
 				//Rotate using quaternions
 				dx *= -rotationSpeed / 2;
@@ -101,9 +113,9 @@ int main()
 				}
 				transform = transform * rotation;
 
-				transform = transform.Translate(modelInstance.GetPosition());
+				transform = transform.Translate(displayModel.GetPosition());
 
-				modelInstance.SetTransform(transform);
+				displayModel.SetTransform(transform);
 			}
 		}
 
@@ -130,6 +142,28 @@ int main()
 				}
 			}
 		}
+
+		//Decrement the display model
+		if (GetKeyState(VK_LEFT) & 0x8000 && transitionTimer <= 0)
+		{
+			currentModel--;
+			if (currentModel < 0)
+				currentModel = models.size() - 1;
+
+			displayModel.SetBaseModel(&models[currentModel]);
+			transitionTimer = transitionDelay;
+		}
+		//Increment the display model
+		if (GetKeyState(VK_RIGHT) & 0x8000 && transitionTimer <= 0)
+		{
+			currentModel++;
+			if (currentModel > models.size() - 1)
+				currentModel = 0;
+
+			displayModel.SetBaseModel(&models[currentModel]);
+			transitionTimer = transitionDelay;
+		}
+		transitionTimer -= deltaTime;
 
 		float moveSpeed = 1;
 		//W forward
@@ -183,10 +217,12 @@ int main()
 		window.Fill({ 0, 0, 0 });
 		window.ClearDepthBuffer();
 
+		cvid::DrawModel(&displayModel, &cam, &window);
 
-		cvid::DrawModel(&modelInstance, &cam, &window);
-
-		//std::cout << "Frame rendered in: " << cvid::EndTimePoint() << std::endl;
+		//Display the model name text
+		std::string name = std::format("<- {} ->", displayModel.GetBaseModel()->name);
+		int namePos = windowSize.x / 2 - name.size() / 2;
+		window.PutString({ namePos, windowSize.y / 2 - 2 }, name);
 
 		if (!window.DrawFrame())
 			return 0;
@@ -194,7 +230,7 @@ int main()
 		//For some reason this stops the window from freezing
 		window.SendData("\x1b[0;0H", 7, cvid::DataType::String);
 
-		//std::cout << "Window responded in: " << cvid::EndTimePoint() << std::endl;
+		deltaTime = cvid::EndTimePoint();
 	}
 
 	return 0;
