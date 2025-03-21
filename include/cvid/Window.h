@@ -81,6 +81,9 @@ namespace cvid
 		//Enable depth buffering
 		bool enableDepthTest = true;
 
+		//Handle to the console input and output of this window
+		HANDLE consoleOut;
+		HANDLE consoleIn;
 	private:
 		//Create this window as a new process
 		void CreateAsNewProcess(std::string name);
@@ -109,10 +112,6 @@ namespace cvid
 		//Maximum window dimensions provided by windows
 		uint16_t maxWidth;
 		uint16_t maxHeight;
-
-		//Handle to the console input and output of this window
-		HANDLE consoleOut;
-		HANDLE consoleIn;
 
 		//PROCESS SPECIFIC
 		//Pipes to send data to the window process
