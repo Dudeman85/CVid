@@ -20,7 +20,7 @@ int main()
 {
 	//Make window
 	cvid::Vector2Int windowSize = { 160, 90 };
-	cvid::Window window(windowSize.x, windowSize.y, "CVid", false);
+	cvid::Window window(windowSize.x, windowSize.y, "CVid", true);
 	window.enableDepthTest = true;
 
 	//Make camera
@@ -165,55 +165,8 @@ int main()
 		}
 		transitionTimer -= deltaTime;
 
-		float moveSpeed = 1;
-		//W forward
-		if (GetKeyState(87) & 0x8000)
-			cam.Translate(cam.GetForward() * moveSpeed);
-		//A left
-		if (GetKeyState(65) & 0x8000)
-			cam.Translate(cam.GetRight() * -moveSpeed);
-		//S backward
-		if (GetKeyState(83) & 0x8000)
-			cam.Translate(cam.GetForward() * -moveSpeed);
-		//D right
-		if (GetKeyState(68) & 0x8000)
-			cam.Translate(cam.GetRight() * moveSpeed);
-		//Q down
-		if (GetKeyState(81) & 0x8000)
-			cam.Translate(cam.GetUp() * -moveSpeed);
-		//E up
-		if (GetKeyState(69) & 0x8000)
-			cam.Translate(cam.GetUp() * moveSpeed);
 
-		//Camera rotation
-		float rotationSpeed = 0.02;
-		//NP 8 pitch down
-		if (GetKeyState(VK_NUMPAD8) & 0x8000)
-			cam.Rotate(cvid::Vector3(-1, 0, 0) * rotationSpeed);
-		//NP 5 pitch down
-		if (GetKeyState(VK_NUMPAD5) & 0x8000)
-			cam.Rotate(cvid::Vector3(1, 0, 0) * rotationSpeed);
-		//NP 4 yaw left
-		if (GetKeyState(VK_NUMPAD4) & 0x8000)
-			cam.Rotate(cvid::Vector3(0, 1, 0) * rotationSpeed);
-		//NP 6 yaw right
-		if (GetKeyState(VK_NUMPAD6) & 0x8000)
-			cam.Rotate(cvid::Vector3(0, -1, 0) * rotationSpeed);
-		//NP 9 roll right
-		if (GetKeyState(VK_NUMPAD9) & 0x8000)
-			cam.Rotate(cvid::Vector3(0, 0, -1) * rotationSpeed);
-		//NP 7 roll right
-		if (GetKeyState(VK_NUMPAD7) & 0x8000)
-			cam.Rotate(cvid::Vector3(0, 0, 1) * rotationSpeed);
-
-		//NP 1 fov+
-		if (GetKeyState(VK_NUMPAD1) & 0x8000)
-			cam.SetFOV(++fov);
-		//NP 2 fov-
-		if (GetKeyState(VK_NUMPAD2) & 0x8000)
-			cam.SetFOV(--fov);
-
-
+		//Start rendering
 		window.Fill({ 0, 0, 0 });
 		window.ClearDepthBuffer();
 
@@ -223,6 +176,7 @@ int main()
 		std::string name = std::format("<- {} ->", displayModel.GetBaseModel()->name);
 		int namePos = windowSize.x / 2 - name.size() / 2;
 		window.PutString({ namePos, windowSize.y / 2 - 2 }, name);
+
 
 		if (!window.DrawFrame())
 			return 0;
