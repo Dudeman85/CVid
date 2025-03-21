@@ -351,6 +351,11 @@ namespace cvid
 			std::string frameString;
 			frameString.reserve((size_t)29 * width * (height / 2));
 
+			//Set colors to black
+			std::cout << "\x1b[38;2;0;0;0m\x1b[48;2;0;0;0m";
+
+			cvid::Color currentBg{ 0, 0, 0 };
+			cvid::Color currentFg{ 0, 0, 0 };
 			//For every pixel in the framebuffer
 			for (size_t y = 0; y < height / 2; y++)
 			{
@@ -361,10 +366,24 @@ namespace cvid
 				{
 					cvid::CharPixel& thisPixel = frameBuffer[y * width + x];
 
-					//Add the proper vts to the displayFrame
-					//Format: \x1b38;2;<r>;<g>;<b>;m
-					frameString.append(std::format("\x1b[38;2;{};{};{}m", thisPixel.fg.r, thisPixel.fg.g, thisPixel.fg.b));
-					frameString.append(std::format("\x1b[48;2;{};{};{}m{}", thisPixel.bg.r, thisPixel.bg.g, thisPixel.bg.b, thisPixel.character));
+					//Change foreground color if it changes
+					if (thisPixel.fg.r != currentFg.r || thisPixel.fg.g != currentFg.g || thisPixel.fg.b != currentFg.b)
+					{
+						//Add the proper vts to the displayFrame
+						//Format: \x1b38;2;<r>;<g>;<b>;m
+						frameString.append(std::format("\x1b[38;2;{};{};{}m", thisPixel.fg.r, thisPixel.fg.g, thisPixel.fg.b));
+						currentFg = thisPixel.fg;
+					}
+					//Change background color if it changes
+					if (thisPixel.bg.r != currentBg.r || thisPixel.bg.g != currentBg.g || thisPixel.bg.b != currentBg.b)
+					{
+						//Add the proper vts to the displayFrame
+						//Format: \x1b48;2;<r>;<g>;<b>;m
+						frameString.append(std::format("\x1b[48;2;{};{};{}m", thisPixel.bg.r, thisPixel.bg.g, thisPixel.bg.b));
+						currentBg = thisPixel.bg;
+					}
+
+					frameString += thisPixel.character;
 				}
 			}
 
