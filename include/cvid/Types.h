@@ -44,6 +44,7 @@ namespace cvid
 	{
 		Tri vertices;
 		Tri2D texCoords;
+		Vector3 normal;
 	};
 
 	//A face (triangle) that used indexed texture coords and vertices

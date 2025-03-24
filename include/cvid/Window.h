@@ -3,6 +3,7 @@
 #include <string>
 #include <functional>
 #include <unordered_map>
+#define NOMINMAX
 #include <windows.h>
 #include <cvid/Vector.h>
 #include <cvid/Types.h>

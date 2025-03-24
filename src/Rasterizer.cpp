@@ -239,6 +239,10 @@ namespace cvid
 	//Expects vertices in normalized device coordinates
 	void RasterizeTriangle(Window* window, Face tri, const Material* mat)
 	{
+		//Calculate flat shading for this tri
+		double n = tri.normal.Dot(directionalLight) / tri.normal.Length() * directionalLight.Length();
+		double intensity = ambientLightIntensity + directionalLightIntensity * n;
+
 		Color color = mat != nullptr ? mat->diffuseColor : Color();
 
 		//Get the points and attributes from the tri
@@ -310,9 +314,18 @@ namespace cvid
 					Vector2Int sampleCoord(std::round((texCoords[xi].x / zPositions[xi]) * (mat->texture->width - 1)), std::round((texCoords[xi].y / zPositions[xi]) * (mat->texture->height - 1)));
 					renderColor = mat->texture->GetTexel(sampleCoord);
 				}
+				renderColor.r = std::min(intensity * renderColor.r, 255.0);
+				renderColor.g = std::min(intensity * renderColor.g, 255.0);
+				renderColor.b = std::min(intensity * renderColor.b, 255.0);
+
+				//Hacky fix for edge fighting
+				if (xi == 0 || xi == rightSegment->at(yi).x - leftSegment->at(yi).x)
+				{
+					zPositions[xi] += 0.0001;
+				}
 
 				//Attempt to draw the pixel
-				window->PutPixel(startX + xi, startY + yi, renderColor, zPositions[xi]);
+				window->PutPixel(startX + xi, startY + yi, renderColor, 1 / zPositions[xi]);
 			}
 		}
 	}
