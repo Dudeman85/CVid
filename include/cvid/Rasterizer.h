@@ -31,4 +31,10 @@ namespace cvid
 	void RasterizeTriangle(Window* window, Tri verts, Color color);
 	//Draw a triangle onto a window's framebuffer
 	void RasterizeTriangleWireframe(Window* window, Tri verts, Color color);
+		
+	//The global directional light (only one supported for now)
+	inline Vector3 directionalLight;
+	inline double directionalLightIntensity = 0;
+	//The ambient light in the scene from 0-1
+	inline double ambientLightIntensity = 1;
 }

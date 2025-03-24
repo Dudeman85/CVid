@@ -184,7 +184,7 @@ namespace cvid
 		if (enableDepthTest)
 		{
 			//Basically smaller z means further away
-			if (z < depthBuffer[y * width + x])
+			if (z - depthBuffer[y * width + x] > 0.001)
 				return false;
 			depthBuffer[y * width + x] = z;
 		}
@@ -263,7 +263,7 @@ namespace cvid
 		{
 			for (size_t x = 0; x < width; x++)
 			{
-				depthBuffer[y * width + x] = -1;
+				depthBuffer[y * width + x] = INFINITY;
 			}
 		}
 		return true;

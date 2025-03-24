@@ -76,12 +76,16 @@ namespace cvid
 
 		//Recalculate normals, and cull backwards faces
 		std::vector<bool> culled;
+		culled.reserve(model->GetBaseModel()->faces.size());
+		std::vector<Vector3> normals;
+		normals.reserve(model->GetBaseModel()->faces.size());
 		for (const IndexedFace& face : model->GetBaseModel()->faces)
 		{
 			//Calculate the surface normal
 			Vector3 v1 = vertices[face.verticeIndices[1]].position - vertices[face.verticeIndices[0]].position;
 			Vector3 v2 = vertices[face.verticeIndices[2]].position - vertices[face.verticeIndices[0]].position;
 			Vector3 normal = v1.Cross(v2);
+			normals.push_back(normal);
 
 			//Cull backwards facing faces
 			Vector3 vc = vertices[face.verticeIndices[0]].position - cam->GetPosition();
@@ -133,6 +137,7 @@ namespace cvid
 				v3.y /= v3.w;
 
 				face.vertices = { v1, v2, v3 };
+				face.normal = normals[i];
 
 				//Convert from clip space to screen space
 				Vector3 windowHalfSize(window->GetSize() / 2, 1);
