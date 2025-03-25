@@ -142,7 +142,7 @@ namespace cvid
 		Attributes rAttrib = a;
 		Attributes lAttrib = a;
 
-		//Slope is < 1
+		//Slope is < 1, horizontal
 		if (abs(dx) > abs(dy))
 		{
 			//If going right to left swap priority
@@ -190,7 +190,7 @@ namespace cvid
 				rAttrib.x += xi;
 			}
 		}
-		//Slope is > 1
+		//Slope is > 1, vertical
 		else
 		{
 			//If slope is positive increment x, else decrement
@@ -317,12 +317,6 @@ namespace cvid
 				renderColor.r = std::min(intensity * renderColor.r, 255.0);
 				renderColor.g = std::min(intensity * renderColor.g, 255.0);
 				renderColor.b = std::min(intensity * renderColor.b, 255.0);
-
-				//Hacky fix for edge fighting
-				if (xi == 0 || xi == rightSegment->at(yi).x - leftSegment->at(yi).x)
-				{
-					zPositions[xi] += 0.0001;
-				}
 
 				//Attempt to draw the pixel
 				window->PutPixel(startX + xi, startY + yi, renderColor, 1 / zPositions[xi]);
