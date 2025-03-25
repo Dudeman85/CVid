@@ -44,14 +44,23 @@ namespace cvid
 		//Get the console handle
 		consoleOut = GetStdHandle(STD_OUTPUT_HANDLE);
 		consoleIn = GetStdHandle(STD_INPUT_HANDLE);
+
+		//Save the original window stats
+		CONSOLE_SCREEN_BUFFER_INFO origInfo;
+		GetConsoleScreenBufferInfo(consoleOut, &origInfo);
+		originalSize = origInfo.srWindow;
+		originalSbSize = origInfo.dwSize;
+		GetConsoleTitle(originalTitle, sizeof(originalTitle));
+
 		//Enable virtual terminal processing
 		SetConsoleMode(consoleOut, ENABLE_VIRTUAL_TERMINAL_PROCESSING | ENABLE_PROCESSED_OUTPUT);
 		//Disable quick edit
-		DWORD mode = 0;
-		GetConsoleMode(consoleIn, &mode);
-		SetConsoleMode(consoleIn, (mode & ~ENABLE_QUICK_EDIT_MODE) | ENABLE_WINDOW_INPUT | ENABLE_MOUSE_INPUT);
+		originalMode = 0;
+		GetConsoleMode(consoleIn, &originalMode);
+		SetConsoleMode(consoleIn, (originalMode & ~ENABLE_QUICK_EDIT_MODE) | ENABLE_WINDOW_INPUT | ENABLE_MOUSE_INPUT);
 		//Rename window
 		SetConsoleTitle(name.c_str());
+		
 		//Hide the cursor
 		std::cout << "\x1b[?25l";
 	}
@@ -169,11 +178,37 @@ namespace cvid
 	}
 
 	//Set a pixel on the framebuffer to some color, returns true on success
+	bool Window::PutPixel(Vector2Int pos, Color color)
+	{
+		return PutPixel(pos.x, pos.y, color);
+	}
+	//Set a pixel on the framebuffer to some color, returns true on success
+	bool Window::PutPixel(uint16_t x, uint16_t y, Color color)
+	{
+		//Make sure the pixel is in bounds
+		if (x >= width || y >= height)
+			return false;
+
+		//Pixels are formatted two above each other in one character
+		//We will always print 223 where foreground is the top and background is the bottom.
+		CharPixel& thisPixel = frameBuffer[((height - 1 - y) / 2) * width + x];
+
+		//Set the pixel character
+		thisPixel.character = (char)223;
+		//Top or bottom pixel
+		if (y % 2 == 0)
+			thisPixel.bg = color;
+		else
+			thisPixel.fg = color;
+
+		return true;
+	}
+	//Set a pixel on the framebuffer to some color, implements depth buffer, returns true on success
 	bool Window::PutPixel(Vector2Int pos, Color color, double z)
 	{
 		return PutPixel(pos.x, pos.y, color, z);
 	}
-	//Set a pixel on the framebuffer to some color, returns true on success
+	//Set a pixel on the framebuffer to some color, implements depth buffer, returns true on success
 	bool Window::PutPixel(uint16_t x, uint16_t y, Color color, double z)
 	{
 		//Make sure the pixel is in bounds
@@ -184,7 +219,7 @@ namespace cvid
 		if (enableDepthTest)
 		{
 			//Basically smaller z means further away
-			if (z - depthBuffer[y * width + x] > 0.001)
+			if (z - depthBuffer[y * width + x] > 0.5)
 				return false;
 			depthBuffer[y * width + x] = z;
 		}
@@ -397,12 +432,22 @@ namespace cvid
 	//Send data to the window process
 	bool Window::SendData(const void* data, size_t amount, DataType type, bool block)
 	{
-		//Doesnt work with main window yet
-		if (!seperateProcess)
-			return false;
-
 		if (!alive)
 			return false;
+
+		//Only string works with main window
+		if (!seperateProcess)
+		{
+			if (type == DataType::String)
+			{
+				std::cout << (char*)data;
+				return true;
+			}
+			else
+			{
+				return false;
+			}
+		}
 
 		//Make sure the window is still active
 		DWORD code;
@@ -455,7 +500,9 @@ namespace cvid
 	//Closes the window process
 	void Window::CloseWindow()
 	{
-		if (alive && seperateProcess)
+		if (!alive)
+			return;
+		if(seperateProcess)
 		{
 			//Close all handles.
 			CloseHandle(processInfo.hProcess);
@@ -470,6 +517,19 @@ namespace cvid
 
 			delete[] frameBuffer;
 			delete[] depthBuffer;
+		}
+		else
+		{
+			system("cls");
+			//Reset Color and show cursor
+			std::cout << "\x1b[38;2;204;204;204m\x1b[48;2;12;12;12m\x1b[?25h";
+			//Restore original properties
+			SMALL_RECT minSize{ 0, 0, 1, 1 };
+			SetConsoleWindowInfo(consoleOut, true, &minSize);
+			SetConsoleScreenBufferSize(consoleOut, originalSbSize);
+			SetConsoleWindowInfo(consoleOut, true, &originalSize);
+			SetConsoleMode(consoleIn, originalMode);
+			SetConsoleTitle(originalTitle);
 		}
 	}
 

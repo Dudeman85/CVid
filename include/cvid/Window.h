@@ -44,10 +44,14 @@ namespace cvid
 		Window(uint16_t width, uint16_t height, std::string name, bool newProcess = false);
 		~Window();
 
-		//Set a pixel on the framebuffer to the closest rgb color
-		bool PutPixel(Vector2Int pos, Color color, double z = 0);
-		//Set a pixel on the framebuffer to the closest rgb color
-		bool PutPixel(uint16_t x, uint16_t y, Color color, double z = 0);
+		//Set a pixel on the framebuffer to some color, returns true on success
+		bool PutPixel(Vector2Int pos, Color color);
+		//Set a pixel on the framebuffer to some color, returns true on success
+		bool PutPixel(uint16_t x, uint16_t y, Color color);
+		//Set a pixel on the framebuffer to some color, implements depth buffer, returns true on success
+		bool PutPixel(Vector2Int pos, Color color, double z);
+		//Set a pixel on the framebuffer to some color, implements depth buffer, returns true on success
+		bool PutPixel(uint16_t x, uint16_t y, Color color, double z);
 		//Put a character on the framebuffer, in this case y is half
 		bool PutChar(Vector2Int pos, CharPixel charPixel);
 		//Put a character on the framebuffer, in this case y is half
@@ -121,5 +125,12 @@ namespace cvid
 		HANDLE outPipe;
 		HANDLE inPipe;
 		PROCESS_INFORMATION processInfo;
+
+		//MAIN SPECIFIC
+		//Original window info
+		DWORD originalMode = 0;
+		SMALL_RECT originalSize;
+		COORD originalSbSize;
+		char originalTitle[128];
 	};
 }

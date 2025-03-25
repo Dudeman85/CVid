@@ -1,13 +1,7 @@
-REQUIRED:
-Demo:
-- Implement object rotation with click and drag mouse
-- Implement a object slideshow
-
 WOULD BE NICE:
 Rasterizer:
-- shading
-- dithering for blending
 - Fix edge fighting
+- dithering for blending
 Renderer:
 - allow for drawing wireframe indexed polygons
 - multithreading optimization
@@ -18,4 +12,3 @@ Window:
 - buffer issue causes pipe disconnect when sending too much data
 - handle window events
 - weird bug with sending data to window at low speeds
-- window size change doesnt always work

@@ -56,7 +56,7 @@ vector<cvid::byte> LoadData(const string& path, VideoProperties* properties)
 int main(int argc, char* argv[])
 {
 	//Get the video name
-	string videoName = "vids/badapple";
+	string videoName = "badapple";
 
 	//ASCII characters to draw pixels with, each character has an upper and lower pixel
 	char* characters = new char[4];
@@ -71,8 +71,7 @@ int main(int argc, char* argv[])
 	vector<cvid::byte> videoData = LoadData(videoName + ".cvid", &properties);
 
 	//Make the window
-	cvid::Window window(properties.width, properties.height, "Bad Apple");
-	cvid::Window window2(60, 60, "Color Test");
+	cvid::Window window(properties.width, properties.height, "Bad Apple but it's in CMD");
 
 	//Calculate the time to wait between frames
 	auto waitTime = chrono::microseconds((int)((1.f / properties.fps) * 1000000));
@@ -127,12 +126,6 @@ int main(int argc, char* argv[])
 		window.SendData(frameString.c_str(), frameString.size(), cvid::DataType::String);
 		//Move the cursor to 0, 0
 		window.SendData("\x1b[0;0H", 7, cvid::DataType::String);
-
-		//Put a random pixel on window2
-		int x = rand() % 60;
-		int y = rand() % 60;
-		window2.PutPixel(x, y, cvid::RandomColor());
-		window2.DrawFrame();
 
 		//Keep a steady FPS regardless of processing time
 		while (true)

@@ -53,7 +53,8 @@ int main()
 
 
 	//Make window
-	cvid::Vector2Int windowSize = { 160, 90 };
+	cvid::Vector2Int maxWindowSize = cvid::MaxWindowSize();
+	cvid::Vector2Int windowSize = { std::min((int64_t)170, maxWindowSize.x), std::min((int64_t)100, maxWindowSize.y) };
 	cvid::Window window(windowSize.x, windowSize.y, "CVid Demo", false);
 	window.enableDepthTest = true;
 
@@ -63,7 +64,7 @@ int main()
 	cam.MakePerspective(fov, 1, 5000);
 	cam.Rotate(cvid::Vector3(0, cvid::Radians(0), 0));
 	cvid::ambientLightIntensity = 0.5;
-	cvid::directionalLight = {0, 0.5, 0.5};
+	cvid::directionalLight = { 0, 0.5, 0.5 };
 	cvid::directionalLightIntensity = 1;
 
 	//Load all models in resources folder
@@ -116,7 +117,7 @@ int main()
 	swapModel.SetPosition({ 0, 0, 0 });
 
 	//Reset the properties of the Window
-	cvid::WindowProperties properties{ windowSize.x, windowSize.y};
+	cvid::WindowProperties properties{ windowSize.x, windowSize.y };
 	window.SetProperties(properties);
 	//Hide the cursor
 	std::cout << "\x1b[?25l";
@@ -126,7 +127,7 @@ int main()
 		cvid::StartTimePoint();
 
 		//Start rendering
-		window.Fill({ 0, 0, 0 });
+		window.Fill({ 12, 12, 12 });
 		window.ClearDepthBuffer();
 
 		if (GetKeyState(VK_ESCAPE) & 0x8000)
@@ -191,7 +192,7 @@ int main()
 			hue += deltaTime * 40;
 			if (hue > 255)
 				hue = 0;
-			logoMat.diffuseColor = cvid::HsvToRgb({(uint8_t)hue, 200, 200});
+			logoMat.diffuseColor = cvid::HsvToRgb({ (uint8_t)hue, 200, 200 });
 			logoInstance->SetMaterial(&logoMat);
 
 			cvid::DrawModel(logoInstance, &cam, &window);
@@ -363,13 +364,15 @@ int main()
 				timeSinceLastAvg = 0;
 			}
 			timeSinceLastAvg += deltaTime;
-			std::string fps = std::format("{} fps", std::floor(1 / diagDt));
+			std::string tris = std::format("Triangles: {} ", displayModel.GetBaseModel()->faces.size());
 			std::string render = std::format("Render: {} ms", std::floor(renderTime * 1000));
 			std::string latency = std::format("Window: {} ms", std::floor(windowLatency * 1000));
+			std::string fps = std::format("{} fps", std::floor(1 / diagDt));
 			cvid::Vector2Int infoPos = { windowSize.x - (int)fps.size() - 2, 1 };
-			window.PutString(infoPos + cvid::Vector2Int(-8, 0), render);
-			window.PutString(infoPos + cvid::Vector2Int(-8, 1), latency);
-			window.PutString(infoPos + cvid::Vector2Int(0, 2), fps);
+			window.PutString(infoPos + cvid::Vector2Int(-11, 0), tris);
+			window.PutString(infoPos + cvid::Vector2Int(-8, 1), render);
+			window.PutString(infoPos + cvid::Vector2Int(-8, 2), latency);
+			window.PutString(infoPos + cvid::Vector2Int(0, 3), fps);
 		}
 
 		double renderDone = cvid::EndTimePoint();
@@ -388,8 +391,6 @@ int main()
 		avgDt += deltaTime;
 		framesSinceLastAvg++;
 	}
-	//Reset Color and show cursor
-	std::cout << "\x1b[38;2;204;204;204m\x1b[48;2;12;12;12m\x1b[?25h";
 
 	return 0;
 }
