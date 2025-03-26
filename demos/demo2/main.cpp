@@ -71,7 +71,7 @@ int main()
 	std::vector<cvid::Model> models;
 	int currentModel = 0;
 	cvid::Model* logo;
-	for (auto& p : std::filesystem::recursive_directory_iterator("../../../resources/"))
+	for (auto& p : std::filesystem::recursive_directory_iterator("resources/"))
 	{
 		if (p.path().extension().string() == ".obj")
 		{

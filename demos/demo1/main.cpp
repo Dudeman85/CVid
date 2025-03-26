@@ -3,6 +3,7 @@
 #include <chrono>
 #include <cvid/Window.h>
 #include <cvid/Helpers.h>
+#include <thread>
 
 using namespace std;
 
@@ -79,6 +80,11 @@ int main(int argc, char* argv[])
 	unsigned int currentBit = 0;
 	//Should a pixel be drawn
 	bool drawState = false;
+
+	//Sometimes cmd doesn't resize right away
+	std::this_thread::sleep_for(100ms);
+	window.SetProperties({ properties.width, properties.height });
+
 	//For each frame, currently max of 65535
 	for (unsigned short frame = 0; frame < properties.frames; frame++)
 	{
