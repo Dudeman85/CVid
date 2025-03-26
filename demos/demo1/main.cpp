@@ -56,7 +56,7 @@ vector<cvid::byte> LoadData(const string& path, VideoProperties* properties)
 int main(int argc, char* argv[])
 {
 	//Get the video name
-	string videoName = "badapple";
+	string videoName = "../../../resources/BadApple.cvid";
 
 	//ASCII characters to draw pixels with, each character has an upper and lower pixel
 	char* characters = new char[4];
@@ -68,7 +68,7 @@ int main(int argc, char* argv[])
 
 	//Load the video data from file
 	VideoProperties properties;
-	vector<cvid::byte> videoData = LoadData(videoName + ".cvid", &properties);
+	vector<cvid::byte> videoData = LoadData(videoName, &properties);
 
 	//Make the window
 	cvid::Window window(properties.width, properties.height, "Bad Apple but it's in CMD");
