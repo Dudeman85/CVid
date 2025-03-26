@@ -1,7 +1,5 @@
-WOULD BE NICE:
 Rasterizer:
 - Fix edge fighting
-- dithering for blending
 Renderer:
 - allow for drawing wireframe indexed polygons
 - multithreading optimization
