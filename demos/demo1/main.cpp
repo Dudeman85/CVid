@@ -126,7 +126,9 @@ int main(int argc, char* argv[])
 				//Add the right pixel to the frame string
 				frameString += characters[toDraw];
 			}
+			frameString += "\n";
 		}
+		frameString.erase(frameString.size() - 2);
 
 		//Draw the frame
 		window.SendData(frameString.c_str(), frameString.size(), cvid::DataType::String);
