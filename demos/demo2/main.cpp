@@ -51,6 +51,7 @@ int main()
 	double renderTime = 0;
 	double avgRender = 0;
 
+	cvid::Color bgColor = { 12, 12, 12 };
 
 	//Make window
 	cvid::Vector2Int maxWindowSize = cvid::MaxWindowSize();
@@ -68,18 +69,33 @@ int main()
 	cvid::directionalLightIntensity = 1;
 
 	//Load all models in resources folder
+	std::string resources = "../../../resources/";
 	std::vector<cvid::Model> models;
 	int currentModel = 0;
 	cvid::Model* logo;
-	for (auto& p : std::filesystem::recursive_directory_iterator("../../../resources/"))
+	//Make sure resources exists
+	if (std::filesystem::exists(resources))
 	{
-		if (p.path().extension().string() == ".obj")
+		for (auto& p : std::filesystem::recursive_directory_iterator(resources))
 		{
-			if (p.path().filename().string() == "CVid.obj")
-				logo = new cvid::Model(p.path().string());
-			else
-				models.push_back(cvid::Model(p.path().string()));
+			cvid::LogWarning("e");
+			if (p.path().extension().string() == ".obj")
+			{
+				if (p.path().filename().string() == "CVid.obj")
+					logo = new cvid::Model(p.path().string());
+				else
+					models.push_back(cvid::Model(p.path().string()));
+			}
 		}
+	}
+
+	//Make sure resources were loaded
+	if (models.empty())
+	{
+		window.Resize(windowSize.x, windowSize.y);
+		cvid::LogError("Error: No models found in " + resources);
+		system("pause");
+		return -1;
 	}
 
 	//Set up the logo screen
@@ -126,11 +142,15 @@ int main()
 		cvid::StartTimePoint();
 
 		//Start rendering
-		window.Fill({ 12, 12, 12 });
+		window.Fill(bgColor);
 		window.ClearDepthBuffer();
 
 		if (GetKeyState(VK_ESCAPE) & 0x8000)
 			break;
+
+		//Get the console input record for scroll wheel
+		//Does not work in seperate window
+		std::vector<INPUT_RECORD> ir = window.GetInputRecord();
 
 		if (inTitleScreen)
 		{
@@ -159,7 +179,7 @@ int main()
 				else
 				{
 					//Degrade the spin velocity significantly when not moving mouse
-					spinVelocity /= 4;
+					spinVelocity /= 300 * deltaTime;
 				}
 				//Degrade and clamp the spin velocity
 				spinVelocity -= deltaTime * spinVelocity;
@@ -250,9 +270,6 @@ int main()
 			//When the model transition animation is going dont respond to zoom or arrows
 			if (transitionTimer <= 0)
 			{
-				//Get the console input record for scroll wheel
-				//Does not work in seperate window
-				std::vector<INPUT_RECORD> ir = window.GetInputRecord();
 				for (INPUT_RECORD& input : ir)
 				{
 					if (input.EventType == MOUSE_EVENT)
@@ -348,7 +365,7 @@ int main()
 			//Display the model name text
 			std::string name = std::format("<- {} ->", displayModel.GetBaseModel()->name);
 			cvid::Vector2Int namePos = { windowSize.x / 2 - (int)name.size() / 2, windowSize.y / 2 - 2 };
-			window.PutString(namePos, name);
+			window.PutString(namePos, name, bgColor);
 
 			//Update the info texts 5 times a second
 			if (timeSinceLastAvg > 0.2)
@@ -368,10 +385,10 @@ int main()
 			std::string latency = std::format("Window: {} ms", std::floor(windowLatency * 1000));
 			std::string fps = std::format("{} fps", std::floor(1 / diagDt));
 			cvid::Vector2Int infoPos = { windowSize.x - (int)fps.size() - 2, 1 };
-			window.PutString(infoPos + cvid::Vector2Int(-11, 0), tris);
-			window.PutString(infoPos + cvid::Vector2Int(-8, 1), render);
-			window.PutString(infoPos + cvid::Vector2Int(-8, 2), latency);
-			window.PutString(infoPos + cvid::Vector2Int(0, 3), fps);
+			window.PutString(infoPos + cvid::Vector2Int(-11, 0), tris, bgColor);
+			window.PutString(infoPos + cvid::Vector2Int(-8, 1), render, bgColor);
+			window.PutString(infoPos + cvid::Vector2Int(-8, 2), latency, bgColor);
+			window.PutString(infoPos + cvid::Vector2Int(0, 3), fps, bgColor);
 		}
 
 		double renderDone = cvid::EndTimePoint();
