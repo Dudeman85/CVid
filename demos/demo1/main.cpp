@@ -83,7 +83,7 @@ int main(int argc, char* argv[])
 
 	//Sometimes cmd doesn't resize right away
 	std::this_thread::sleep_for(100ms);
-	window.SetProperties({ properties.width, properties.height });
+	window.Resize(properties.width, properties.height);
 
 	//For each frame, currently max of 65535
 	for (unsigned short frame = 0; frame < properties.frames; frame++)

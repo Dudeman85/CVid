@@ -117,8 +117,7 @@ int main()
 	swapModel.SetPosition({ 0, 0, 0 });
 
 	//Reset the properties of the Window
-	cvid::WindowProperties properties{ windowSize.x, windowSize.y };
-	window.SetProperties(properties);
+	window.Resize(windowSize.x, windowSize.y);
 	//Hide the cursor
 	std::cout << "\x1b[?25l";
 
