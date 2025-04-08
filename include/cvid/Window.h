@@ -71,7 +71,7 @@ namespace cvid
 		//Send some arbitrary data to the window
 		bool SendData(const void* data, size_t amount, DataType type, bool block = true);
 		//Set the properties of this window, clears the framebuffer
-		bool SetProperties(WindowProperties properties);
+		bool Resize(int16_t w, int16_t h);
 		//Closes the window process
 		void CloseWindow();
 		//Return true if the window process is still active, optionally gives back exit code
@@ -94,9 +94,9 @@ namespace cvid
 		void CreateAsNewProcess(std::string name);
 		//Create this window using the main application's console
 		void CreateAsMain(std::string name);
-		
-		//Apply the properties to main console
-		void ApplyPropertiesToMain(WindowProperties properties);
+
+		//Resize the console to fit the frame
+		void ResizeMain(int16_t w, int16_t h);
 
 		//Bitmap of each character pixel for the window
 		//Half the screen height and upside down, accessed [(height - 1 - y) / 2 * width + x] 

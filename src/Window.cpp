@@ -34,8 +34,7 @@ namespace cvid
 			CreateAsMain(name);
 
 		//Set the properties of the Window
-		WindowProperties properties{ width, height };
-		SetProperties(properties);
+		Resize(width, height);
 	}
 
 	//Create this window using the main application's console
@@ -60,7 +59,7 @@ namespace cvid
 		SetConsoleMode(consoleIn, (originalMode & ~ENABLE_QUICK_EDIT_MODE) | ENABLE_WINDOW_INPUT | ENABLE_MOUSE_INPUT);
 		//Rename window
 		SetConsoleTitle(name.c_str());
-		
+
 		//Hide the cursor
 		std::cout << "\x1b[?25l";
 	}
@@ -315,33 +314,33 @@ namespace cvid
 	}
 
 	//Set the properties of this window, clears the framebuffer
-	bool Window::SetProperties(WindowProperties properties)
+	bool Window::Resize(int16_t w, int16_t h)
 	{
 		//Make sure the window is not sized too big
 		Vector2Int maxSize = MaxWindowSize();
-		if (properties.width > maxSize.x || properties.height > maxSize.y)
+		if (w > maxSize.x || h > maxSize.y)
 		{
 			LogWarning("CVid warning in Window: Window dimensions too large, maximum is " + std::to_string(maxWidth) + ", " + std::to_string(maxHeight));
 			return false;
 		}
 
+		//Round height to upper multiple of 2
+		h += h % 2;
+		width = w;
+		height = h;
+
 		//Send it to the console app
 		if (seperateProcess)
 		{
+			WindowProperties properties{ width, height };
 			if (!SendData(&properties, sizeof(properties), DataType::Properties))
 				return false;
 		}
 		else
 		{
 			//Apply them straight to the main process console
-			ApplyPropertiesToMain(properties);
+			ResizeMain(width, height);
 		}
-
-		//Round height to upper multiple of 2
-		properties.height += properties.height % 2;
-
-		width = properties.width;
-		height = properties.height;
 
 		//Resize the framebuffer and depth buffer
 		delete[] frameBuffer;
@@ -352,19 +351,20 @@ namespace cvid
 		return true;
 	}
 
-	//Apply the properties to main console
-	void Window::ApplyPropertiesToMain(WindowProperties properties)
+	//Resize the console to fit the frame
+	void Window::ResizeMain(int16_t w, int16_t h)
 	{
-		//Resize the console to fit the frame
-		SMALL_RECT consoleSize{ 0, 0, properties.width - 1 , (short)ceil((float)properties.height / 2) - 1 };
 		SMALL_RECT minSize{ 0, 0, 1, 1 };
+		SMALL_RECT consoleSize{ 0, 0, w - 1, (short)ceil((float)h / 2) - 1 };
+		COORD sbSize{ w, (short)ceil((float)h / 2) };
+
+		//SetConsoleWindowInfo has to be called before and after SetConsoleScreenBufferSize othewise Windows has a fit
 		SetConsoleWindowInfo(consoleOut, true, &minSize);
-		if (!SetConsoleScreenBufferSize(consoleOut, { (short)properties.width, (short)ceil((float)properties.height / 2) }))
+		if (!SetConsoleScreenBufferSize(consoleOut, sbSize))
 		{
 			cvid::LogError("CVid error in Window: Failed to set console screen buffer size. Code " + std::to_string(GetLastError()));
 			throw "Failed to set console screen buffer size";
 		}
-		//SetConsoleWindowInfo has to be called before and after SetConsoleScreenBufferSize othewise Windows has a fit
 		if (!SetConsoleWindowInfo(consoleOut, true, &consoleSize))
 		{
 			cvid::LogError("CVid error in Window: Failed to set console size. Code " + std::to_string(GetLastError()));
@@ -396,9 +396,9 @@ namespace cvid
 			//For every pixel in the framebuffer
 			for (size_t y = 0; y < height / 2; y++)
 			{
-				//Windows 11 broke scrolling, so do we it here. Also for some reason it starts from 1
-				frameString.append(std::format("\x1b[{};0f", y+1));
-				
+				//Windows 11 broke text wrapping, so do we it here. Also for some reason it starts from 1
+				frameString.append(std::format("\x1b[{};0f", y + 1));
+
 				for (size_t x = 0; x < width; x++)
 				{
 					cvid::CharPixel& thisPixel = frameBuffer[y * width + x];
@@ -424,8 +424,9 @@ namespace cvid
 				}
 			}
 
-			//Move cursor to 0, 0 and print frame
+			//Print the frame
 			std::cout << frameString;
+			return true;
 		}
 	}
 
@@ -502,7 +503,7 @@ namespace cvid
 	{
 		if (!alive)
 			return;
-		if(seperateProcess)
+		if (seperateProcess)
 		{
 			//Close all handles.
 			CloseHandle(processInfo.hProcess);
