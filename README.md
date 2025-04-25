@@ -1,6 +1,6 @@
 # CVid
 
-This is the implementation of the paper *Rasterization and Rendering in a Console*.
+This is the implementation of the paper *3D Graphics in CMD*.
 
 It features a custom 3D render pipeline and rasterizer, as well as a unique output window in the form of the Windows console.
 Basic model and texture loading are also implemented.

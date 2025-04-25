@@ -60,7 +60,7 @@ int main()
 	window.enableDepthTest = true;
 
 	//Make camera
-	cvid::Camera cam(cvid::Vector3(0, -25, 150), windowSize.x, windowSize.y);
+	cvid::Camera cam(cvid::Vector3(0, -15, 150), windowSize.x, windowSize.y);
 	float fov = 90;
 	cam.MakePerspective(fov, 1, 5000);
 	cam.Rotate(cvid::Vector3(0, cvid::Radians(0), 0));
