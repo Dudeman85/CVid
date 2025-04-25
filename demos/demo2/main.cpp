@@ -60,7 +60,7 @@ int main()
 	window.enableDepthTest = true;
 
 	//Make camera
-	cvid::Camera cam(cvid::Vector3(0, -5, 150), windowSize.x, windowSize.y);
+	cvid::Camera cam(cvid::Vector3(0, -25, 150), windowSize.x, windowSize.y);
 	float fov = 90;
 	cam.MakePerspective(fov, 1, 5000);
 	cam.Rotate(cvid::Vector3(0, cvid::Radians(0), 0));
@@ -205,7 +205,7 @@ int main()
 			}
 
 			//Floating animation
-			logoInstance->SetPosition({ -40, sin(programTime * 3) * 4, 0 });
+			logoInstance->SetPosition({ -40, sin(programTime * 3) * 4 - 10, 0 });
 
 			//Rainbow effect
 			hue += deltaTime * 40;
